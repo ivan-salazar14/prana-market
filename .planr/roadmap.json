@@ -1,0 +1,130 @@
+{
+  "stories": [
+    {
+      "id": "US-027",
+      "title": "Configuración del Entorno de Desarrollo",
+      "file": "docs/stories/US-027.md",
+      "status": "done",
+      "created": "2025-07-09",
+      "updated": "2025-07-15",
+      "notes": "Configuración inicial del proyecto con Python y dependencias necesarias"
+    },
+    {
+      "id": "US-028",
+      "title": "Obtención de Datos del Mercado en Tiempo Real",
+      "file": "docs/stories/US-028.md",
+      "status": "done",
+      "created": "2025-07-09",
+      "updated": "2025-07-15",
+      "notes": "Implementación de la obtención de datos OHLCV de Binance y cronjob con APScheduler para actualización automática cada minuto."
+    },
+    {
+      "id": "US-029",
+      "title": "Cálculo de Indicadores Técnicos",
+      "file": "docs/stories/US-029.md",
+      "status": "done",
+      "created": "2025-07-09",
+      "updated": "2024-07-09",
+      "notes": "Cálculo y guardado automático de EMA55, RSI, DMI/ADX y SQZMOMENT con TA-Lib/numpy. Integrado en el flujo de datos de mercado. Tests unitarios y validación de entrada implementados. Preparado para caché y optimización futura."
+    },
+    {
+      "id": "US-030",
+      "title": "Generación y Ejecución de Señales de Trading",
+      "file": "docs/stories/US-030.md",
+      "status": "done",
+      "created": "2025-07-09",
+      "updated": "2025-07-22",
+      "notes": "[2025-07-22] /signals/generate ahora retorna los campos: Activo, Entrada, Objetivo, Stop-Loss, Riesgo y Estado, cumpliendo con la historia US-030 y el formato de tabla solicitado por el usuario."
+    },
+    {
+      "id": "US-031",
+      "title": "Backtesting de Estrategias de Trading",
+      "file": "docs/stories/US-031.md",
+      "status": "done",
+      "created": "2025-07-11",
+      "updated": "2025-07-15",
+      "notes": "Servicio para backtesting: carga de datos históricos, ejecución de estrategia, guardado y consulta de señales generadas. API para visualización de resultados. Endpoints implementados: POST /backtest/run, GET /backtest/signals. Pendiente: métricas avanzadas."
+    },
+    {
+      "id": "US-032",
+      "title": "Poblar Base de Datos con Datos Históricos de Mercado",
+      "file": "docs/stories/US-032.md",
+      "status": "done",
+      "created": "2025-07-11",
+      "updated": "2025-07-15",
+      "notes": "Endpoint para poblar la base de datos con datos OHLCV históricos de Binance. Integración con backtesting y validación de duplicados."
+    },
+    {
+      "id": "US-035",
+      "title": "Protección de Endpoints con Autenticación JWT",
+      "file": "docs/stories/US-035.md",
+      "status": "done",
+      "created": "2025-07-15",
+      "updated": "2025-07-15",
+      "notes": "[2025-07-25] Implementada lógica avanzada de generación de señales: cálculo de Entrada, Objetivo (TP1, TP2) y Stop-Loss según escenarios técnicos. El endpoint /signals/generate explica el motivo si no hay señal. Documentación en docs/escenarios_senales.md."
+    },
+    {
+      "id": "US-037",
+      "title": "Estrategias de Trading Configurables por Usuario",
+      "file": "docs/stories/US-037.md",
+      "status": "done",
+      "created": "2025-07-29",
+      "updated": "2025-07-29",
+      "notes": "Implementación completa del patrón Strategy, endpoints protegidos, selección y consulta de estrategias por usuario. Documentación y tests en docs/PATRON_STRATEGY.md."
+    },
+    {
+      "id": "US-038",
+      "title": "Relación explícita entre señales y estrategias en la base de datos",
+      "file": "docs/stories/US-038.md",
+      "status": "done",
+      "created": "2024-07-30",
+      "updated": "2024-07-30",
+      "notes": "[2024-07-30] Implementación completada: campo strategy_id obligatorio en entidad Signal, modelo SignalModel, repositorio con validación, servicio de estrategias actualizado, endpoints de generación y consulta de señales con filtros por estrategia. Trazabilidad completa entre señales y estrategias garantizada."
+    },
+    {
+      "id": "US-039",
+      "title": "Relación segura y única entre usuario y estrategia en la base de datos",
+      "file": "docs/stories/US-039.md",
+      "status": "todo",
+      "created": "2024-07-30",
+      "updated": "2024-07-30",
+      "notes": "La relación usuario-estrategia debe ser única y segura. Solo se generan señales para la estrategia activa del usuario."
+    },
+    {
+      "id": "US-040",
+      "title": "Estrategias activas en token JWT de autenticación",
+      "file": "docs/stories/US-040.md",
+      "status": "done",
+      "created": "2024-07-30",
+      "updated": "2024-07-30",
+      "notes": "[2024-07-30] Implementación completada: AuthService con métodos para estrategias activas, middleware mejorado con validación, endpoint de login actualizado para generar token con estrategias, endpoint de señales filtrado por estrategias activas, documentación completa. Token JWT incluye active_strategies y subscription_plan."
+    },
+    {
+      "id": "US-041",
+      "title": "Guardar/actualizar usuario del token JWT en base de datos",
+      "file": "docs/stories/US-041.md",
+      "status": "todo",
+      "created": "2024-07-30",
+      "updated": "2024-07-30",
+      "notes": "Usuarios del token JWT se guardan/actualizan automáticamente en BD para mantener registro actualizado."
+    },
+    {
+      "id": "US-042",
+      "title": "Actualizar servicio de generación de señales para guardar estrategia",
+      "file": "docs/stories/US-042.md",
+      "status": "done",
+      "created": "2024-07-30",
+      "updated": "2025-07-31",
+      "notes": "[2025-07-31] Implementación completada: Signal entity con strategy_id obligatorio, StrategyService asigna strategy_id automáticamente, repository valida strategy_id antes de guardar, endpoint genera señales para cada estrategia activa, tests completos para asignación y validación de estrategias. Integración completa con US-040 y US-041."
+    },
+    {
+      "id": "US-043",
+      "title": "Generación automática de señales con cronjob",
+      "file": "docs/stories/US-043.md",
+      "status": "todo",
+      "created": "2024-07-30",
+      "updated": "2024-07-30",
+      "notes": "Sistema de cronjob para generación automática de señales y endpoint modificado para retornar señales ya generadas de la BD."
+    }
+  ]
+}
