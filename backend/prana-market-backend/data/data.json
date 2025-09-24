@@ -9,6 +9,21 @@
     "siteDescription": "A Blog made with Strapi",
     "favicon": null
   },
+  "home": {
+    "Title": "Welcome to Prana Market",
+    "Description": [
+      {
+        "__component": "shared.rich-text",
+        "body": "## Discover Fresh and Organic Products\n\nAt Prana Market, we offer a wide range of fresh, organic products sourced directly from local farmers. Experience the difference in quality and taste."
+      },
+      {
+        "__component": "shared.quote",
+        "title": "Healthy Living",
+        "body": "Eat fresh, live healthy."
+      }
+    ],
+    "Cover": "coffee-beans.jpg"
+  },
   "about": {
     "title": "About the strapi blog",
     "blocks": [
@@ -59,6 +74,26 @@
       "name": "Sarah Baker",
       "email": "sarahbaker@strapi.io",
       "avatar": "sarahbaker@strapi.io.jpg"
+    }
+  ],
+  "products": [
+    {
+      "name": "Organic Apples",
+      "description": "Fresh organic apples from local farms",
+      "price": 2.99,
+      "image": "coffee-beans.jpg"
+    },
+    {
+      "name": "Free-Range Eggs",
+      "description": "Farm fresh eggs from free-range chickens",
+      "price": 4.50,
+      "image": "beautiful-picture.jpg"
+    },
+    {
+      "name": "Whole Wheat Bread",
+      "description": "Artisanal whole wheat bread baked daily",
+      "price": 3.25,
+      "image": "coffee-art.jpg"
     }
   ],
   "articles": [

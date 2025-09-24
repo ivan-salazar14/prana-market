@@ -3,7 +3,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const mime = require('mime-types');
-const { categories, authors, articles, global, about } = require('../data/data.json');
+const { categories, authors, articles, global, about, home, products } = require('../data/data.json');
 
 async function seedExampleApp() {
   const shouldImportSeedData = await isFirstRun();
@@ -31,8 +31,9 @@ async function isFirstRun() {
     name: 'setup',
   });
   const initHasRun = await pluginStore.get({ key: 'initHasRun' });
-  await pluginStore.set({ key: 'initHasRun', value: true });
-  return !initHasRun;
+  // Temporarily force to true to set permissions
+  // await pluginStore.set({ key: 'initHasRun', value: true });
+  return true; // !initHasRun;
 }
 
 async function setPublicPermissions(newPermissions) {
@@ -216,6 +217,22 @@ async function importAbout() {
   });
 }
 
+async function importHome() {
+  const cover = await checkFileExistsBeforeUpload([home.Cover]);
+  const updatedBlocks = await updateBlocks(home.Description);
+
+  await createEntry({
+    model: 'home',
+    entry: {
+      ...home,
+      Description: updatedBlocks,
+      Cover: cover,
+      // Make sure it's not a draft
+      publishedAt: Date.now(),
+    },
+  });
+}
+
 async function importCategories() {
   for (const category of categories) {
     await createEntry({ model: 'category', entry: category });
@@ -236,6 +253,22 @@ async function importAuthors() {
   }
 }
 
+async function importProducts() {
+  for (const product of products) {
+    const image = await checkFileExistsBeforeUpload([product.image]);
+
+    await createEntry({
+      model: 'product',
+      entry: {
+        ...product,
+        image,
+        // Make sure it's not a draft
+        publishedAt: Date.now(),
+      },
+    });
+  }
+}
+
 async function importSeedData() {
   // Allow read of application content types
   await setPublicPermissions({
@@ -244,14 +277,18 @@ async function importSeedData() {
     author: ['find', 'findOne'],
     global: ['find', 'findOne'],
     about: ['find', 'findOne'],
+    home: ['find', 'findOne'],
+    product: ['find', 'findOne', 'create'],
   });
 
   // Create all entries
   await importCategories();
   await importAuthors();
   await importArticles();
+  await importProducts();
   await importGlobal();
   await importAbout();
+  await importHome();
 }
 
 async function main() {

@@ -12,7 +12,7 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "PranaMarket": {
+    "Titulo": {
       "type": "string",
       "required": true
     },
