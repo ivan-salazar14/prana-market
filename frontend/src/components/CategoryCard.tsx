@@ -17,7 +17,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
       {category.Image && (
         <div className="h-48 overflow-hidden">
           <img
-            src={`${process.env.STRAPI_API_URL}${category.Image.url}`}
+            src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${category.Image.url}`}
             alt={category.Image.alternativeText || category.Name}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
