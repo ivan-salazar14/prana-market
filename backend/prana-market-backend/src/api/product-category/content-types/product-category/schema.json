@@ -1,17 +1,13 @@
 {
-  "kind": "singleType",
-  "collectionName": "homes",
+  "kind": "collectionType",
+  "collectionName": "product_categories",
   "info": {
-    "singularName": "home",
-    "pluralName": "homes",
-    "displayName": "Home"
+    "singularName": "product-category",
+    "pluralName": "product-categories",
+    "displayName": "ProductCategory"
   },
   "options": {
-    "draftAndPublish": true,
-    "preview": {
-      "enabled": true,
-      "url": "http://localhost:3000/preview"
-    }
+    "draftAndPublish": true
   },
   "pluginOptions": {
     "i18n": {
@@ -19,18 +15,17 @@
     }
   },
   "attributes": {
-    "Title": {
+    "Name": {
       "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "minLength": 4,
       "required": true
     },
-    "Description": {
-      "type": "blocks",
+    "slug": {
+      "type": "uid",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -38,18 +33,27 @@
       },
       "required": true
     },
-    "Cover": {
+    "Description": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true
+    },
+    "Image": {
       "type": "media",
       "pluginOptions": {
         "i18n": {
-          "localized": false
+          "localized": true
         }
       },
       "multiple": false,
       "required": true,
       "allowedTypes": [
-        "files",
-        "images"
+        "images",
+        "files"
       ]
     }
   }
