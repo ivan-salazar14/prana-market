@@ -1,6 +1,6 @@
 export async function GET() {
   try {
-    const response = await fetch(`${process.env.STRAPI_API_URL}/api/home?populate=Cover`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/home?populate=Cover`);
     if (!response.ok) {
       // If home content doesn't exist, return default data
       if (response.status === 404) {

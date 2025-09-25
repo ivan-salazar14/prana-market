@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Checkout from '@/components/Checkout';
 import CategoryCard from '@/components/CategoryCard';
 
-interface Category {
+interface ProductCategory {
   id: number;
   Name: string;
   slug: string;
@@ -24,24 +24,24 @@ interface Product {
     url: string;
     alternativeText?: string;
   };
-  category?: Category;
+  category?: ProductCategory;
 }
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [cart, setCart] = useState<Product[]>([]);
 
   useEffect(() => {
     // Fetch products
-    fetch('/api/products')
+    fetch('/api/products?populate[category][populate]=Image&populate=image')
       .then(res => res.json())
       .then(data => setProducts(data.data || []))
       .catch(err => console.error('Error fetching products:', err));
 
     // Fetch categories
-    fetch('/api/categories')
+    fetch('/api/product-categories?populate[Image][fields][0]=url')
       .then(res => res.json())
       .then(data => setCategories(data.data || []))
       .catch(err => console.error('Error fetching categories:', err));
