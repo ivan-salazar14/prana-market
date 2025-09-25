@@ -76,24 +76,53 @@
       "avatar": "sarahbaker@strapi.io.jpg"
     }
   ],
+  "productCategories": [
+    {
+      "Name": "Fruits & Vegetables",
+      "slug": "fruits-vegetables",
+      "Description": "Fresh organic produce from local farms",
+      "Image": "coffee-beans.jpg"
+    },
+    {
+      "Name": "Dairy & Eggs",
+      "slug": "dairy-eggs",
+      "Description": "Farm fresh dairy products and eggs",
+      "Image": "beautiful-picture.jpg"
+    },
+    {
+      "Name": "Bakery",
+      "slug": "bakery",
+      "Description": "Artisanal breads and baked goods",
+      "Image": "coffee-art.jpg"
+    }
+  ],
   "products": [
     {
       "name": "Organic Apples",
       "description": "Fresh organic apples from local farms",
       "price": 2.99,
-      "image": "coffee-beans.jpg"
+      "image": "coffee-beans.jpg",
+      "category": {
+        "id": 1
+      }
     },
     {
       "name": "Free-Range Eggs",
       "description": "Farm fresh eggs from free-range chickens",
       "price": 4.50,
-      "image": "beautiful-picture.jpg"
+      "image": "beautiful-picture.jpg",
+      "category": {
+        "id": 2
+      }
     },
     {
       "name": "Whole Wheat Bread",
       "description": "Artisanal whole wheat bread baked daily",
       "price": 3.25,
-      "image": "coffee-art.jpg"
+      "image": "coffee-art.jpg",
+      "category": {
+        "id": 3
+      }
     }
   ],
   "articles": [

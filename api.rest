@@ -1,6 +1,70 @@
-# GET localhost:1337/api/home
-GET http://localhost:1337/api/home
+# Strapi Backend API Endpoints
+
+# Home Content (Single Type)
+GET http://localhost:1337/api/home?populate=Cover
 Authorization: Bearer 432e72d2757feccef4affa278e2abc3f6e9067413f9ce8499eaad4a9553d061395a58e40f0cdc840e2378cf1c535176520dde6d79d28164e28896439fdcff2fb5be155c19de85f9b37f7550430a479ebc81ec22af6acb7bf716d8088b20b952a0cd6c1fe24891cb9c7bec702b6aba8978fec65f1152c069dc6283d66382115fb
 
-GET http://localhost:1337/api/products?populate=*
+### Products (Collection Type)
+GET http://localhost:1337/api/products?populate[category][populate]=Image&populate=image
 Authorization: Bearer 432e72d2757feccef4affa278e2abc3f6e9067413f9ce8499eaad4a9553d061395a58e40f0cdc840e2378cf1c535176520dde6d79d28164e28896439fdcff2fb5be155c19de85f9b37f7550430a479ebc81ec22af6acb7bf716d8088b20b952a0cd6c1fe24891cb9c7bec702b6aba8978fec65f1152c069dc6283d66382115fb
+
+### Product Categories (Collection Type)
+GET http://localhost:1337/api/product-categories?populate=Image
+Authorization: Bearer 432e72d2757feccef4affa278e2abc3f6e9067413f9ce8499eaad4a9553d061395a58e40f0cdc840e2378cf1c535176520dde6d79d28164e28896439fdcff2fb5be155c19de85f9b37f7550430a479ebc81ec22af6acb7bf716d8088b20b952a0cd6c1fe24891cb9c7bec702b6aba8978fec65f1152c069dc6283d66382115fb
+
+# Articles (Collection Type)
+GET http://localhost:1337/api/articles?populate[author]=*&populate[category]=*&populate=cover&populate[blocks]=*
+Authorization: Bearer 432e72d2757feccef4affa278e2abc3f6e9067413f9ce8499eaad4a9553d061395a58e40f0cdc840e2378cf1c535176520dde6d79d28164e28896439fdcff2fb5be155c19de85f9b37f7550430a479ebc81ec22af6acb7bf716d8088b20b952a0cd6c1fe24891cb9c7bec702b6aba8978fec65f1152c069dc6283d66382115fb
+
+# Categories (Collection Type)
+GET http://localhost:1337/api/categories
+Authorization: Bearer 432e72d2757feccef4affa278e2abc3f6e9067413f9ce8499eaad4a9553d061395a58e40f0cdc840e2378cf1c535176520dde6d79d28164e28896439fdcff2fb5be155c19de85f9b37f7550430a479ebc81ec22af6acb7bf716d8088b20b952a0cd6c1fe24891cb9c7bec702b6aba8978fec65f1152c069dc6283d66382115fb
+
+# Authors (Collection Type)
+GET http://localhost:1337/api/authors?populate[avatar]=*
+Authorization: Bearer 432e72d2757feccef4affa278e2abc3f6e9067413f9ce8499eaad4a9553d061395a58e40f0cdc840e2378cf1c535176520dde6d79d28164e28896439fdcff2fb5be155c19de85f9b37f7550430a479ebc81ec22af6acb7bf716d8088b20b952a0cd6c1fe24891cb9c7bec702b6aba8978fec65f1152c069dc6283d66382115fb
+
+# Global Settings (Single Type)
+GET http://localhost:1337/api/global?populate[defaultSeo]=*&populate=favicon
+Authorization: Bearer 432e72d2757feccef4affa278e2abc3f6e9067413f9ce8499eaad4a9553d061395a58e40f0cdc840e2378cf1c535176520dde6d79d28164e28896439fdcff2fb5be155c19de85f9b37f7550430a479ebc81ec22af6acb7bf716d8088b20b952a0cd6c1fe24891cb9c7bec702b6aba8978fec65f1152c069dc6283d66382115fb
+
+### About Page (Single Type)
+GET http://localhost:1337/api/about?populate=blocks
+Authorization: Bearer 432e72d2757feccef4affa278e2abc3f6e9067413f9ce8499eaad4a9553d061395a58e40f0cdc840e2378cf1c535176520dde6d79d28164e28896439fdcff2fb5be155c19de85f9b37f7550430a479ebc81ec22af6acb7bf716d8088b20b952a0cd6c1fe24891cb9c7bec702b6aba8978fec65f1152c069dc6283d66382115fb
+
+###
+
+# Frontend API Endpoints (Next.js API Routes)
+
+# Home Content (Frontend Proxy)
+GET http://localhost:3000/api/home
+
+# Products (Frontend Proxy)
+GET http://localhost:3000/api/products
+
+# Categories (Frontend Proxy)
+GET http://localhost:3000/api/categories
+
+# Create Payment Intent (Stripe)
+POST http://localhost:3000/api/create-payment-intent
+Content-Type: application/json
+
+{
+  "amount": 1000
+}
+
+# Webhook (Stripe)
+POST http://localhost:3000/api/webhooks/stripe
+Content-Type: application/json
+
+{
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_test_123",
+      "amount": 1000,
+      "currency": "usd",
+      "status": "succeeded"
+    }
+  }
+}

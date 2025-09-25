@@ -28,22 +28,30 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
 
     // Fetch content from Strapi
     const homeResponse = await fetch(
-      `${process.env.STRAPI_API_URL}/api/home?locale=${locale}&status=${status}&populate=*`,
+      `${process.env.STRAPI_API_URL}/api/home?locale=${locale}&status=${status}&populate=Cover`,
       {
         headers,
         cache: 'no-store',
       }
     );
 
-    if (!homeResponse.ok) {
-      throw new Error('Failed to fetch home content');
+    let homeData;
+    if (homeResponse.ok) {
+      homeData = await homeResponse.json();
+    } else {
+      // Use default data if home content doesn't exist
+      homeData = {
+        data: {
+          Title: "Welcome to Prana Market",
+          Description: "Discover fresh organic products from local farmers",
+          Cover: null
+        }
+      };
     }
-
-    const homeData = await homeResponse.json();
 
     // Fetch products
     const productsResponse = await fetch(
-      `${process.env.STRAPI_API_URL}/api/products?locale=${locale}&status=${status}&populate=*`,
+      `${process.env.STRAPI_API_URL}/api/products?locale=${locale}&status=${status}&populate[category][populate]=Image&populate=image`,
       {
         headers,
         cache: 'no-store',
@@ -51,6 +59,17 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
     );
 
     const productsData = productsResponse.ok ? await productsResponse.json() : { data: [] };
+
+    // Fetch categories
+    const categoriesResponse = await fetch(
+      `${process.env.STRAPI_API_URL}/api/product-categories?locale=${locale}&status=${status}&populate=Image`,
+      {
+        headers,
+        cache: 'no-store',
+      }
+    );
+
+    const categoriesData = categoriesResponse.ok ? await categoriesResponse.json() : { data: [] };
 
     return (
       <div className="min-h-screen bg-gray-50">
@@ -101,6 +120,28 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
               </div>
             )}
           </div>
+
+          {/* Categories */}
+          {categoriesData.data?.length > 0 && (
+            <div className="bg-white shadow rounded-lg p-6 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Categories</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {categoriesData.data.map((category: any) => (
+                  <div key={category.id} className="border rounded-lg p-4">
+                    {category.Image && (
+                      <img
+                        src={`${process.env.STRAPI_API_URL}${category.Image.url}`}
+                        alt={category.Image.alternativeText || category.Name}
+                        className="w-full h-32 object-cover rounded mb-4"
+                      />
+                    )}
+                    <h3 className="text-lg font-semibold text-gray-900">{category.Name}</h3>
+                    <p className="text-gray-600 mt-2">{category.Description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Products */}
           <div className="bg-white shadow rounded-lg p-6">

@@ -7,7 +7,11 @@
     "displayName": "ProductCategory"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": true,
+    "preview": {
+      "enabled": true,
+      "url": "http://localhost:3000/preview"
+    }
   },
   "pluginOptions": {
     "i18n": {
@@ -55,6 +59,12 @@
         "images",
         "files"
       ]
+    },
+    "products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product",
+      "mappedBy": "category"
     }
   }
 }

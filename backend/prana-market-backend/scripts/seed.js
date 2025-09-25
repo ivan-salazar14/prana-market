@@ -3,7 +3,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const mime = require('mime-types');
-const { categories, authors, articles, global, about, home, products } = require('../data/data.json');
+const { categories, authors, articles, global, about, home, products, productCategories } = require('../data/data.json');
 
 async function seedExampleApp() {
   const shouldImportSeedData = await isFirstRun();
@@ -106,7 +106,12 @@ async function createEntry({ model, entry }) {
       data: entry,
     });
   } catch (error) {
-    console.error({ model, entry, error });
+    // Skip if entry already exists (unique constraint violation)
+    if (error.message?.includes('unique constraint') || error.details?.errors?.some(e => e.message?.includes('unique'))) {
+      console.log(`Skipping ${model} - already exists:`, entry.name || entry.title || entry.slug);
+    } else {
+      console.error({ model, entry, error });
+    }
   }
 }
 
@@ -253,6 +258,22 @@ async function importAuthors() {
   }
 }
 
+async function importProductCategories() {
+  for (const category of productCategories) {
+    const image = await checkFileExistsBeforeUpload([category.Image]);
+
+    await createEntry({
+      model: 'product-category',
+      entry: {
+        ...category,
+        Image: image,
+        // Make sure it's not a draft
+        publishedAt: Date.now(),
+      },
+    });
+  }
+}
+
 async function importProducts() {
   for (const product of products) {
     const image = await checkFileExistsBeforeUpload([product.image]);
@@ -279,12 +300,14 @@ async function importSeedData() {
     about: ['find', 'findOne'],
     home: ['find', 'findOne'],
     product: ['find', 'findOne', 'create'],
+    'product-category': ['find', 'findOne'],
   });
 
   // Create all entries
   await importCategories();
   await importAuthors();
   await importArticles();
+  await importProductCategories();
   await importProducts();
   await importGlobal();
   await importAbout();

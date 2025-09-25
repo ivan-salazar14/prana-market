@@ -604,6 +604,10 @@ export interface ApiProductCategoryProductCategory
   };
   options: {
     draftAndPublish: true;
+    preview: {
+      enabled: true;
+      url: 'http://localhost:3000/preview';
+    };
   };
   pluginOptions: {
     i18n: {
@@ -640,6 +644,7 @@ export interface ApiProductCategoryProductCategory
           localized: true;
         };
       }>;
+    products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID &
       Schema.Attribute.Required &
@@ -664,8 +669,16 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   };
   options: {
     draftAndPublish: true;
+    preview: {
+      enabled: true;
+      url: 'http://localhost:3000/preview';
+    };
   };
   attributes: {
+    category: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::product-category.product-category'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
