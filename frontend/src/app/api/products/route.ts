@@ -1,6 +1,6 @@
 export async function GET() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/products?populate[image][fields]=url,alternativeText`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/products?populate[images][fields]=url,alternativeText`);
     if (!response.ok) {
       throw new Error('Failed to fetch from Strapi');
     }

@@ -20,10 +20,10 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  image?: {
+  images?: Array<{
     url: string;
     alternativeText?: string;
-  };
+  }>;
   category?: ProductCategory;
 }
 
@@ -35,13 +35,13 @@ export default function Home() {
 
   useEffect(() => {
     // Fetch products
-    fetch('/api/products?populate[category][populate]=Image&populate=image')
+    fetch('/api/products')
       .then(res => res.json())
       .then(data => setProducts(data.data || []))
       .catch(err => console.error('Error fetching products:', err));
 
     // Fetch categories
-    fetch('/api/product-categories?populate[Image][fields][0]=url')
+    fetch('/api/product-categories')
       .then(res => res.json())
       .then(data => setCategories(data.data || []))
       .catch(err => console.error('Error fetching categories:', err));
@@ -60,7 +60,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-center text-gray-900 mb-8">Prana Market</h1>
 
         {/* Categories Section */}
         {categories.length > 0 && (
@@ -89,19 +88,19 @@ export default function Home() {
               )}
             </div>
 
-            {filteredProducts.length === 0 ? (
+            {products.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">No products available</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProducts.map(product => (
+                {products.map(product => (
                   <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    {product.image && (
+                    {product.images?.[0] && (
                       <div className="h-48 overflow-hidden">
                         <img
-                          src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${product.image.url}`}
-                          alt={product.image.alternativeText || product.name}
+                          src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${product.images[0].url}`}
+                          alt={product.images[0].alternativeText || product.name}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
                       </div>
