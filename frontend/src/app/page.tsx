@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Checkout from '@/components/Checkout';
 import CategoryCard from '@/components/CategoryCard';
 
@@ -20,39 +21,59 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  documentId: string;
   images?: Array<{
     url: string;
     alternativeText?: string;
   }>;
-  category?: ProductCategory;
+  product_category?: ProductCategory;
 }
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [cart, setCart] = useState<Product[]>([]);
 
   useEffect(() => {
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
+
     // Fetch products
     fetch('/api/products')
       .then(res => res.json())
-      .then(data => setProducts(data.data || []))
+      .then(data => {
+        console.log('Fetched products:', data.data);
+        setProducts(data.data || []);
+      })
       .catch(err => console.error('Error fetching products:', err));
 
     // Fetch categories
     fetch('/api/product-categories')
       .then(res => res.json())
-      .then(data => setCategories(data.data || []))
+      .then(data => {
+        console.log('Fetched categories:', data.data);
+        setCategories(data.data || []);
+      })
       .catch(err => console.error('Error fetching categories:', err));
   }, []);
 
   const filteredProducts = selectedCategory
-    ? products.filter(product => product.category?.slug === selectedCategory)
+    ? products.filter(product => product.product_category?.id === selectedCategory)
     : products;
 
+  useEffect(() => {
+    console.log('Selected category:', selectedCategory);
+    console.log('Filtered products:', filteredProducts);
+  }, [selectedCategory, filteredProducts]);
+
   const addToCart = (product: Product) => {
-    setCart([...cart, product]);
+    const newCart = [...cart, product];
+    setCart(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
   };
 
   const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -67,7 +88,11 @@ export default function Home() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">Categories</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
               {categories.map(category => (
-                <CategoryCard key={category.id} category={category} />
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  onViewProducts={() => setSelectedCategory(category.id)}
+                />
               ))}
             </div>
           </section>
@@ -107,10 +132,12 @@ export default function Home() {
                     )}
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-                        {product.category && (
+                        <Link href={`/product/${product.documentId}`}>
+                          <h3 className="text-lg font-semibold text-gray-900 hover:text-green-600 cursor-pointer">{product.name}</h3>
+                        </Link>
+                        {product.product_category && (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            {product.category.Name}
+                            {product.product_category.Name}
                           </span>
                         )}
                       </div>

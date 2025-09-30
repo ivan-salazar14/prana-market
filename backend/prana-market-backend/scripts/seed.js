@@ -281,8 +281,13 @@ async function importProducts() {
     await createEntry({
       model: 'product',
       entry: {
-        ...product,
-        image,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        images: [image],
+        product_category: product.category.id,
+        isActive: true,
+        stock: 1,
         // Make sure it's not a draft
         publishedAt: Date.now(),
       },
