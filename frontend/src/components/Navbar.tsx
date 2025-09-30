@@ -1,9 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useCart } from '@/context/CartContext';
+import Cart from './Cart';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { state } = useCart();
 
   return (
     <nav className="bg-white shadow-md">
@@ -22,8 +26,14 @@ export default function Navbar() {
             <button className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
               Favorites
             </button>
-            <button className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-              Cart (0)
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium relative"
+            >
+              <svg className="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h10a2 2 0 002-2v-3" />
+              </svg>
+              Cart ({state.items.reduce((sum, item) => sum + item.quantity, 0)})
             </button>
           </div>
 
@@ -52,12 +62,17 @@ export default function Navbar() {
               <button className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">
                 Favorites
               </button>
-              <button className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">
-                Cart (0)
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium"
+              >
+                Cart ({state.items.reduce((sum, item) => sum + item.quantity, 0)})
               </button>
             </div>
           </div>
         )}
+
+        <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       </div>
     </nav>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Checkout from '@/components/Checkout';
 import CategoryCard from '@/components/CategoryCard';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCategory {
   id: number;
@@ -33,15 +34,9 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [cart, setCart] = useState<Product[]>([]);
+  const { dispatch } = useCart();
 
   useEffect(() => {
-    // Load cart from localStorage
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-
     // Fetch products
     fetch('/api/products')
       .then(res => res.json())
@@ -71,12 +66,8 @@ export default function Home() {
   }, [selectedCategory, filteredProducts]);
 
   const addToCart = (product: Product) => {
-    const newCart = [...cart, product];
-    setCart(newCart);
-    localStorage.setItem('cart', JSON.stringify(newCart));
+    dispatch({ type: 'ADD_ITEM', payload: product });
   };
-
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -99,8 +90,8 @@ export default function Home() {
         )}
 
         {/* Products Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-3">
+        <div className="grid grid-cols-1 gap-8">
+          <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-gray-900">Products</h2>
               {selectedCategory && (
@@ -143,7 +134,7 @@ export default function Home() {
                       </div>
                       <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-green-600">${product.price}</span>
+                        <span className="text-2xl font-bold text-green-600">COP {product.price}</span>
                         <button
                           onClick={() => addToCart(product)}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -156,39 +147,6 @@ export default function Home() {
                 ))}
               </div>
             )}
-          </div>
-
-          {/* Cart Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Shopping Cart</h2>
-
-              {cart.length === 0 ? (
-                <p className="text-gray-500">Your cart is empty</p>
-              ) : (
-                <>
-                  <div className="space-y-3 mb-4">
-                    {cart.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center border-b pb-2">
-                        <div>
-                          <p className="font-medium text-gray-900">{item.name}</p>
-                          <p className="text-sm text-gray-600">${item.price}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-lg font-semibold">Total:</span>
-                      <span className="text-lg font-bold text-green-600">${total}</span>
-                    </div>
-
-                    <Checkout amount={total} />
-                  </div>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </div>

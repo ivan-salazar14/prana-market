@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCategory {
   id: number;
@@ -32,15 +33,9 @@ export default function ProductPage() {
   const id = params.id as string;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState<Product[]>([]);
+  const { dispatch } = useCart();
 
   useEffect(() => {
-    // Load cart from localStorage
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-
     // Fetch product
     fetch(`/api/products/${id}`)
       .then(res => res.json())
@@ -55,9 +50,7 @@ export default function ProductPage() {
   }, [id]);
 
   const addToCart = (product: Product) => {
-    const newCart = [...cart, product];
-    setCart(newCart);
-    localStorage.setItem('cart', JSON.stringify(newCart));
+    dispatch({ type: 'ADD_ITEM', payload: product });
   };
 
   if (loading) {
@@ -128,7 +121,7 @@ export default function ProductPage() {
               <p className="text-gray-600 text-lg mb-6 leading-relaxed">{product.description}</p>
 
               <div className="flex items-center justify-between mb-6">
-                <span className="text-4xl font-bold text-green-600">${product.price}</span>
+                <span className="text-4xl font-bold text-green-600">COP {product.price}</span>
               </div>
 
               <button

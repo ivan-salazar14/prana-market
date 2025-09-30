@@ -67,7 +67,7 @@ function CheckoutForm({ amount }: { amount: number }) {
         type="submit"
         className="w-full bg-blue-500 text-white p-2 rounded disabled:opacity-50"
       >
-        {loading ? 'Processing...' : `Pay $${amount}`}
+        {loading ? 'Processing...' : `Pay COP ${amount}`}
       </button>
       {error && <div className="mt-2 text-red-500">{error}</div>}
     </form>

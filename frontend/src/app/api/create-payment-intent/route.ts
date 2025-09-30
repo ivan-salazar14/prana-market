@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
     const { amount } = await request.json();
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // amount in cents
-      currency: 'usd',
+      amount: Math.round(amount * 100), // amount in cents, rounded for COP
+      currency: 'cop',
       // Add metadata or other options as needed
     });
 
