@@ -4,6 +4,7 @@ import { useCart, DeliveryMethod } from '@/context/CartContext';
 import { useState } from 'react';
 import Checkout from './Checkout';
 import WompiCheckout from './WompiCheckout';
+import NequiCheckout from './NequiCheckout';
 
 interface CartProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ const DELIVERY_METHODS: DeliveryMethod[] = [
 
 export default function Cart({ isOpen, onClose }: CartProps) {
   const { state, dispatch } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'wompi'>('wompi'); // Default to Wompi for Colombia
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'wompi' | 'nequi'>('wompi'); // Default to Wompi for Colombia
 
   if (!isOpen) return null;
 
@@ -135,18 +136,24 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                 {state.deliveryMethod ? (
                   <div className="mt-4">
                     <h4 className="font-medium mb-2">Método de pago:</h4>
-                    <div className="flex gap-2 mb-4">
+                    <div className="grid grid-cols-1 gap-2 mb-4">
                       <button
                         onClick={() => setPaymentMethod('wompi')}
-                        className={`px-4 py-2 rounded ${paymentMethod === 'wompi' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}
+                        className={`px-4 py-2 rounded text-left ${paymentMethod === 'wompi' ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}
                       >
-                        Wompi (Colombia)
+                        💳 Wompi (Colombia)
+                      </button>
+                      <button
+                        onClick={() => setPaymentMethod('nequi')}
+                        className={`px-4 py-2 rounded text-left ${paymentMethod === 'nequi' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
+                      >
+                        📱 Nequi (Digital Wallet)
                       </button>
                       <button
                         onClick={() => setPaymentMethod('stripe')}
-                        className={`px-4 py-2 rounded ${paymentMethod === 'stripe' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        className={`px-4 py-2 rounded text-left ${paymentMethod === 'stripe' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
                       >
-                        Stripe
+                        🌐 Stripe (International)
                       </button>
                     </div>
 
@@ -161,6 +168,32 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             subtotal: state.subtotal,
                             deliveryCost: state.deliveryCost,
                             total: state.total,
+                            paymentMethod: 'wompi',
+                            timestamp: new Date().toISOString()
+                          };
+                          localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
+
+                          dispatch({ type: 'CLEAR_CART' });
+                          onClose();
+                          // Redirect to success page for mock payments
+                          if (process.env.NODE_ENV === 'development') {
+                            window.location.href = '/payment/success?mock=true';
+                          }
+                        }}
+                        onError={(error) => alert(`Error en el pago: ${error}`)}
+                      />
+                    ) : paymentMethod === 'nequi' ? (
+                      <NequiCheckout
+                        amount={state.total}
+                        onSuccess={() => {
+                          // Save order details before clearing cart
+                          const orderDetails = {
+                            items: state.items,
+                            deliveryMethod: state.deliveryMethod,
+                            subtotal: state.subtotal,
+                            deliveryCost: state.deliveryCost,
+                            total: state.total,
+                            paymentMethod: 'nequi',
                             timestamp: new Date().toISOString()
                           };
                           localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
