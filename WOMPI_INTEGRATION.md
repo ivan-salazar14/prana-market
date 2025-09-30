@@ -55,18 +55,22 @@ Configure webhooks in Wompi dashboard to handle payment confirmations:
 ✅ **Completed Features:**
 - Cart with navbar icon and item count
 - Global cart state management
+- Delivery method selection (pickup, local, regional)
+- Cost calculation with delivery fees
 - Wompi payment integration
 - COP currency support throughout app
 - Payment method selection in cart
-- Success page after payment
+- Success page with order details
 - Error handling and validation
+- Mock testing for development
 
 🔄 **Next Steps:**
 1. Replace placeholder API keys with real Wompi keys
 2. Test integration in Wompi sandbox
 3. Configure production webhooks
-4. Implement order management
-5. Add customer email collection
+4. Implement order management system
+5. Add customer information collection
+6. Add order tracking functionality
 
 ## Benefits for Colombian Market
 - **Local Compliance**: Fully compliant with Colombian regulations
@@ -112,9 +116,23 @@ To test with real Wompi:
 
 ### Complete Shopping Flow Test
 1. **Browse Products**: View products on home page
-2. **Add to Cart**: Click "Add to Cart" buttons
-3. **View Cart**: Click cart icon in navbar
-4. **Modify Cart**: Change quantities or remove items
-5. **Checkout**: Select payment method and complete purchase
-6. **Success**: View confirmation page
-7. **Continue Shopping**: Cart is cleared, ready for new purchases
+2. **Add to Cart**: Click "Add to Cart" on any product
+3. **View Cart**: Click cart icon in navbar (shows item count)
+4. **Select Delivery**: Choose delivery method (pickup, local delivery, regional delivery)
+5. **Review Order**: See subtotal, delivery cost, and total
+6. **Select Payment**: Choose Wompi (Colombia) or Stripe
+7. **Complete Payment**: Process payment (mock in development)
+8. **Success Page**: View order confirmation with delivery details
+9. **Continue Shopping**: Cart is cleared, ready for new purchases
+
+## Delivery Methods
+- **Recoger en tienda**: Free pickup at physical store
+- **Domicilio local**: COP 5,000 - Urban area delivery (1-2 business days)
+- **Domicilio regional**: COP 10,000 - Regional delivery (2-3 business days)
+
+## Order Flow
+1. **Cart Review**: Items, quantities, and prices
+2. **Delivery Selection**: Required before payment
+3. **Cost Breakdown**: Subtotal + delivery = total
+4. **Payment Method**: Wompi preferred for Colombia
+5. **Order Confirmation**: Complete order details on success page

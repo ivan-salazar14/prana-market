@@ -1,18 +1,31 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+
+interface OrderDetails {
+  items: any[];
+  deliveryMethod: any;
+  subtotal: number;
+  deliveryCost: number;
+  total: number;
+}
 
 export default function PaymentSuccess() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const transactionId = searchParams.get('transaction_id');
   const isMock = searchParams.get('mock') === 'true';
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
 
   useEffect(() => {
-    // Here you could verify the payment status with Wompi API
-    // and update your order status accordingly
+    // Load order details from localStorage (set before payment)
+    const savedOrder = localStorage.getItem('lastOrder');
+    if (savedOrder) {
+      setOrderDetails(JSON.parse(savedOrder));
+      localStorage.removeItem('lastOrder'); // Clean up
+    }
 
     if (isMock) {
       console.log('🧪 Mock payment completed successfully');
@@ -47,6 +60,43 @@ export default function PaymentSuccess() {
           <p className="text-sm text-gray-500 mb-6">
             ID de transacción: {transactionId}
           </p>
+        )}
+
+        {/* Order Summary */}
+        {orderDetails && (
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <h3 className="font-semibold mb-3">Resumen del pedido:</h3>
+
+            <div className="space-y-2 mb-4">
+              <h4 className="font-medium">Productos:</h4>
+              {orderDetails.items.map((item: any, index: number) => (
+                <div key={index} className="flex justify-between text-sm">
+                  <span>{item.name} (x{item.quantity})</span>
+                  <span>COP {(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-1 mb-4">
+              <div className="flex justify-between text-sm">
+                <span>Subtotal:</span>
+                <span>COP {orderDetails.subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Envío ({orderDetails.deliveryMethod.name}):</span>
+                <span>{orderDetails.deliveryCost === 0 ? 'Gratis' : `COP ${orderDetails.deliveryCost}`}</span>
+              </div>
+              <div className="flex justify-between font-semibold border-t pt-1">
+                <span>Total pagado:</span>
+                <span>COP {orderDetails.total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="text-sm text-gray-600">
+              <p><strong>Método de entrega:</strong> {orderDetails.deliveryMethod.name}</p>
+              <p className="mt-1">{orderDetails.deliveryMethod.description}</p>
+            </div>
+          </div>
         )}
 
         <div className="space-y-3">
