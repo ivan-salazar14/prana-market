@@ -27,10 +27,49 @@ export default function PaymentSuccess() {
       localStorage.removeItem('lastOrder'); // Clean up
     }
 
+    // Create order in backend after successful payment
+    if (savedOrder && transactionId) {
+      createOrder(JSON.parse(savedOrder), transactionId);
+    }
+
     if (isMock) {
       console.log('🧪 Mock payment completed successfully');
     }
   }, [transactionId, isMock]);
+
+  const createOrder = async (orderData: OrderDetails, transactionId: string) => {
+    try {
+      // For now, use a mock user ID. In production, this should come from authenticated user
+      const userId = localStorage.getItem('userId') || '1'; // Mock user ID
+
+      const orderPayload = {
+        items: orderData.items,
+        deliveryMethod: orderData.deliveryMethod,
+        subtotal: orderData.subtotal,
+        deliveryCost: orderData.deliveryCost,
+        total: orderData.total,
+        transactionId,
+        paymentMethod: 'stripe', // or 'wompi' based on the payment method used
+        userId: parseInt(userId)
+      };
+
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderPayload),
+      });
+
+      if (response.ok) {
+        console.log('Order created successfully');
+      } else {
+        console.error('Failed to create order');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import Cart from './Cart';
 
@@ -20,12 +21,12 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <button className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+            <Link href="/" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
               Menu
-            </button>
-            <button className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-              Favorites
-            </button>
+            </Link>
+            <Link href="/orders" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+              Mis Pedidos
+            </Link>
             <button
               onClick={() => setIsCartOpen(true)}
               className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium relative"
@@ -56,12 +57,12 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <button className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">
+              <Link href="/" className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">
                 Menu
-              </button>
-              <button className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">
-                Favorites
-              </button>
+              </Link>
+              <Link href="/orders" className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">
+                Mis Pedidos
+              </Link>
               <button
                 onClick={() => setIsCartOpen(true)}
                 className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium"
