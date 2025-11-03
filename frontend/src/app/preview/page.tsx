@@ -96,7 +96,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
               {homeData.data?.Title || 'Home Title'}
             </h1>
             <div className="prose max-w-none">
-              {homeData.data?.Description?.map((block: any, index: number) => (
+              {homeData.data?.Description?.map((block: { __component: string; body: string; title?: string }, index: number) => (
                 <div key={index}>
                   {block.__component === 'shared.rich-text' && (
                     <div dangerouslySetInnerHTML={{ __html: block.body }} />
@@ -126,7 +126,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
             <div className="bg-white shadow rounded-lg p-6 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Categories</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {categoriesData.data.map((category: any) => (
+                {categoriesData.data.map((category: { id: number; Image?: { url: string; alternativeText?: string }; Name: string; Description: string }) => (
                   <div key={category.id} className="border rounded-lg p-4">
                     {category.Image && (
                       <img
@@ -148,7 +148,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Products</h2>
             {productsData.data?.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {productsData.data.map((product: any) => (
+                {productsData.data.map((product: { id: number; image?: { url: string; alternativeText?: string }; name: string; description: string; price: number }) => (
                   <div key={product.id} className="border rounded-lg p-4">
                     {product.image && (
                       <img

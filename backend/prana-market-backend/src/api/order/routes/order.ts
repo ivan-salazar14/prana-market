@@ -8,7 +8,7 @@ export default factories.createCoreRouter('api::order.order', {
   config: {
     create: {
       policies: [],
-      middlewares: [],
+      middlewares: ['global::bypass-auth'],
     },
     find: {
       policies: [],

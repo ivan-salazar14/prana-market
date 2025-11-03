@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import Cart from './Cart';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { state } = useCart();
+  const { state: authState, logout } = useAuth();
 
   return (
     <nav className="bg-white shadow-md">
@@ -36,6 +38,17 @@ export default function Navbar() {
               </svg>
               Cart ({state.items.reduce((sum, item) => sum + item.quantity, 0)})
             </button>
+            {authState.user ? (
+              <>
+                <span className="text-gray-700 px-3 py-2 text-sm">Hello, {authState.user.username}</span>
+                <button onClick={logout} className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Logout</button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Login</Link>
+                <Link href="/register" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Register</Link>
+              </>
+            )}
           </div>
 
           <div className="md:hidden flex items-center">
@@ -69,6 +82,17 @@ export default function Navbar() {
               >
                 Cart ({state.items.reduce((sum, item) => sum + item.quantity, 0)})
               </button>
+              {authState.user ? (
+                <>
+                  <span className="text-gray-700 block px-3 py-2 text-base">Hello, {authState.user.username}</span>
+                  <button onClick={logout} className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Logout</button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Login</Link>
+                  <Link href="/register" className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Register</Link>
+                </>
+              )}
             </div>
           </div>
         )}

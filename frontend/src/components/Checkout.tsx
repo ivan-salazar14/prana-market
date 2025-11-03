@@ -50,7 +50,7 @@ function CheckoutForm({ amount }: { amount: number }) {
         alert('Payment successful!');
         // Redirect or update order status
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred during payment');
     } finally {
       setLoading(false);

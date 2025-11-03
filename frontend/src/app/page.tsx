@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Checkout from '@/components/Checkout';
 import CategoryCard from '@/components/CategoryCard';
 import { useCart } from '@/context/CartContext';
 
@@ -110,7 +109,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {products.map(product => (
+                {filteredProducts.map(product => (
                   <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     {product.images?.[0] && (
                       <div className="h-48 overflow-hidden">

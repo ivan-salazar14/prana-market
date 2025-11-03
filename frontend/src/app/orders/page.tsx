@@ -1,7 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface DeliveryMethod {
+  name: string;
+}
 
 interface Order {
   id: number;
@@ -10,8 +22,8 @@ interface Order {
     total: number;
     subtotal: number;
     deliveryCost: number;
-    items: any[];
-    deliveryMethod: any;
+    items: OrderItem[];
+    deliveryMethod: DeliveryMethod;
     transactionId: string;
     paymentMethod: string;
     createdAt: string;
@@ -21,20 +33,28 @@ interface Order {
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const { state: authState } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
+    if (!authState.user) {
+      router.push('/login');
+      return;
+    }
     fetchOrders();
-  }, []);
+  }, [authState.user, router]);
 
   const fetchOrders = async () => {
     try {
-      // For now, use mock user ID. In production, get from authenticated user
-      const userId = localStorage.getItem('userId') || '1';
-
-      const response = await fetch(`/api/orders?userId=${userId}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/orders', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (response.ok) {
         const data = await response.json();
         setOrders(data.data || []);
+      } else {
+        console.error('Failed to fetch orders:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -120,7 +140,7 @@ export default function OrdersPage() {
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-3">Productos:</h4>
                   <div className="space-y-2 mb-4">
-                    {order.attributes.items.map((item: any, index: number) => (
+                    {order.attributes.items.map((item: OrderItem, index: number) => (
                       <div key={index} className="flex justify-between text-sm">
                         <span>{item.name} (x{item.quantity})</span>
                         <span>COP {(item.price * item.quantity).toFixed(2)}</span>

@@ -185,24 +185,51 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                     ) : paymentMethod === 'nequi' ? (
                       <NequiCheckout
                         amount={state.total}
-                        onSuccess={() => {
-                          // Save order details before clearing cart
-                          const orderDetails = {
-                            items: state.items,
-                            deliveryMethod: state.deliveryMethod,
-                            subtotal: state.subtotal,
-                            deliveryCost: state.deliveryCost,
-                            total: state.total,
-                            paymentMethod: 'nequi',
-                            timestamp: new Date().toISOString()
-                          };
-                          localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
+                        onSuccess={async () => {
+                          try {
+                            // Create order in backend
+                            const transactionId = `nequi_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                            const orderResponse = await fetch('/api/orders', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                items: state.items,
+                                deliveryMethod: state.deliveryMethod,
+                                subtotal: state.subtotal,
+                                deliveryCost: state.deliveryCost,
+                                total: state.total,
+                                transactionId,
+                                paymentMethod: 'nequi'
+                                // userId is optional
+                              }),
+                            });
 
-                          dispatch({ type: 'CLEAR_CART' });
-                          onClose();
-                          // Redirect to success page for mock payments
-                          if (process.env.NODE_ENV === 'development') {
-                            window.location.href = '/payment/success?mock=true';
+                            if (!orderResponse.ok) {
+                              throw new Error('Failed to create order');
+                            }
+
+                            // Save order details before clearing cart
+                            const orderDetails = {
+                              items: state.items,
+                              deliveryMethod: state.deliveryMethod,
+                              subtotal: state.subtotal,
+                              deliveryCost: state.deliveryCost,
+                              total: state.total,
+                              paymentMethod: 'nequi',
+                              transactionId,
+                              timestamp: new Date().toISOString()
+                            };
+                            localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
+
+                            dispatch({ type: 'CLEAR_CART' });
+                            onClose();
+                            // Redirect to success page for mock payments
+                            if (process.env.NODE_ENV === 'development') {
+                              window.location.href = '/payment/success?mock=true';
+                            }
+                          } catch (error) {
+                            console.error('Error creating order:', error);
+                            alert('Pago exitoso pero hubo un error al crear la orden. Contacta soporte.');
                           }
                         }}
                         onError={(error) => alert(`Error en el pago: ${error}`)}

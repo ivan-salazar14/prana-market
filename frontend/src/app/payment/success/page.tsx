@@ -1,19 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface DeliveryMethod {
+  name: string;
+  description: string;
+}
+
 interface OrderDetails {
-  items: any[];
-  deliveryMethod: any;
+  items: OrderItem[];
+  deliveryMethod: DeliveryMethod;
   subtotal: number;
   deliveryCost: number;
   total: number;
 }
 
-export default function PaymentSuccess() {
-  const router = useRouter();
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const transactionId = searchParams.get('transaction_id');
   const isMock = searchParams.get('mock') === 'true';
@@ -108,7 +118,7 @@ export default function PaymentSuccess() {
 
             <div className="space-y-2 mb-4">
               <h4 className="font-medium">Productos:</h4>
-              {orderDetails.items.map((item: any, index: number) => (
+              {orderDetails.items.map((item: OrderItem, index: number) => (
                 <div key={index} className="flex justify-between text-sm">
                   <span>{item.name} (x{item.quantity})</span>
                   <span>COP {(item.price * item.quantity).toFixed(2)}</span>
@@ -154,5 +164,13 @@ export default function PaymentSuccess() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentSuccess() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

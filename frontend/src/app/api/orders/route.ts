@@ -3,36 +3,70 @@ import { NextRequest, NextResponse } from 'next/server';
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
+interface OrderData {
+  items: unknown[];
+  status: string;
+  total: number;
+  subtotal: number;
+  deliveryCost: number;
+  deliveryMethod: string;
+  transactionId: string;
+  paymentMethod: string;
+  user?: string;
+}
+
 // Create a new order
 export async function POST(request: NextRequest) {
   try {
     const { items, deliveryMethod, subtotal, deliveryCost, total, transactionId, paymentMethod, userId } = await request.json();
 
-    const orderData = {
-      data: {
-        user: userId,
-        items,
-        status: 'paid',
-        total,
-        subtotal,
-        deliveryCost,
-        deliveryMethod,
-        transactionId,
-        paymentMethod
-      }
+    // Validate required fields
+    if (!items || !subtotal || !total || !paymentMethod) {
+      return NextResponse.json(
+        { error: 'Missing required fields: items, subtotal, total, paymentMethod' },
+        { status: 400 }
+      );
+    }
+
+    const orderData: OrderData = {
+      items,
+      status: 'paid',
+      total,
+      subtotal,
+      deliveryCost,
+      deliveryMethod,
+      transactionId,
+      paymentMethod
     };
 
-    const response = await fetch(`${STRAPI_URL}/api/orders`, {
+    // Only include user if userId is provided and valid
+    if (userId && userId !== 'undefined' && userId !== undefined) {
+      orderData.user = userId;
+    }
+
+    // Convert orderData to FormData for better compatibility
+    const formData = new FormData();
+    Object.entries(orderData).forEach(([key, value]) => {
+      if (typeof value === 'object') {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, String(value));
+      }
+    });
+
+    const response = await fetch(`${STRAPI_URL}/api/orders/public`, {
       method: 'POST',
+      // No Content-Type header for FormData
       headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
+        'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
       },
-      body: JSON.stringify(orderData),
+      body: formData,
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create order');
+      const errorText = await response.text();
+      console.error('Strapi API error:', response.status, response.statusText, errorText);
+      throw new Error(`Failed to create order: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const result = await response.json();
@@ -46,22 +80,15 @@ export async function POST(request: NextRequest) {
 // Get user's orders
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userIdParam = searchParams.get('userId');
+    const authHeader = request.headers.get('authorization');
 
-    if (!userIdParam) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    const headers: Record<string, string> = {};
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
     }
 
-    const userId = parseInt(userIdParam, 10);
-    if (isNaN(userId)) {
-      return NextResponse.json({ error: 'Invalid User ID' }, { status: 400 });
-    }
-
-    const response = await fetch(`${STRAPI_URL}/api/orders?filters[user][id][$eq]=${userId}`, {
-      // headers: {
-      //   'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
-      // },
+    const response = await fetch(`${STRAPI_URL}/api/orders`, {
+      headers,
     });
 
     if (!response.ok) {
