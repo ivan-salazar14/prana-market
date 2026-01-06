@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
@@ -11,13 +11,22 @@ export default function LoginPage() {
   const { login, state } = useAuth();
   const router = useRouter();
 
+  // Redirigir si el usuario ya está autenticado
+  useEffect(() => {
+    if (state.user && state.token && !state.loading) {
+      router.push('/');
+    }
+  }, [state.user, state.token, state.loading, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     try {
       await login(identifier, password);
-      router.push('/');
-    } catch {
-      setError('Invalid credentials');
+      // La redirección se manejará automáticamente por el useEffect
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials';
+      setError(errorMessage);
     }
   };
 

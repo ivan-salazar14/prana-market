@@ -71,6 +71,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
+  /**
+   * Realiza el login del usuario
+   * @param identifier - Email o username del usuario
+   * @param password - Contraseña del usuario
+   * @throws Error si el login falla o la respuesta no tiene el formato esperado
+   */
   const login = async (identifier: string, password: string) => {
     dispatch({ type: 'LOGIN_START' });
     try {
@@ -79,10 +85,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier, password }),
       });
-      if (!response.ok) throw new Error('Login failed');
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Login failed' }));
+        throw new Error(errorData.error || 'Login failed');
+      }
+      
       const data = await response.json();
+      
+      // Validar que la respuesta tenga el formato esperado
+      if (!data.jwt || !data.user) {
+        console.error('Invalid login response format:', data);
+        throw new Error('Invalid response format from server');
+      }
+      
+      // Guardar en localStorage
       localStorage.setItem('token', data.jwt);
       localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Actualizar el estado
       dispatch({ type: 'LOGIN_SUCCESS', payload: { user: data.user, token: data.jwt } });
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
@@ -90,6 +111,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  /**
+   * Registra un nuevo usuario
+   * @param username - Nombre de usuario
+   * @param email - Email del usuario
+   * @param password - Contraseña del usuario
+   * @throws Error si el registro falla o la respuesta no tiene el formato esperado
+   */
   const register = async (username: string, email: string, password: string) => {
     dispatch({ type: 'REGISTER_START' });
     try {
@@ -98,10 +126,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
       });
-      if (!response.ok) throw new Error('Registration failed');
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Registration failed' }));
+        throw new Error(errorData.error || 'Registration failed');
+      }
+      
       const data = await response.json();
+      
+      // Validar que la respuesta tenga el formato esperado
+      if (!data.jwt || !data.user) {
+        console.error('Invalid registration response format:', data);
+        throw new Error('Invalid response format from server');
+      }
+      
+      // Guardar en localStorage
       localStorage.setItem('token', data.jwt);
       localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Actualizar el estado
       dispatch({ type: 'REGISTER_SUCCESS', payload: { user: data.user, token: data.jwt } });
     } catch (error) {
       dispatch({ type: 'REGISTER_FAILURE' });

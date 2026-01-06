@@ -21,6 +21,8 @@ interface OrderDetails {
   subtotal: number;
   deliveryCost: number;
   total: number;
+  paymentMethod?: string;
+  transactionId?: string;
 }
 
 function PaymentSuccessContent() {
@@ -59,7 +61,7 @@ function PaymentSuccessContent() {
         deliveryCost: orderData.deliveryCost,
         total: orderData.total,
         transactionId,
-        paymentMethod: 'stripe', // or 'wompi' based on the payment method used
+        paymentMethod: orderData.paymentMethod || 'nequi',
         userId: parseInt(userId)
       };
 
@@ -98,17 +100,36 @@ function PaymentSuccessContent() {
             </span>
           )}
         </div>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-700 mb-6">
           {isMock
-            ? 'Tu pago de prueba ha sido procesado correctamente. En producción, esto sería un pago real con Wompi.'
-            : 'Tu pago ha sido procesado correctamente. Recibirás un correo de confirmación pronto.'
+            ? 'Tu pago de prueba ha sido procesado correctamente. En producción, esto sería un pago real.'
+            : orderDetails?.paymentMethod === 'efectivo'
+            ? '✅ Tu pedido ha sido confirmado. El pago se realizará al momento de la entrega o recogida. Te contactaremos pronto para coordinar la entrega.'
+            : orderDetails?.paymentMethod === 'nequi'
+            ? '✅ Tu pago con Nequi ha sido procesado correctamente. Recibirás un correo de confirmación pronto.'
+            : '✅ Tu pago ha sido procesado correctamente. Recibirás un correo de confirmación pronto.'
           }
         </p>
 
-        {transactionId && (
+        {(transactionId || orderDetails?.transactionId) && (
           <p className="text-sm text-gray-500 mb-6">
-            ID de transacción: {transactionId}
+            ID de transacción: {transactionId || orderDetails?.transactionId}
           </p>
+        )}
+        
+        {orderDetails?.paymentMethod && (
+          <div className="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-sm text-gray-700">
+              <span className="font-semibold">Método de pago:</span>{' '}
+              {orderDetails.paymentMethod === 'nequi' ? (
+                <span className="text-green-700 font-medium">📱 Nequi</span>
+              ) : orderDetails.paymentMethod === 'efectivo' ? (
+                <span className="text-blue-700 font-medium">💵 Efectivo (Contraentrega)</span>
+              ) : (
+                <span>{orderDetails.paymentMethod}</span>
+              )}
+            </p>
+          </div>
         )}
 
         {/* Order Summary */}
@@ -135,9 +156,9 @@ function PaymentSuccessContent() {
                 <span>Envío ({orderDetails.deliveryMethod.name}):</span>
                 <span>{orderDetails.deliveryCost === 0 ? 'Gratis' : `COP ${orderDetails.deliveryCost}`}</span>
               </div>
-              <div className="flex justify-between font-semibold border-t pt-1">
-                <span>Total pagado:</span>
-                <span>COP {orderDetails.total.toFixed(2)}</span>
+              <div className="flex justify-between font-semibold border-t border-gray-300 pt-2 mt-2">
+                <span className="text-gray-900">Total {orderDetails.paymentMethod === 'efectivo' ? 'a pagar' : 'pagado'}:</span>
+                <span className="text-gray-900">COP {orderDetails.total.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
 
