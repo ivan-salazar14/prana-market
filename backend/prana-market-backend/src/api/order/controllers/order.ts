@@ -9,7 +9,7 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
   async find(ctx) {
     try {
       let userId: number | null = null;
-      
+
       // If user is authenticated via JWT, use their ID
       if (ctx.state.user) {
         userId = ctx.state.user.id;
@@ -17,19 +17,19 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
         // If using API token, extract userId from query filters
         const filters = ctx.query.filters as any;
         console.log('Query filters:', JSON.stringify(filters, null, 2));
-        
+
         // Try different formats for the user filter
-        let userIdFromQuery = filters?.user?.id?.$eq || 
-                             filters?.user?.id?.$in?.[0] ||
-                             filters?.user?.id;
-        
+        let userIdFromQuery = filters?.user?.id?.$eq ||
+          filters?.user?.id?.$in?.[0] ||
+          filters?.user?.id;
+
         // Also check if it's a direct user ID (not nested)
         if (!userIdFromQuery && filters?.user) {
-          userIdFromQuery = typeof filters.user === 'number' || typeof filters.user === 'string' 
-            ? filters.user 
+          userIdFromQuery = typeof filters.user === 'number' || typeof filters.user === 'string'
+            ? filters.user
             : null;
         }
-        
+
         if (userIdFromQuery) {
           userId = parseInt(userIdFromQuery);
         } else {
@@ -46,7 +46,7 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
       });
 
       const sanitizedResults = await this.sanitizeOutput(results, ctx);
-      
+
       return this.transformResponse(sanitizedResults, { pagination });
     } catch (error) {
       console.error('Error in find controller:', error);
@@ -101,7 +101,10 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
       if (orderData.subtotal) orderData.subtotal = parseFloat(orderData.subtotal) || 0;
       if (orderData.deliveryCost) orderData.deliveryCost = parseFloat(orderData.deliveryCost) || 0;
 
-      console.log('Final orderData:', orderData);
+      // Ensure status is captured and default to 'paid' for new orders from frontend
+      orderData.status = orderData.status || 'paid';
+
+      console.log('Final orderData for creation:', JSON.stringify(orderData, null, 2));
 
       // Convert user a número si viene como string
       if (orderData.user && typeof orderData.user === 'string') {

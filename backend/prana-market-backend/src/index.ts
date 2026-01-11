@@ -38,11 +38,11 @@ export default {
       });
 
       if (ordersToFix && ordersToFix.length > 0) {
-        console.log(`[Bootstrap] Found ${ordersToFix.length} orders with invalid or empty status. Fixing...`);
+        console.log(`[Bootstrap] Found ${ordersToFix.length} orders with invalid or empty status. Fixing to 'paid'...`);
         for (const order of ordersToFix) {
           await strapi.db.query('api::order.order').update({
             where: { id: order.id },
-            data: { status: 'pending' }
+            data: { status: 'paid' }
           });
         }
         console.log('[Bootstrap] Orders status fixed successfully.');
