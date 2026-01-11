@@ -15,7 +15,8 @@
     "user": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "plugin::users-permissions.user"
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "orders"
     },
     "items": {
       "type": "json",
@@ -23,6 +24,8 @@
     },
     "status": {
       "type": "enumeration",
+      "required": true,
+      "default": "pending",
       "enum": [
         "pending",
         "paid",
@@ -30,9 +33,7 @@
         "shipped",
         "delivered",
         "cancelled"
-      ],
-      "default": "pending",
-      "required": true
+      ]
     },
     "total": {
       "type": "decimal",
@@ -48,6 +49,9 @@
       "default": 0
     },
     "deliveryMethod": {
+      "type": "json"
+    },
+    "shippingAddress": {
       "type": "json"
     },
     "transactionId": {

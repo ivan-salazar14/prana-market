@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 
 interface PreviewPageProps {
   searchParams: Promise<{
@@ -111,11 +112,12 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
               ))}
             </div>
             {homeData.data?.Cover && (
-              <div className="mt-6">
-                <img
+              <div className="mt-6 relative w-full h-64">
+                <Image
+                  fill
                   src={`${process.env.STRAPI_API_URL}${homeData.data.Cover.url}`}
                   alt={homeData.data.Cover.alternativeText || 'Cover image'}
-                  className="w-full h-64 object-cover rounded-lg"
+                  className="object-cover rounded-lg"
                 />
               </div>
             )}
@@ -129,11 +131,14 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
                 {categoriesData.data.map((category: { id: number; Image?: { url: string; alternativeText?: string }; Name: string; Description: string }) => (
                   <div key={category.id} className="border rounded-lg p-4">
                     {category.Image && (
-                      <img
-                        src={`${process.env.STRAPI_API_URL}${category.Image.url}`}
-                        alt={category.Image.alternativeText || category.Name}
-                        className="w-full h-32 object-cover rounded mb-4"
-                      />
+                      <div className="relative w-full h-32 mb-4">
+                        <Image
+                          fill
+                          src={`${process.env.STRAPI_API_URL}${category.Image.url}`}
+                          alt={category.Image.alternativeText || category.Name}
+                          className="object-cover rounded"
+                        />
+                      </div>
                     )}
                     <h3 className="text-lg font-semibold text-gray-900">{category.Name}</h3>
                     <p className="text-gray-600 mt-2">{category.Description}</p>
@@ -151,11 +156,14 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
                 {productsData.data.map((product: { id: number; image?: { url: string; alternativeText?: string }; name: string; description: string; price: number }) => (
                   <div key={product.id} className="border rounded-lg p-4">
                     {product.image && (
-                      <img
-                        src={`${process.env.STRAPI_API_URL}${product.image.url}`}
-                        alt={product.image.alternativeText || product.name}
-                        className="w-full h-48 object-cover rounded mb-4"
-                      />
+                      <div className="relative w-full h-48 mb-4">
+                        <Image
+                          fill
+                          src={`${process.env.STRAPI_API_URL}${product.image.url}`}
+                          alt={product.image.alternativeText || product.name}
+                          className="object-cover rounded"
+                        />
+                      </div>
                     )}
                     <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
                     <p className="text-gray-600 mt-2">{product.description}</p>

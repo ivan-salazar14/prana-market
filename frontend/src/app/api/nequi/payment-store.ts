@@ -20,7 +20,7 @@ export const paymentStatusStore = new Map<string, PaymentStatus>();
  */
 export function cleanupExpiredPayments() {
   const now = Date.now();
-  for (const [id, payment] of paymentStatusStore.entries()) {
+  for (const payment of paymentStatusStore.values()) {
     if (payment.expires_at < now && payment.status === 'pending') {
       payment.status = 'expired';
     }

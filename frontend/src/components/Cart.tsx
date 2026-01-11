@@ -1,8 +1,9 @@
 'use client';
 
-import { useCart, DeliveryMethod } from '@/context/CartContext';
+import { useCart, DeliveryMethod, ShippingAddress } from '@/context/CartContext';
 import { useState } from 'react';
 import NequiCheckout from './NequiCheckout';
+import ShippingForm from './ShippingForm';
 
 /**
  * Componente para pago contraentrega (efectivo)
@@ -10,6 +11,7 @@ import NequiCheckout from './NequiCheckout';
 function EfectivoCheckout({
   items,
   deliveryMethod,
+  shippingAddress,
   subtotal,
   deliveryCost,
   total,
@@ -18,6 +20,7 @@ function EfectivoCheckout({
 }: {
   items: unknown[];
   deliveryMethod: DeliveryMethod | null;
+  shippingAddress: ShippingAddress | null;
   subtotal: number;
   deliveryCost: number;
   total: number;
@@ -42,6 +45,7 @@ function EfectivoCheckout({
         body: JSON.stringify({
           items,
           deliveryMethod,
+          shippingAddress,
           subtotal,
           deliveryCost,
           total,
@@ -265,7 +269,13 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                         name="delivery"
                         value={method.id}
                         checked={state.deliveryMethod?.id === method.id}
-                        onChange={() => dispatch({ type: 'SET_DELIVERY_METHOD', payload: method })}
+                        onChange={() => {
+                          dispatch({ type: 'SET_DELIVERY_METHOD', payload: method });
+                          // Limpiar dirección de envío si se cambia a pickup
+                          if (method.id === 'pickup') {
+                            dispatch({ type: 'SET_SHIPPING_ADDRESS', payload: null });
+                          }
+                        }}
                         className="mt-1"
                       />
                       <div className="flex-1">
@@ -281,6 +291,11 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                   ))}
                 </div>
               </div>
+
+              {/* Shipping Form - Only show if delivery method is not pickup */}
+              {state.deliveryMethod && state.deliveryMethod.id !== 'pickup' && (
+                <ShippingForm />
+              )}
 
               {/* Order Summary */}
               <div className="mt-6 pt-4 border-t border-gray-200">
@@ -300,8 +315,8 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                   </div>
                 </div>
 
-                {/* Payment Section - Only show if delivery method is selected */}
-                {state.deliveryMethod ? (
+                {/* Payment Section - Only show if delivery method is selected and shipping data is complete (if not pickup) */}
+                {state.deliveryMethod && (state.deliveryMethod.id === 'pickup' || state.shippingAddress) ? (
                   <div className="mt-6">
                     <h4 className="font-semibold mb-3 text-gray-900">Método de pago:</h4>
                     <div className="grid grid-cols-1 gap-3 mb-4">
@@ -340,6 +355,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                               body: JSON.stringify({
                                 items: state.items,
                                 deliveryMethod: state.deliveryMethod,
+                                shippingAddress: state.shippingAddress,
                                 subtotal: state.subtotal,
                                 deliveryCost: state.deliveryCost,
                                 total: state.total,
@@ -383,6 +399,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                       <EfectivoCheckout
                         items={state.items}
                         deliveryMethod={state.deliveryMethod}
+                        shippingAddress={state.shippingAddress}
                         subtotal={state.subtotal}
                         deliveryCost={state.deliveryCost}
                         total={state.total}
@@ -400,7 +417,9 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                 ) : (
                   <div className="mt-6 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
                     <p className="text-sm text-yellow-900 font-medium">
-                      ⚠️ Por favor selecciona un método de entrega para continuar con el pago.
+                      {!state.deliveryMethod 
+                        ? '⚠️ Por favor selecciona un método de entrega para continuar con el pago.'
+                        : '⚠️ Por favor completa los datos de envío para continuar con el pago.'}
                     </p>
                   </div>
                 )}

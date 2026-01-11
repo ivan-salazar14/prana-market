@@ -21,6 +21,7 @@
     "@strapi/strapi": "5.33.1",
     "fs-extra": "^10.0.0",
     "mime-types": "^2.1.27",
+    "nodemailer": "^7.0.12",
     "pg": "8.8.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -31,6 +32,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "baseline-browser-mapping": "^2.9.11",
     "typescript": "^5"
   },
   "engines": {

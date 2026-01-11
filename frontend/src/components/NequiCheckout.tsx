@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { QRCodeSVG } from 'react-qr-code';
+import QRCodeSVG from 'react-qr-code';
 
 interface NequiCheckoutProps {
   amount: number;
@@ -180,7 +180,6 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
                   value={qrCodeData}
                   size={200}
                   level="M"
-                  includeMargin={true}
                 />
               </div>
             </div>

@@ -10,20 +10,30 @@ interface OrderData {
   subtotal: number;
   deliveryCost: number;
   deliveryMethod: string;
-  transactionId: string;
+  shippingAddress?: unknown;
+  transactionId?: string;
   paymentMethod: string;
-  user?: string;
+  user?: string | number;
 }
 
 // Create a new order
 export async function POST(request: NextRequest) {
   try {
-    const { items, deliveryMethod, subtotal, deliveryCost, total, transactionId, paymentMethod, userId } = await request.json();
+    const { items, deliveryMethod, shippingAddress, subtotal, deliveryCost, total, transactionId, paymentMethod, userId } = await request.json();
 
     // Validate required fields
     if (!items || !subtotal || !total || !paymentMethod) {
       return NextResponse.json(
         { error: 'Missing required fields: items, subtotal, total, paymentMethod' },
+        { status: 400 }
+      );
+    }
+
+    // Validate shippingAddress if delivery method is not pickup
+    const parsedDeliveryMethod = typeof deliveryMethod === 'string' ? JSON.parse(deliveryMethod) : deliveryMethod;
+    if (parsedDeliveryMethod && parsedDeliveryMethod.id !== 'pickup' && !shippingAddress) {
+      return NextResponse.json(
+        { error: 'Shipping address is required for delivery methods' },
         { status: 400 }
       );
     }
@@ -35,24 +45,37 @@ export async function POST(request: NextRequest) {
       subtotal,
       deliveryCost,
       deliveryMethod,
-      transactionId,
       paymentMethod
     };
 
+    // Include transactionId if it's a valid, non-empty string
+    if (transactionId && typeof transactionId === 'string' && transactionId.trim() !== '') {
+      orderData.transactionId = transactionId;
+    }
+
+    // Include shippingAddress if provided
+    if (shippingAddress) {
+      orderData.shippingAddress = shippingAddress;
+    }
+
     // Only include user if userId is provided and valid
-    if (userId && userId !== 'undefined' && userId !== undefined) {
-      orderData.user = userId;
+    const parsedUserId = parseInt(userId, 10);
+    if (!isNaN(parsedUserId)) {
+      orderData.user = parsedUserId;
     }
 
     // Convert orderData to FormData for better compatibility
     const formData = new FormData();
     Object.entries(orderData).forEach(([key, value]) => {
-      if (typeof value === 'object') {
+      if (key === 'user' && typeof value === 'number') {
+        formData.append(key, String(value));
+      } else if (typeof value === 'object') {
         formData.append(key, JSON.stringify(value));
       } else {
         formData.append(key, String(value));
       }
     });
+    console.log('formData:', formData);
 
     const response = await fetch(`${STRAPI_URL}/api/orders/public`, {
       method: 'POST',
@@ -81,13 +104,40 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
-
-    const headers: Record<string, string> = {};
+    
+    // Extract userId from JWT token if available
+    let userId: string | null = null;
     if (authHeader) {
-      headers['Authorization'] = authHeader;
+      try {
+        // Decode JWT to get userId (simple base64 decode, no verification needed for this)
+        const token = authHeader.replace('Bearer ', '');
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        // Use Buffer which is available in Node.js
+        const jsonPayload = Buffer.from(base64, 'base64').toString('utf-8');
+        const payload = JSON.parse(jsonPayload);
+        userId = payload.id || payload.sub || null;
+      } catch (e) {
+        console.warn('Could not extract userId from token:', e);
+      }
     }
 
-    const response = await fetch(`${STRAPI_URL}/api/orders`, {
+    // Use API token to fetch orders from Strapi
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
+    };
+
+    // Build query with user filter if userId is available
+    // Use public endpoint to allow API token access
+    let url = `${STRAPI_URL}/api/orders/public`;
+    if (userId) {
+      // Use URLSearchParams to properly encode the filter
+      const params = new URLSearchParams();
+      params.append('filters[user][id][$eq]', String(userId));
+      url += `?${params.toString()}`;
+    }
+
+    const response = await fetch(url, {
       headers,
     });
 

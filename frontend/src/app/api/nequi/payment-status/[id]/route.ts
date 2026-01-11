@@ -1,19 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { paymentStatusStore, cleanupExpiredPayments } from '../payment-store';
+import { paymentStatusStore, cleanupExpiredPayments } from '../../payment-store';
 
 const NEQUI_CLIENT_ID = process.env.NEQUI_CLIENT_ID;
 const NEQUI_CLIENT_SECRET = process.env.NEQUI_CLIENT_SECRET;
 const NEQUI_API_KEY = process.env.NEQUI_API_KEY;
 
+// Cache para el token de acceso
+let accessToken: string | null = null;
+let tokenExpiresAt: number = 0;
+
 /**
- * Limpia pagos expirados del almacenamiento
+ * Obtiene un token de acceso de Nequi usando OAuth 2.0
  */
-function cleanupExpiredPayments() {
-  const now = Date.now();
-  for (const [id, payment] of paymentStatusStore.entries()) {
-    if (payment.expires_at < now && payment.status === 'pending') {
-      payment.status = 'expired';
+async function getNequiAccessToken(): Promise<string | null> {
+  // Verificar si el token actual es válido (con margen de 5 minutos)
+  if (accessToken && tokenExpiresAt > Date.now() + 5 * 60 * 1000) {
+    return accessToken;
+  }
+
+  if (!NEQUI_CLIENT_ID || !NEQUI_CLIENT_SECRET) {
+    throw new Error('Nequi credentials not configured');
+  }
+
+  try {
+    const auth = Buffer.from(`${NEQUI_CLIENT_ID}:${NEQUI_CLIENT_SECRET}`).toString('base64');
+
+    const response = await fetch('https://api.nequi.com.co/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${auth}`
+      },
+      body: 'grant_type=client_credentials&scope=payment'
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get access token: ${response.status} ${response.statusText}`);
     }
+
+    const data = await response.json();
+
+    if (!data.access_token) {
+      throw new Error('No access token received from Nequi');
+    }
+
+    accessToken = data.access_token;
+    // Los tokens de Nequi expiran en 3600 segundos (1 hora)
+    tokenExpiresAt = Date.now() + (data.expires_in || 3600) * 1000;
+
+    return accessToken;
+  } catch (error) {
+    console.error('Error getting Nequi access token:', error);
+    throw error;
   }
 }
 
@@ -108,34 +146,63 @@ export async function GET(
       );
     }
 
-    // TODO: Implementar consulta real a API de Nequi
-    // Esto involucraría:
-    // 1. Obtener token de acceso (si no está en cache)
-    // 2. Consultar estado del pago
-    //    const statusResponse = await fetch(`https://api.nequi.com.co/v1/payments/${paymentId}`, {
-    //      method: 'GET',
-    //      headers: {
-    //        'Authorization': `Bearer ${access_token}`,
-    //        'x-api-key': NEQUI_API_KEY
-    //      }
-    //    });
-    //    const statusData = await statusResponse.json();
-    //
-    // 3. Retornar estado actualizado
-    //    return NextResponse.json({
-    //      payment_id: statusData.id,
-    //      status: statusData.status, // 'pending', 'completed', 'expired', 'failed'
-    //      amount: statusData.amount,
-    //      currency: statusData.currency,
-    //      created_at: statusData.created_at,
-    //      expires_at: statusData.expires_at,
-    //      completed_at: statusData.completed_at
-    //    });
+    // Implementar consulta real a API de Nequi
+    try {
+      // 1. Obtener token de acceso
+      const accessToken = await getNequiAccessToken();
 
-    return NextResponse.json(
-      { error: 'Real Nequi integration not yet implemented. Use development mode for testing.' },
-      { status: 501 }
-    );
+      // 2. Consultar estado del pago
+      const statusResponse = await fetch(`https://api.nequi.com.co/v1/payments/${paymentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'x-api-key': NEQUI_API_KEY!
+        }
+      });
+
+      if (!statusResponse.ok) {
+        if (statusResponse.status === 404) {
+          return NextResponse.json(
+            { error: 'Payment not found' },
+            { status: 404 }
+          );
+        }
+        const errorData = await statusResponse.text();
+        console.error('Nequi payment status check failed:', statusResponse.status, errorData);
+        throw new Error(`Nequi API error: ${statusResponse.status} ${statusResponse.statusText}`);
+      }
+
+      const statusData = await statusResponse.json();
+
+      // 3. Actualizar estado local si existe en el store
+      const localPayment = paymentStatusStore.get(paymentId);
+      if (localPayment) {
+        localPayment.status = statusData.status;
+        if (statusData.status === 'completed' && statusData.completed_at) {
+          localPayment.completed_at = new Date(statusData.completed_at).getTime();
+        }
+        paymentStatusStore.set(paymentId, localPayment);
+      }
+
+      // 4. Retornar estado actualizado
+      return NextResponse.json({
+        payment_id: statusData.id,
+        status: statusData.status, // 'pending', 'completed', 'expired', 'failed'
+        amount: statusData.amount,
+        currency: statusData.currency,
+        created_at: statusData.created_at,
+        expires_at: statusData.expires_at,
+        completed_at: statusData.completed_at,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Real Nequi payment status check error:', error);
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Failed to check payment status with Nequi' },
+        { status: 500 }
+      );
+    }
 
   } catch (error) {
     console.error('Nequi payment status check error:', error);

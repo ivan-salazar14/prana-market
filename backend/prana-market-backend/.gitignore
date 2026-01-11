@@ -35,7 +35,7 @@ $RECYCLE.BIN/
 ############################
 # Packages
 ############################
-
+package-lock.json
 *.7z
 *.csv
 *.dat

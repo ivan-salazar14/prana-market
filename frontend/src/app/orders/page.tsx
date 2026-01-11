@@ -5,34 +5,71 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
+interface Image {
+  id: number;
+  url: string;
+  documentId: string;
+  alternativeText: string | null;
+}
+
+interface ProductCategory {
+  id: number;
+  Name: string;
+  slug: string;
+  documentId: string;
+  Description: string;
+}
+
 interface OrderItem {
+  id: number;
   name: string;
-  quantity: number;
+  slug: string | null;
   price: number;
+  stock: number;
+  images: Image[];
+  isActive: boolean;
+  quantity: number;
+  createdAt: string;
+  updatedAt: string;
+  documentId: string;
+  description: string;
+  publishedAt: string;
+  product_category: ProductCategory;
 }
 
 interface DeliveryMethod {
+  id: string;
+  cost: number;
   name: string;
+  description: string;
+}
+
+interface ShippingAddress {
+  // Define properties for shipping address if available, otherwise keep as unknown
+  [key: string]: unknown;
 }
 
 interface Order {
   id: number;
-  attributes: {
-    status: string;
-    total: number;
-    subtotal: number;
-    deliveryCost: number;
-    items: OrderItem[];
-    deliveryMethod: DeliveryMethod;
-    transactionId: string;
-    paymentMethod: string;
-    createdAt: string;
-  };
+  documentId: string;
+  items: OrderItem[];
+  status: string;
+  total: number;
+  subtotal: number;
+  deliveryCost: number;
+  deliveryMethod: DeliveryMethod;
+  transactionId: string | null;
+  paymentMethod: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  shippingAddress: ShippingAddress | null;
 }
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { state: authState } = useAuth();
   const router = useRouter();
 
@@ -53,14 +90,51 @@ export default function OrdersPage() {
       if (response.ok) {
         const data = await response.json();
         setOrders(data.data || []);
+        setError(null);
       } else {
+        setError('No se pudieron cargar los pedidos. Por favor, inténtalo de nuevo más tarde.');
         console.error('Failed to fetch orders:', response.status, response.statusText);
       }
     } catch (error) {
+      setError('Ocurrió un error al cargar los pedidos. Por favor, revisa tu conexión.');
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) {
+      return 'Fecha no disponible';
+    }
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return 'Fecha inválida';
+    }
+    return date.toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatCurrency = (amount: number | undefined | null) => {
+    if (typeof amount !== 'number' || isNaN(amount)) {
+      return 'N/A';
+    }
+    return `COP ${amount.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const formatDeliveryCost = (amount: number | undefined | null) => {
+    if (typeof amount !== 'number' || isNaN(amount)) {
+      return 'N/A';
+    }
+    if (amount === 0) {
+      return 'Gratis';
+    }
+    return formatCurrency(amount);
   };
 
   const getStatusColor = (status: string) => {
@@ -86,6 +160,29 @@ export default function OrdersPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Cargando pedidos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-lg shadow-md">
+          <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Error al cargar los pedidos</h3>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              fetchOrders();
+            }}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+          >
+            Intentar de nuevo
+          </button>
         </div>
       </div>
     );
@@ -123,27 +220,21 @@ export default function OrdersPage() {
                       Pedido #{order.id}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {new Date(order.attributes.createdAt).toLocaleDateString('es-CO', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {formatDate(order.createdAt)}
                     </p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.attributes.status)}`}>
-                    {order.attributes.status.charAt(0).toUpperCase() + order.attributes.status.slice(1)}
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status ?? '')}`}>
+                    {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
                   </span>
                 </div>
 
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-3">Productos:</h4>
                   <div className="space-y-2 mb-4">
-                    {order.attributes.items.map((item: OrderItem, index: number) => (
+                    {order.items?.map((item: OrderItem, index: number) => (
                       <div key={index} className="flex justify-between text-sm">
-                        <span>{item.name} (x{item.quantity})</span>
-                        <span>COP {(item.price * item.quantity).toFixed(2)}</span>
+                        <span>{item.name || 'Producto sin nombre'} (x{item.quantity || 0})</span>
+                        <span>{formatCurrency(item.price * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
@@ -151,22 +242,22 @@ export default function OrdersPage() {
                   <div className="space-y-1 mb-4">
                     <div className="flex justify-between text-sm">
                       <span>Subtotal:</span>
-                      <span>COP {order.attributes.subtotal.toFixed(2)}</span>
+                      <span>{formatCurrency(order.subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Envío:</span>
-                      <span>{order.attributes.deliveryCost === 0 ? 'Gratis' : `COP ${order.attributes.deliveryCost}`}</span>
+                      <span>{formatDeliveryCost(order.deliveryCost)}</span>
                     </div>
                     <div className="flex justify-between font-semibold border-t pt-1">
                       <span>Total:</span>
-                      <span>COP {order.attributes.total.toFixed(2)}</span>
+                      <span>{formatCurrency(order.total)}</span>
                     </div>
                   </div>
 
                   <div className="text-sm text-gray-600">
-                    <p><strong>Método de entrega:</strong> {order.attributes.deliveryMethod?.name}</p>
-                    <p><strong>ID de transacción:</strong> {order.attributes.transactionId}</p>
-                    <p><strong>Método de pago:</strong> {order.attributes.paymentMethod}</p>
+                    <p><strong>Método de entrega:</strong> {order.deliveryMethod?.name || 'No especificado'}</p>
+                    <p><strong>ID de transacción:</strong> {order.transactionId && order.transactionId !== 'undefined' ? order.transactionId : 'N/A'}</p>
+                    <p><strong>Método de pago:</strong> {order.paymentMethod || 'No especificado'}</p>
                   </div>
                 </div>
               </div>

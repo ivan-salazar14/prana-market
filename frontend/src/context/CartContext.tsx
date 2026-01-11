@@ -20,12 +20,21 @@ export interface DeliveryMethod {
   description: string;
 }
 
+export interface ShippingAddress {
+  fullName: string;
+  address: string;
+  city: string;
+  phone: string;
+  email?: string;
+}
+
 interface CartState {
   items: CartItem[];
   total: number;
   deliveryMethod: DeliveryMethod | null;
   subtotal: number;
   deliveryCost: number;
+  shippingAddress: ShippingAddress | null;
 }
 
 type CartAction =
@@ -33,6 +42,7 @@ type CartAction =
   | { type: 'REMOVE_ITEM'; payload: number }
   | { type: 'UPDATE_QUANTITY'; payload: { id: number; quantity: number } }
   | { type: 'SET_DELIVERY_METHOD'; payload: DeliveryMethod }
+  | { type: 'SET_SHIPPING_ADDRESS'; payload: ShippingAddress | null }
   | { type: 'CLEAR_CART' };
 
 const calculateTotals = (items: CartItem[], deliveryMethod: DeliveryMethod | null) => {
@@ -105,6 +115,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         total,
       };
     }
+    case 'SET_SHIPPING_ADDRESS': {
+      return {
+        ...state,
+        shippingAddress: action.payload,
+      };
+    }
     case 'CLEAR_CART':
       return {
         items: [],
@@ -112,6 +128,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         subtotal: 0,
         deliveryCost: 0,
         total: 0,
+        shippingAddress: null,
       };
     default:
       return state;
@@ -130,6 +147,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     subtotal: 0,
     deliveryCost: 0,
     total: 0,
+    shippingAddress: null,
   });
 
   return (

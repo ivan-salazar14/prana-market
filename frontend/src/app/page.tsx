@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import CategoryCard from '@/components/CategoryCard';
 import { useCart } from '@/context/CartContext';
 
@@ -112,11 +113,12 @@ export default function Home() {
                 {filteredProducts.map(product => (
                   <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     {product.images?.[0] && (
-                      <div className="h-48 overflow-hidden">
-                        <img
+                      <div className="h-48 overflow-hidden relative">
+                        <Image
+                          fill
                           src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${product.images[0].url}`}
                           alt={product.images[0].alternativeText || product.name}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          className="object-cover hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                     )}

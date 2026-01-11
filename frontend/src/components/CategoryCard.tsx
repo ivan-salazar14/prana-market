@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface CategoryCardProps {
   category: {
     id: number;
@@ -16,11 +18,12 @@ export default function CategoryCard({ category, onViewProducts }: CategoryCardP
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {category.Image && (
-        <div className="h-48 overflow-hidden">
-          <img
+        <div className="h-48 overflow-hidden relative">
+          <Image
+            fill
             src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${category.Image.url}`}
             alt={category.Image.alternativeText || category.Name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            className="object-cover hover:scale-105 transition-transform duration-300"
           />
         </div>
       )}

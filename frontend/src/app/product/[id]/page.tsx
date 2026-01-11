@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 
 interface ProductCategory {
@@ -92,12 +93,14 @@ export default function ProductPage() {
                 <div className="p-6">
                   <div className="grid grid-cols-1 gap-4">
                     {product.images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${image.url}`}
-                        alt={image.alternativeText || product.name}
-                        className="w-full h-96 object-cover rounded-lg"
-                      />
+                      <div key={index} className="relative w-full h-96">
+                        <Image
+                          fill
+                          src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${image.url}`}
+                          alt={image.alternativeText || product.name}
+                          className="object-cover rounded-lg"
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>

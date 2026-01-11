@@ -10,5 +10,15 @@ export default {
         auth: false, // Disable authentication completely
       },
     },
+    {
+      method: 'GET',
+      path: '/orders/public',
+      handler: 'order.find',
+      config: {
+        policies: [],
+        middlewares: [],
+        auth: false, // Allow API token access
+      },
+    },
   ],
 };
