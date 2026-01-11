@@ -39,6 +39,10 @@ function EfectivoCheckout({
     setLoading(true);
 
     try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user || !user.id) {
+        throw new Error('User ID not found in local storage');
+      }
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,7 +53,8 @@ function EfectivoCheckout({
           subtotal,
           deliveryCost,
           total,
-          paymentMethod: 'efectivo'
+          paymentMethod: 'efectivo',
+          userId: user.id
         }),
       });
 
@@ -349,6 +354,10 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                           try {
                             // Create order in backend
                             const transactionId = `nequi_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                            const user = JSON.parse(localStorage.getItem('user') || '{}');
+                            if (!user || !user.id) {
+                              throw new Error('User ID not found in local storage');
+                            }
                             const orderResponse = await fetch('/api/orders', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
@@ -360,8 +369,8 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                 deliveryCost: state.deliveryCost,
                                 total: state.total,
                                 transactionId,
-                                paymentMethod: 'nequi'
-                                // userId is optional
+                                paymentMethod: 'nequi',
+                                userId: user.id
                               }),
                             });
 

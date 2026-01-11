@@ -28,11 +28,14 @@
       "default": "pending",
       "enum": [
         "pending",
+        "confirmed",
         "paid",
         "processing",
+        "in_transit",
         "shipped",
         "delivered",
-        "cancelled"
+        "cancelled",
+        "refunded"
       ]
     },
     "total": {

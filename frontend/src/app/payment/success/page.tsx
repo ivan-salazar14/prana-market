@@ -51,8 +51,12 @@ function PaymentSuccessContent() {
 
   const createOrder = async (orderData: OrderDetails, transactionId: string) => {
     try {
-      // For now, use a mock user ID. In production, this should come from authenticated user
-      const userId = localStorage.getItem('userId') || '1'; // Mock user ID
+      const userString = localStorage.getItem('user');
+      if (!userString) {
+        console.error('User not found in localStorage, cannot create order.');
+        return;
+      }
+      const user = JSON.parse(userString);
 
       const orderPayload = {
         items: orderData.items,
@@ -62,7 +66,7 @@ function PaymentSuccessContent() {
         total: orderData.total,
         transactionId,
         paymentMethod: orderData.paymentMethod || 'nequi',
-        userId: parseInt(userId)
+        userId: user.id
       };
 
       const response = await fetch('/api/orders', {

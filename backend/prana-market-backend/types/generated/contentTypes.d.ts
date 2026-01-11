@@ -645,7 +645,17 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     shippingAddress: Schema.Attribute.JSON;
     status: Schema.Attribute.Enumeration<
-      ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled']
+      [
+        'pending',
+        'confirmed',
+        'paid',
+        'processing',
+        'in_transit',
+        'shipped',
+        'delivered',
+        'cancelled',
+        'refunded',
+      ]
     > &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'pending'>;
