@@ -1,0 +1,14 @@
+{
+    "name": "prana-market-monorepo",
+    "private": true,
+    "scripts": {
+        "setup": "npm install --prefix backend/prana-market-backend",
+        "build": "npm run build --prefix backend/prana-market-backend",
+        "start": "npm run start --prefix backend/prana-market-backend",
+        "strapi": "npm run strapi --prefix backend/prana-market-backend"
+    },
+    "engines": {
+        "node": ">=18.0.0 <=22.x.x",
+        "npm": ">=6.0.0"
+    }
+}
