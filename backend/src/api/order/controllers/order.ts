@@ -45,14 +45,9 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
         ...ctx.query,
       });
 
-      const sanitizedResults = await strapi.contentAPI.sanitize.output(results, {
-        contentType: strapi.contentTypes['api::order.order'],
-      });
+      const sanitizedResults = await (this as any).sanitizeOutput(results, ctx);
 
-      return strapi.contentAPI.transform.response(sanitizedResults, {
-        contentType: strapi.contentTypes['api::order.order'],
-        pagination,
-      });
+      return (this as any).transformResponse(sanitizedResults, { pagination });
     } catch (error) {
       console.error('Error in find controller:', error);
       return ctx.badRequest('Error fetching orders', { error: error.message });
