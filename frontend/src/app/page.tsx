@@ -37,20 +37,17 @@ export default function Home() {
   const { dispatch } = useCart();
 
   useEffect(() => {
-    // Fetch products
+
     fetch('/api/products')
       .then(res => res.json())
       .then(data => {
-        console.log('Fetched products:', data.data);
         setProducts(data.data || []);
       })
       .catch(err => console.error('Error fetching products:', err));
 
-    // Fetch categories
     fetch('/api/product-categories')
       .then(res => res.json())
       .then(data => {
-        console.log('Fetched categories:', data.data);
         setCategories(data.data || []);
       })
       .catch(err => console.error('Error fetching categories:', err));

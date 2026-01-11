@@ -18,13 +18,13 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <h1 className="text-xl font-bold text-gray-900">Prana Market</h1>
+              <h1 className="text-xl font-bold text-gray-900">Prana MakeUp</h1>
             </div>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
             <Link href="/" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-              Menu
+              Inicio
             </Link>
             <Link href="/orders" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
               Mis Pedidos

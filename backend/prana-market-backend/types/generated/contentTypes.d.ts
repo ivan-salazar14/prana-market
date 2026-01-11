@@ -657,7 +657,6 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
         'refunded',
       ]
     > &
-      Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'pending'>;
     subtotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
     total: Schema.Attribute.Decimal & Schema.Attribute.Required;
