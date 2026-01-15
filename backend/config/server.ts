@@ -8,7 +8,7 @@ export default ({ env }) => {
     app: {
       keys: env.array('APP_KEYS'),
     },
-    url: env('URL', env('PUBLIC_URL', `http://${host}:${port}`)),
+    url: env('URL', env('PUBLIC_URL', `http://${host}:${port}`)).replace(/\/$/, ""),
     proxy: env.bool('PROXY', true),
     cron: {
       enabled: false,
