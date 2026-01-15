@@ -4,6 +4,10 @@ export default (config, { strapi }) => {
     if (ctx.url.includes('/api/orders') && ctx.method === 'POST') {
       ctx.state.auth = { strategy: { name: 'public' } };
     }
+    // Bypass authentication for public product and product-category GET requests
+    if ((ctx.url.includes('/api/products') || ctx.url.includes('/api/product-categories')) && ctx.method === 'GET') {
+      ctx.state.auth = { strategy: { name: 'public' } };
+    }
     await next();
   };
 };
