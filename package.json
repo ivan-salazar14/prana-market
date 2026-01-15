@@ -2,10 +2,10 @@
     "name": "prana-market-monorepo",
     "private": true,
     "scripts": {
-        "setup": "npm install --prefix backend/prana-market-backend",
-        "build": "npm run build --prefix backend/prana-market-backend",
-        "start": "npm run start --prefix backend/prana-market-backend",
-        "strapi": "npm run strapi --prefix backend/prana-market-backend"
+        "setup": "npm install --prefix backend",
+        "build": "npm run build --prefix backend",
+        "start": "npm run start --prefix backend",
+        "strapi": "npm run strapi --prefix backend"
     },
     "engines": {
         "node": ">=18.0.0 <=22.x.x",
