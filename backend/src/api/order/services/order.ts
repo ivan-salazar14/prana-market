@@ -117,10 +117,10 @@ function generateOrderEmailTemplate(order: any, isForCompany: boolean = false): 
  */
 function createEmailTransporter() {
   const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
+  const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  // If SMTP_SECURE is not set, default to true for port 465, false otherwise
+  // Usar secure: true solo para el puerto 465. Para el 587 o cualquier otro, debe ser false (STARTTLS).
   const smtpSecure = process.env.SMTP_SECURE !== undefined
     ? process.env.SMTP_SECURE === 'true'
     : smtpPort === 465;
@@ -141,11 +141,16 @@ function createEmailTransporter() {
       pass: smtpPass,
     },
     // Aumentar timeouts para evitar errores de conexión en entornos lentos
-    connectionTimeout: 20000, // 20 seconds
-    greetingTimeout: 20000,
-    socketTimeout: 20000,
-    debug: true, // Enable debug logging in development/logs
-    logger: true, // Log to console
+    connectionTimeout: 30000, // 30 seconds
+    greetingTimeout: 30000,
+    socketTimeout: 30000,
+    dnsTimeout: 10000,
+    debug: true,
+    logger: true,
+    tls: {
+      // No fallar por certificados auto-firmados o problemas de resolución interna
+      rejectUnauthorized: false
+    }
   });
 }
 
