@@ -113,37 +113,54 @@ function generateOrderEmailTemplate(order: any, isForCompany: boolean = false): 
 }
 
 /**
- * Crea un transporter de nodemailer con la configuración SMTP
+ * Envía un email usando Resend (vía API HTTP) o SMTP (vía Nodemailer)
  */
+async function dispatchEmail(options: { to: string, from: string, subject: string, html: string }) {
+  const resendApiKey = process.env.RESEND_API_KEY;
+
+  if (resendApiKey) {
+    console.log(`Enviando email vía Resend API a: ${options.to}`);
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: options.from,
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(`Resend API Error: ${JSON.stringify(result)}`);
+      }
+      return result;
+    } catch (error) {
+      console.error('Error enviando vía Resend, intentando fallback SMTP...', error.message);
+    }
+  }
+
+  const transporter = createEmailTransporter();
+  if (!transporter) {
+    throw new Error('Configuración de email no disponible (falta SMTP o Resend)');
+  }
+  return await transporter.sendMail(options);
+}
+
 function createEmailTransporter() {
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-
-  if (!smtpUser || !smtpPass) {
-    console.warn('Configuración SMTP incompleta: faltan SMTP_USER o SMTP_PASS');
-    return null;
-  }
-
-  console.log(`Iniciando transportador SMTP con modo 'service: gmail' para ${smtpUser}`);
+  if (!smtpUser || !smtpPass) return null;
 
   return nodemailer.createTransport({
     service: 'gmail',
-    auth: {
-      user: smtpUser,
-      pass: smtpPass,
-    },
-    pool: true, // Reutilizar conexiones
-    maxConnections: 3,
-    maxMessages: 100,
-    // Timeouts agresivos
-    connectionTimeout: 40000,
-    greetingTimeout: 40000,
-    socketTimeout: 40000,
-    debug: true,
-    logger: true,
-    tls: {
-      rejectUnauthorized: false
-    }
+    auth: { user: smtpUser, pass: smtpPass },
+    connectionTimeout: 10000,
   });
 }
 
@@ -152,13 +169,6 @@ function createEmailTransporter() {
  */
 export async function sendOrderEmail(strapi: any, order: any) {
   try {
-    const transporter = createEmailTransporter();
-
-    if (!transporter) {
-      console.warn('Email no configurado: faltan variables SMTP_HOST, SMTP_USER o SMTP_PASS');
-      return;
-    }
-
     const companyEmail = process.env.COMPANY_EMAIL || process.env.SMTP_USER;
     const defaultFrom = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@pranamarket.com';
 
@@ -173,7 +183,7 @@ export async function sendOrderEmail(strapi: any, order: any) {
     // Enviar email a la empresa
     if (companyEmail) {
       try {
-        await transporter.sendMail({
+        await dispatchEmail({
           from: defaultFrom,
           to: companyEmail,
           subject: `Nuevo Pedido #${order.id || order.data?.id || 'N/A'} - Prana Market`,
@@ -181,14 +191,14 @@ export async function sendOrderEmail(strapi: any, order: any) {
         });
         console.log(`Email de pedido enviado a la empresa: ${companyEmail}`);
       } catch (error) {
-        console.error('Error enviando email a la empresa:', error);
+        console.error('Error enviando email a la empresa:', error.message);
       }
     }
 
     // Enviar email al cliente
     if (customerEmail) {
       try {
-        await transporter.sendMail({
+        await dispatchEmail({
           from: defaultFrom,
           to: customerEmail,
           subject: `Confirmación de Pedido #${order.id || order.data?.id || 'N/A'} - Prana Market`,
@@ -196,7 +206,7 @@ export async function sendOrderEmail(strapi: any, order: any) {
         });
         console.log(`Email de pedido enviado al cliente: ${customerEmail}`);
       } catch (error) {
-        console.error('Error enviando email al cliente:', error);
+        console.error('Error enviando email al cliente:', error.message);
       }
     } else {
       console.warn('No se pudo determinar el email del cliente, no se enviará email de confirmación');
