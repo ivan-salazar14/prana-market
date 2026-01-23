@@ -121,6 +121,11 @@ async function dispatchEmail(options: { to: string, from: string, subject: strin
   if (resendApiKey) {
     console.log(`Enviando email vía Resend API a: ${options.to}`);
     try {
+      // Si el dominio no está verificado en Resend, el 'from' debe ser 'onboarding@resend.dev'
+      const fromAddress = options.from.includes('@resend.dev') || options.from.includes('pranamarket.com')
+        ? options.from
+        : 'onboarding@resend.dev';
+
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -128,7 +133,7 @@ async function dispatchEmail(options: { to: string, from: string, subject: strin
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: options.from,
+          from: fromAddress,
           to: options.to,
           subject: options.subject,
           html: options.html,
