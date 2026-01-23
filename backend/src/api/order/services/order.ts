@@ -117,24 +117,35 @@ function generateOrderEmailTemplate(order: any, isForCompany: boolean = false): 
  */
 function createEmailTransporter() {
   const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
+  // If SMTP_SECURE is not set, default to true for port 465, false otherwise
+  const smtpSecure = process.env.SMTP_SECURE !== undefined
+    ? process.env.SMTP_SECURE === 'true'
+    : smtpPort === 465;
 
   if (!smtpHost || !smtpUser || !smtpPass) {
+    console.warn('Configuración SMTP incompleta:', { host: !!smtpHost, user: !!smtpUser, pass: !!smtpPass });
     return null;
   }
 
+  console.log(`Iniciando transportador SMTP: ${smtpHost}:${smtpPort} (Secure: ${smtpSecure})`);
+
   return nodemailer.createTransport({
     host: smtpHost,
-    port: parseInt(process.env.SMTP_PORT || '465', 10),
-    secure: process.env.SMTP_SECURE !== 'false', // Default to true if using 465
+    port: smtpPort,
+    secure: smtpSecure,
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
+    // Aumentar timeouts para evitar errores de conexión en entornos lentos
+    connectionTimeout: 20000, // 20 seconds
+    greetingTimeout: 20000,
+    socketTimeout: 20000,
+    debug: true, // Enable debug logging in development/logs
+    logger: true, // Log to console
   });
 }
 
