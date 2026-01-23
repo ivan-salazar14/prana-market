@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
+import { getStrapiMedia } from '@/utils/strapi';
 
 interface ProductCategory {
   id: number;
@@ -96,7 +97,7 @@ export default function ProductPage() {
                       <div key={index} className="relative w-full h-96">
                         <Image
                           fill
-                          src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${image.url}`}
+                          src={getStrapiMedia(image.url) || ''}
                           alt={image.alternativeText || product.name}
                           className="object-cover rounded-lg"
                         />

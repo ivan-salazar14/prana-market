@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import CategoryCard from '@/components/CategoryCard';
 import { useCart } from '@/context/CartContext';
+import { getStrapiMedia } from '@/utils/strapi';
 
 interface ProductCategory {
   id: number;
@@ -113,7 +114,7 @@ export default function Home() {
                       <div className="h-48 overflow-hidden relative">
                         <Image
                           fill
-                          src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${product.images[0].url}`}
+                          src={getStrapiMedia(product.images[0].url) || ''}
                           alt={product.images[0].alternativeText || product.name}
                           className="object-cover hover:scale-105 transition-transform duration-300"
                         />

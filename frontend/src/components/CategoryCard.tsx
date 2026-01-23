@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { getStrapiMedia } from '@/utils/strapi';
 
 interface CategoryCardProps {
   category: {
@@ -21,7 +22,7 @@ export default function CategoryCard({ category, onViewProducts }: CategoryCardP
         <div className="h-48 overflow-hidden relative">
           <Image
             fill
-            src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${category.Image.url}`}
+            src={getStrapiMedia(category.Image.url) || ''}
             alt={category.Image.alternativeText || category.Name}
             className="object-cover hover:scale-105 transition-transform duration-300"
           />
