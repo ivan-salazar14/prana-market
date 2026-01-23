@@ -116,39 +116,32 @@ function generateOrderEmailTemplate(order: any, isForCompany: boolean = false): 
  * Crea un transporter de nodemailer con la configuración SMTP
  */
 function createEmailTransporter() {
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  // Usar secure: true solo para el puerto 465. Para el 587 o cualquier otro, debe ser false (STARTTLS).
-  const smtpSecure = process.env.SMTP_SECURE !== undefined
-    ? process.env.SMTP_SECURE === 'true'
-    : smtpPort === 465;
 
-  if (!smtpHost || !smtpUser || !smtpPass) {
-    console.warn('Configuración SMTP incompleta:', { host: !!smtpHost, user: !!smtpUser, pass: !!smtpPass });
+  if (!smtpUser || !smtpPass) {
+    console.warn('Configuración SMTP incompleta: faltan SMTP_USER o SMTP_PASS');
     return null;
   }
 
-  console.log(`Iniciando transportador SMTP: ${smtpHost}:${smtpPort} (Secure: ${smtpSecure})`);
+  console.log(`Iniciando transportador SMTP con modo 'service: gmail' para ${smtpUser}`);
 
   return nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpSecure,
+    service: 'gmail',
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
-    // Aumentar timeouts para evitar errores de conexión en entornos lentos
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
-    dnsTimeout: 10000,
+    pool: true, // Reutilizar conexiones
+    maxConnections: 3,
+    maxMessages: 100,
+    // Timeouts agresivos
+    connectionTimeout: 40000,
+    greetingTimeout: 40000,
+    socketTimeout: 40000,
     debug: true,
     logger: true,
     tls: {
-      // No fallar por certificados auto-firmados o problemas de resolución interna
       rejectUnauthorized: false
     }
   });
