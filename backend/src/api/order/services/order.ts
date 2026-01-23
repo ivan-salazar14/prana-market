@@ -126,12 +126,15 @@ function createEmailTransporter() {
 
   return nodemailer.createTransport({
     host: smtpHost,
-    port: parseInt(process.env.SMTP_PORT || '587', 10),
-    secure: process.env.SMTP_SECURE === 'true',
+    port: parseInt(process.env.SMTP_PORT || '465', 10),
+    secure: process.env.SMTP_SECURE !== 'false', // Default to true if using 465
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 }
 
@@ -141,7 +144,7 @@ function createEmailTransporter() {
 export async function sendOrderEmail(strapi: any, order: any) {
   try {
     const transporter = createEmailTransporter();
-    
+
     if (!transporter) {
       console.warn('Email no configurado: faltan variables SMTP_HOST, SMTP_USER o SMTP_PASS');
       return;
@@ -149,7 +152,7 @@ export async function sendOrderEmail(strapi: any, order: any) {
 
     const companyEmail = process.env.COMPANY_EMAIL || process.env.SMTP_USER;
     const defaultFrom = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@pranamarket.com';
-    
+
     if (!companyEmail) {
       console.warn('COMPANY_EMAIL no configurado, no se enviará email a la empresa');
     }
