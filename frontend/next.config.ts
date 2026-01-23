@@ -2,7 +2,20 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['localhost', 'prana-market-production.up.railway.app'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'prana-market-production.up.railway.app',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '1337',
+        pathname: '/**',
+      },
+    ],
   },
 };
 
