@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import CategorySlider from '@/components/CategorySlider';
 import { useCart } from '@/context/CartContext';
 import { getStrapiMedia } from '@/utils/strapi';
+import { cn } from '@/utils/cn';
 
 interface ProductCategory {
   id: number;
@@ -35,7 +36,9 @@ interface Product {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [topCategories, setTopCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedTopCategory, setSelectedTopCategory] = useState<number | null>(null);
   const { dispatch } = useCart();
 
   useEffect(() => {
@@ -53,11 +56,27 @@ export default function Home() {
         setCategories(data.data || []);
       })
       .catch(err => console.error('Error fetching categories:', err));
+
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => {
+        setTopCategories(data.data || []);
+      })
+      .catch(err => console.error('Error fetching top categories:', err));
   }, []);
+
+  const filteredCategories = selectedTopCategory
+    ? categories.filter(cat => (cat as any).category?.id === selectedTopCategory || topCategories.find(tc => tc.id === selectedTopCategory)?.product_categories?.some((pc: any) => pc.id === cat.id))
+    : categories;
 
   const filteredProducts = selectedCategory
     ? products.filter(product => product.product_category?.id === selectedCategory)
-    : products;
+    : selectedTopCategory
+      ? products.filter(product => {
+        const topCat = topCategories.find(tc => tc.id === selectedTopCategory);
+        return topCat?.product_categories?.some((pc: any) => pc.id === product.product_category?.id);
+      })
+      : products;
 
   const addToCart = (product: Product) => {
     dispatch({ type: 'ADD_ITEM', payload: product });
@@ -67,10 +86,49 @@ export default function Home() {
     <div className="min-h-screen bg-white dark:bg-transparent">
       <div className="container mx-auto px-4 py-12 md:py-16">
 
+        {/* Top Level Categories */}
+        {topCategories.length > 0 && (
+          <div className="mb-12">
+            <div className="flex flex-wrap gap-4 justify-center">
+              <button
+                onClick={() => {
+                  setSelectedTopCategory(null);
+                  setSelectedCategory(null);
+                }}
+                className={cn(
+                  "px-6 py-2 rounded-full font-bold transition-all",
+                  !selectedTopCategory
+                    ? "bg-emerald-600 text-white shadow-lg"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                )}
+              >
+                Todos
+              </button>
+              {topCategories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setSelectedTopCategory(cat.id);
+                    setSelectedCategory(null); // Reset subcategory when switching top category
+                  }}
+                  className={cn(
+                    "px-6 py-2 rounded-full font-bold transition-all",
+                    selectedTopCategory === cat.id
+                      ? "bg-emerald-600 text-white shadow-lg"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                >
+                  {cat.Name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Categories Slider Section */}
-        {categories.length > 0 && (
+        {filteredCategories.length > 0 && (
           <CategorySlider
-            categories={categories}
+            categories={filteredCategories}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
           />
