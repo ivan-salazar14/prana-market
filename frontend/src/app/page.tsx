@@ -147,7 +147,7 @@ export default function Home() {
               >
                 Todas
               </button>
-              {filteredCategories.map((subcat) => (
+              {filteredCategories.map((subcat: ProductCategory) => (
                 <button
                   key={subcat.id}
                   onClick={() => setSelectedCategory(subcat.documentId)}
