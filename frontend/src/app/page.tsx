@@ -18,6 +18,11 @@ interface ProductCategory {
     url: string;
     alternativeText?: string;
   };
+  category?: {
+    id: number;
+    Name: string;
+    slug: string;
+  };
 }
 
 interface Product {
@@ -66,16 +71,13 @@ export default function Home() {
   }, []);
 
   const filteredCategories = selectedTopCategory
-    ? categories.filter(cat => (cat as any).category?.id === selectedTopCategory || topCategories.find(tc => tc.id === selectedTopCategory)?.product_categories?.some((pc: any) => pc.id === cat.id))
+    ? categories.filter(cat => cat.category?.id === selectedTopCategory)
     : categories;
 
   const filteredProducts = selectedCategory
     ? products.filter(product => product.product_category?.id === selectedCategory)
     : selectedTopCategory
-      ? products.filter(product => {
-        const topCat = topCategories.find(tc => tc.id === selectedTopCategory);
-        return topCat?.product_categories?.some((pc: any) => pc.id === product.product_category?.id);
-      })
+      ? products.filter(product => (product.product_category as any)?.category?.id === selectedTopCategory)
       : products;
 
   const addToCart = (product: Product) => {
@@ -86,52 +88,72 @@ export default function Home() {
     <div className="min-h-screen bg-white dark:bg-transparent">
       <div className="container mx-auto px-4 py-12 md:py-16">
 
-        {/* Top Level Categories */}
-        {topCategories.length > 0 && (
-          <div className="mb-12">
-            <div className="flex flex-wrap gap-4 justify-center">
-              <button
-                onClick={() => {
-                  setSelectedTopCategory(null);
-                  setSelectedCategory(null);
-                }}
-                className={cn(
-                  "px-6 py-2 rounded-full font-bold transition-all",
-                  !selectedTopCategory
-                    ? "bg-emerald-600 text-white shadow-lg"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                Todos
-              </button>
-              {topCategories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    setSelectedTopCategory(cat.id);
-                    setSelectedCategory(null); // Reset subcategory when switching top category
-                  }}
-                  className={cn(
-                    "px-6 py-2 rounded-full font-bold transition-all",
-                    selectedTopCategory === cat.id
-                      ? "bg-emerald-600 text-white shadow-lg"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  )}
-                >
-                  {cat.Name}
-                </button>
-              ))}
-            </div>
+        {/* hierarchy Section: Top Level Categories Slider */}
+        {topCategories.length > 0 ? (
+          <div className="mb-8">
+            <CategorySlider
+              categories={topCategories}
+              selectedCategory={selectedTopCategory}
+              onSelectCategory={(id) => {
+                setSelectedTopCategory(id);
+                setSelectedCategory(null);
+              }}
+            />
+          </div>
+        ) : (
+          /* Fallback: if no top-level categories yet, show product categories in the slider like before */
+          <div className="mb-8">
+            <CategorySlider
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
           </div>
         )}
 
-        {/* Categories Slider Section */}
-        {filteredCategories.length > 0 && (
-          <CategorySlider
-            categories={filteredCategories}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
+        {/* Sub-categories Section (Product Categories) - Only show if we have top categories to filter by */}
+        {topCategories.length > 0 && filteredCategories.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent" />
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest px-4">
+                {selectedTopCategory ? 'Subcategorías' : 'Todas las Subcategorías'}
+              </h3>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent" />
+            </div>
+
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={cn(
+                  "px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border-2",
+                  !selectedCategory
+                    ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/20"
+                    : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-emerald-200 dark:hover:border-emerald-900/30"
+                )}
+              >
+                Todas
+              </button>
+              {filteredCategories.map((subcat) => (
+                <button
+                  key={subcat.id}
+                  onClick={() => setSelectedCategory(subcat.id)}
+                  className={cn(
+                    "px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border-2",
+                    selectedCategory === subcat.id
+                      ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/20 text-emerald-50"
+                      : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-emerald-200 dark:hover:border-emerald-900/30"
+                  )}
+                >
+                  {subcat.Name}
+                </button>
+              ))}
+            </div>
+          </motion.div>
         )}
 
         {/* Products Section */}
@@ -142,7 +164,9 @@ export default function Home() {
                 <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                   {selectedCategory
                     ? `Productos en ${categories.find(c => c.id === selectedCategory)?.Name}`
-                    : "Descubre nuestra selección"
+                    : selectedTopCategory
+                      ? `Todo en ${topCategories.find(c => c.id === selectedTopCategory)?.Name}`
+                      : "Nuestra Selección de Productos"
                   }
                 </h2>
                 <p className="text-gray-500 font-medium">Calidad y consciencia en cada detalle</p>
@@ -174,8 +198,15 @@ export default function Home() {
                           />
                         </Link>
                         {product.product_category && (
-                          <div className="absolute top-4 left-4">
-                            <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 shadow-sm uppercase tracking-wider">
+                          <div className="absolute top-4 left-4 flex flex-col gap-1">
+                            {/* Top Category Badge */}
+                            {(product.product_category as any).category && (
+                              <span className="bg-emerald-600/90 backdrop-blur px-3 py-0.5 rounded-full text-[9px] font-black text-white shadow-sm uppercase tracking-widest w-fit">
+                                {(product.product_category as any).category.Name}
+                              </span>
+                            )}
+                            {/* Subcategory Badge */}
+                            <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 shadow-sm uppercase tracking-wider w-fit">
                               {product.product_category.Name}
                             </span>
                           </div>

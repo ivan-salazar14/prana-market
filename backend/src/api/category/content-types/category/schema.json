@@ -40,6 +40,20 @@
             "relation": "oneToMany",
             "target": "api::product-category.product-category",
             "mappedBy": "category"
+        },
+        "Image": {
+            "type": "media",
+            "multiple": false,
+            "required": true,
+            "allowedTypes": [
+                "images",
+                "files"
+            ],
+            "pluginOptions": {
+                "i18n": {
+                    "localized": true
+                }
+            }
         }
     }
 }
