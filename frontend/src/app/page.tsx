@@ -11,6 +11,7 @@ import { cn } from '@/utils/cn';
 
 interface ProductCategory {
   id: number;
+  documentId: string;
   Name: string;
   slug: string;
   Description: string;
@@ -20,6 +21,7 @@ interface ProductCategory {
   };
   category?: {
     id: number;
+    documentId: string;
     Name: string;
     slug: string;
   };
@@ -42,8 +44,8 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [topCategories, setTopCategories] = useState<any[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [selectedTopCategory, setSelectedTopCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedTopCategory, setSelectedTopCategory] = useState<string | null>(null);
   const { dispatch } = useCart();
 
   useEffect(() => {
@@ -71,13 +73,13 @@ export default function Home() {
   }, []);
 
   const filteredCategories = selectedTopCategory
-    ? categories.filter(cat => cat.category?.id === selectedTopCategory)
+    ? categories.filter(cat => cat.category?.documentId === selectedTopCategory || (cat.category as any)?.id === selectedTopCategory)
     : categories;
 
   const filteredProducts = selectedCategory
-    ? products.filter(product => product.product_category?.id === selectedCategory)
+    ? products.filter(product => product.product_category?.documentId === selectedCategory || product.product_category?.id === (selectedCategory as any))
     : selectedTopCategory
-      ? products.filter(product => (product.product_category as any)?.category?.id === selectedTopCategory)
+      ? products.filter(product => (product.product_category as any)?.category?.documentId === selectedTopCategory || (product.product_category as any)?.category?.id === selectedTopCategory)
       : products;
 
   const addToCart = (product: Product) => {
@@ -95,7 +97,8 @@ export default function Home() {
               categories={topCategories}
               selectedCategory={selectedTopCategory}
               onSelectCategory={(id) => {
-                setSelectedTopCategory(id);
+                const category = topCategories.find(c => c.id === id || c.documentId === id);
+                setSelectedTopCategory(category?.documentId || null);
                 setSelectedCategory(null);
               }}
             />
@@ -105,8 +108,8 @@ export default function Home() {
           <div className="mb-8">
             <CategorySlider
               categories={categories}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
+              selectedCategory={selectedCategory as any}
+              onSelectCategory={(id) => setSelectedCategory(id as any)}
             />
           </div>
         )}
@@ -141,10 +144,10 @@ export default function Home() {
               {filteredCategories.map((subcat) => (
                 <button
                   key={subcat.id}
-                  onClick={() => setSelectedCategory(subcat.id)}
+                  onClick={() => setSelectedCategory(subcat.documentId)}
                   className={cn(
                     "px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border-2",
-                    selectedCategory === subcat.id
+                    selectedCategory === subcat.documentId || selectedCategory === subcat.id.toString()
                       ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/20 text-emerald-50"
                       : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-emerald-200 dark:hover:border-emerald-900/30"
                   )}
@@ -163,9 +166,9 @@ export default function Home() {
               <div className="space-y-1">
                 <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                   {selectedCategory
-                    ? `Productos en ${categories.find(c => c.id === selectedCategory)?.Name}`
+                    ? `Productos en ${categories.find(c => c.documentId === selectedCategory || c.id === (selectedCategory as any))?.Name}`
                     : selectedTopCategory
-                      ? `Todo en ${topCategories.find(c => c.id === selectedTopCategory)?.Name}`
+                      ? `Todo en ${topCategories.find(c => c.documentId === selectedTopCategory || c.id === (selectedTopCategory as any))?.Name}`
                       : "Nuestra Selección de Productos"
                   }
                 </h2>

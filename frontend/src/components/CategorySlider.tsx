@@ -19,9 +19,9 @@ interface ProductCategory {
 }
 
 interface CategorySliderProps {
-    categories: ProductCategory[];
-    selectedCategory: number | null;
-    onSelectCategory: (id: number | null) => void;
+    categories: any[];
+    selectedCategory: string | number | null;
+    onSelectCategory: (id: string | number | null) => void;
 }
 
 export default function CategorySlider({ categories, selectedCategory, onSelectCategory }: CategorySliderProps) {

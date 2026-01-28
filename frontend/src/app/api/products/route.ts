@@ -1,7 +1,7 @@
 export async function GET() {
   const BASE_URL = (process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337').replace(/\/$/, '');
   try {
-    const response = await fetch(`${BASE_URL}/api/products?populate[images][fields]=url,alternativeText&populate[product_category][populate][category][fields]=Name,slug&populate[product_category][fields]=Name,slug,Description`);
+    const response = await fetch(`${BASE_URL}/api/products?populate[images][fields]=url,alternativeText&populate[product_category][fields]=id,Name,slug,Description&populate[product_category][populate][category][fields]=id,Name,slug`);
     if (!response.ok) {
       throw new Error('Failed to fetch from Strapi');
     }
