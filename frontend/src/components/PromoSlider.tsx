@@ -113,8 +113,8 @@ export default function PromoSlider({ items }: PromoSliderProps) {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
                                 >
-                                    <span className="inline-block px-4 py-1.5 bg-emerald-500 text-white text-[10px] md:text-sm font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-emerald-500/30">
-                                        Promoción Exclusiva
+                                    <span className="inline-block px-4 py-1.5 bg-pink-500 text-white text-[10px] md:text-sm font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-pink-500/30">
+                                        Lanzamiento Exclusivo
                                     </span>
                                 </motion.div>
 
@@ -133,7 +133,7 @@ export default function PromoSlider({ items }: PromoSliderProps) {
                                     transition={{ delay: 0.4 }}
                                     className="text-white/80 text-sm md:text-lg font-medium max-w-md line-clamp-2 md:line-clamp-none"
                                 >
-                                    Aprovecha nuestros precios especiales en productos seleccionados. Calidad y frescura garantizada.
+                                    Descubre la magia del maquillaje profesional. Resalta tu belleza con nuestra selección exclusiva.
                                 </motion.p>
 
                                 <motion.div
@@ -144,9 +144,9 @@ export default function PromoSlider({ items }: PromoSliderProps) {
                                 >
                                     <Link
                                         href={promoLink}
-                                        className="inline-flex items-center gap-2 bg-white text-emerald-600 hover:bg-emerald-600 hover:text-white px-6 md:px-10 py-3 md:py-4 rounded-full text-sm md:text-lg font-black transition-all duration-300 shadow-xl hover:shadow-emerald-500/20 active:scale-95 group/btn"
+                                        className="inline-flex items-center gap-2 bg-white text-pink-600 hover:bg-pink-600 hover:text-white px-6 md:px-10 py-3 md:py-4 rounded-full text-sm md:text-lg font-black transition-all duration-300 shadow-xl hover:shadow-pink-500/20 active:scale-95 group/btn"
                                     >
-                                        <span>Ver Promoción</span>
+                                        <span>Descubrir Más</span>
                                         <ArrowRight className="w-5 h-5 transition-transform group-hover/btn:translate-x-1" />
                                     </Link>
                                 </motion.div>
@@ -161,7 +161,7 @@ export default function PromoSlider({ items }: PromoSliderProps) {
                         <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-8 z-20">
                             <button
                                 onClick={slidePrev}
-                                className="p-3 md:p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-emerald-600 transition-all active:scale-90"
+                                className="p-3 md:p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-pink-600 transition-all active:scale-90"
                             >
                                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                             </button>
@@ -169,7 +169,7 @@ export default function PromoSlider({ items }: PromoSliderProps) {
                         <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-8 z-20">
                             <button
                                 onClick={slideNext}
-                                className="p-3 md:p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-emerald-600 transition-all active:scale-90"
+                                className="p-3 md:p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-pink-600 transition-all active:scale-90"
                             >
                                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                             </button>

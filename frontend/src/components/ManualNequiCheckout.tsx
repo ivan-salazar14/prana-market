@@ -108,8 +108,8 @@ export default function ManualNequiCheckout({
     };
 
     const handleWhatsAppNotify = () => {
-        const message = `¡Hola Prana Market! Acabo de realizar una transferencia Nequi por mi pedido. El total es COP ${total.toLocaleString('es-CO')}. Adjunto el comprobante.`;
-        const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(message)}`;
+        const message = `¡Hola Prana Make up! Acabo de realizar una transferencia Nequi por mi pedido. El total es COP ${total.toLocaleString('es-CO')}. Adjunto el comprobante.`;
+        const whatsappUrl = `https://wa.me/573182026212?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };
 
@@ -136,7 +136,7 @@ export default function ManualNequiCheckout({
                             <span className="text-2xl font-black text-gray-900 tracking-tighter">{NEQUI_NUMBER}</span>
                             <button
                                 onClick={handleCopy}
-                                className={`p-2 rounded-lg transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-400 hover:text-gray-900'}`}
+                                className={`p-2 rounded-lg transition-all ${copied ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-400 hover:text-gray-900'}`}
                             >
                                 {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                             </button>
@@ -177,7 +177,7 @@ export default function ManualNequiCheckout({
                 <button
                     onClick={handleConfirmOrder}
                     disabled={loading || orderCreated}
-                    className="w-full bg-[#FF0082] text-white py-4 px-6 rounded-2xl font-black text-sm shadow-xl shadow-[#FF0082]/10 hover:bg-[#E60075] transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center space-x-2"
+                    className="w-full bg-black text-white py-4 px-6 rounded-2xl font-black text-sm shadow-xl shadow-pink-100 hover:bg-gray-900 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center space-x-2"
                 >
                     {loading ? (
                         <>
@@ -194,7 +194,7 @@ export default function ManualNequiCheckout({
 
                 <button
                     onClick={handleWhatsAppNotify}
-                    className="w-full bg-white text-[#25D366] border-2 border-emerald-100 py-3 px-6 rounded-2xl font-bold text-xs hover:bg-emerald-50 transition-all flex items-center justify-center space-x-2 shadow-sm"
+                    className="w-full bg-white text-[#25D366] border-2 border-pink-100 py-3 px-6 rounded-2xl font-bold text-xs hover:bg-pink-50 transition-all flex items-center justify-center space-x-2 shadow-sm"
                 >
                     <MessageCircle className="w-4 h-4" />
                     <span>INFORMAR POR WHATSAPP</span>

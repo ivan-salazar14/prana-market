@@ -61,11 +61,11 @@ export default function Navbar() {
           <div className="flex justify-between items-center h-12">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-lg shadow-pink-200 group-hover:scale-105 transition-transform">
                 <span className="text-white font-black text-xl">P</span>
               </div>
               <span className="text-xl font-bold text-gray-900 tracking-tight">
-                Prana <span className="text-emerald-600">Market</span>
+                Prana <span className="text-pink-600">Make up</span>
               </span>
             </Link>
 
@@ -78,8 +78,8 @@ export default function Navbar() {
                   className={cn(
                     "px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2",
                     pathname === link.href
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? "bg-pink-50 text-pink-700"
+                      : "text-gray-600 hover:bg-pink-50 hover:text-gray-900"
                   )}
                 >
                   <link.icon className="w-4 h-4" />
@@ -91,11 +91,11 @@ export default function Navbar() {
 
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all group"
+                className="relative p-2 text-gray-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-all group"
               >
                 <ShoppingBag className="w-6 h-6" />
                 {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform group-hover:scale-110">
+                  <span className="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform group-hover:scale-110">
                     {cartItemsCount}
                   </span>
                 )}
@@ -104,7 +104,7 @@ export default function Navbar() {
               {authState.user ? (
                 <div className="flex items-center ml-2 space-x-1">
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
-                    <div className="w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-xs font-bold">
+                    <div className="w-6 h-6 bg-pink-100 text-pink-700 rounded-full flex items-center justify-center text-xs font-bold">
                       {authState.user.username[0].toUpperCase()}
                     </div>
                     <span className="text-sm font-semibold text-gray-700">{authState.user.username}</span>
@@ -127,7 +127,7 @@ export default function Navbar() {
                   </Link>
                   <Link
                     href="/register"
-                    className="px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-md shadow-emerald-100 active:scale-95"
+                    className="px-4 py-2 text-sm font-bold text-white bg-black hover:bg-gray-900 rounded-xl transition-all shadow-md shadow-pink-100 active:scale-95"
                   >
                     Registro
                   </Link>
@@ -143,7 +143,7 @@ export default function Navbar() {
               >
                 <ShoppingBag className="w-6 h-6" />
                 {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">
+                  <span className="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">
                     {cartItemsCount}
                   </span>
                 )}
@@ -176,7 +176,7 @@ export default function Navbar() {
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors",
                       pathname === link.href
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-pink-50 text-pink-700"
                         : "text-gray-600 hover:bg-gray-50"
                     )}
                   >
@@ -190,7 +190,7 @@ export default function Navbar() {
                 {authState.user ? (
                   <div className="space-y-1">
                     <div className="flex items-center gap-3 px-4 py-3 text-gray-700">
-                      <div className="w-8 h-8 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold">
+                      <div className="w-8 h-8 bg-pink-100 text-pink-700 rounded-full flex items-center justify-center font-bold">
                         {authState.user.username[0].toUpperCase()}
                       </div>
                       <div>
@@ -216,7 +216,7 @@ export default function Navbar() {
                     </Link>
                     <Link
                       href="/register"
-                      className="flex items-center justify-center px-4 py-3 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700"
+                      className="flex items-center justify-center px-4 py-3 rounded-xl text-sm font-bold text-white bg-black hover:bg-gray-900"
                     >
                       Registro
                     </Link>

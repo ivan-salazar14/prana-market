@@ -91,12 +91,10 @@ function PaymentSuccessContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+    <div className="min-h-screen bg-[#fff5f7] flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl shadow-pink-100 p-8 md:p-10 text-center border border-pink-50">
+        <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+          <CheckCircle2 className="w-10 h-10 text-pink-600" />
         </div>
 
         <div className="flex items-center gap-2 mb-2">
@@ -125,15 +123,15 @@ function PaymentSuccessContent() {
         )}
 
         {orderDetails?.paymentMethod && (
-          <div className="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="mb-6 p-4 bg-pink-50/50 rounded-2xl border border-pink-100">
             <p className="text-sm text-gray-700">
               <span className="font-semibold">Método de pago:</span>{' '}
               {(orderDetails.paymentMethod === 'nequi' || orderDetails.paymentMethod === 'nequi_manual') ? (
-                <span className="text-green-700 font-medium">📱 Nequi</span>
+                <span className="text-pink-700 font-bold">📱 Nequi</span>
               ) : orderDetails.paymentMethod === 'efectivo' ? (
-                <span className="text-blue-700 font-medium">💵 Efectivo (Contraentrega)</span>
+                <span className="text-gray-900 font-bold">💵 Efectivo (Contraentrega)</span>
               ) : (
-                <span>{orderDetails.paymentMethod}</span>
+                <span className="font-bold">{orderDetails.paymentMethod}</span>
               )}
             </p>
           </div>
@@ -141,37 +139,36 @@ function PaymentSuccessContent() {
 
         {/* Order Summary */}
         {orderDetails && (
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold mb-3">Resumen del pedido:</h3>
+          <div className="bg-gray-50/50 rounded-[2rem] p-6 mb-8 border border-gray-100">
+            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Resumen del pedido</h3>
 
-            <div className="space-y-2 mb-4">
-              <h4 className="font-medium">Productos:</h4>
+            <div className="space-y-3 mb-6">
               {orderDetails.items.map((item: OrderItem, index: number) => (
                 <div key={index} className="flex justify-between text-sm">
-                  <span>{item.name} (x{item.quantity})</span>
-                  <span>COP {(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="text-gray-600 font-medium">{item.name} <span className="text-gray-400 text-xs">x{item.quantity}</span></span>
+                  <span className="font-bold text-gray-900">COP {(item.price * item.quantity).toLocaleString('es-CO')}</span>
                 </div>
               ))}
             </div>
 
-            <div className="space-y-1 mb-4">
-              <div className="flex justify-between text-sm">
-                <span>Subtotal:</span>
-                <span>COP {orderDetails.subtotal.toFixed(2)}</span>
+            <div className="space-y-2 mb-6 border-t border-dashed border-gray-200 pt-4">
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500">Subtotal:</span>
+                <span className="text-gray-900 font-medium">COP {orderDetails.subtotal.toLocaleString('es-CO')}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Envío ({orderDetails.deliveryMethod.name}):</span>
-                <span>{orderDetails.deliveryCost === 0 ? 'Gratis' : `COP ${orderDetails.deliveryCost}`}</span>
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500">Envío ({orderDetails.deliveryMethod.name}):</span>
+                <span className="text-pink-600 font-bold">{orderDetails.deliveryCost === 0 ? 'Gratis' : `COP ${orderDetails.deliveryCost.toLocaleString('es-CO')}`}</span>
               </div>
-              <div className="flex justify-between font-semibold border-t border-gray-300 pt-2 mt-2">
-                <span className="text-gray-900">Total {(orderDetails.paymentMethod === 'efectivo' || orderDetails.paymentMethod === 'nequi_manual') ? 'a pagar' : 'pagado'}:</span>
-                <span className="text-gray-900">COP {orderDetails.total.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</span>
+              <div className="flex justify-between text-lg font-black border-t border-gray-100 pt-3 mt-3">
+                <span className="text-gray-900">Total:</span>
+                <span className="text-pink-600">COP {orderDetails.total.toLocaleString('es-CO')}</span>
               </div>
             </div>
 
-            <div className="text-sm text-gray-600">
-              <p><strong>Método de entrega:</strong> {orderDetails.deliveryMethod.name}</p>
-              <p className="mt-1">{orderDetails.deliveryMethod.description}</p>
+            <div className="text-[10px] text-gray-500 bg-white p-3 rounded-xl border border-gray-50">
+              <p><strong>Entrega:</strong> {orderDetails.deliveryMethod.name}</p>
+              <p className="mt-0.5">{orderDetails.deliveryMethod.description}</p>
             </div>
           </div>
         )}
@@ -180,11 +177,11 @@ function PaymentSuccessContent() {
           {orderDetails?.paymentMethod === 'nequi_manual' && (
             <button
               onClick={() => {
-                const message = `¡Hola Prana Market! Acabo de realizar una transferencia Nequi por mi pedido #${orderDetails.orderId || ''}. El total es COP ${orderDetails.total.toLocaleString('es-CO')}. Adjunto el comprobante.`;
+                const message = `¡Hola Prana Make up! Acabo de realizar una transferencia Nequi por mi pedido #${orderDetails.orderId || ''}. El total es COP ${orderDetails.total.toLocaleString('es-CO')}. Adjunto el comprobante.`;
                 const whatsappUrl = `https://wa.me/573182026212?text=${encodeURIComponent(message)}`;
                 window.open(whatsappUrl, '_blank');
               }}
-              className="flex items-center justify-center w-full bg-[#25D366] text-white py-4 px-6 rounded-xl font-bold hover:bg-[#20ba5a] transition-all shadow-lg shadow-emerald-100 mb-4"
+              className="flex items-center justify-center w-full bg-[#25D366] text-white py-4 px-6 rounded-2xl font-bold hover:opacity-90 transition-all shadow-lg shadow-emerald-100/50 mb-6"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               Enviar comprobante por WhatsApp
@@ -193,13 +190,14 @@ function PaymentSuccessContent() {
 
           <Link
             href="/"
-            className="block w-full bg-emerald-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-emerald-700 transition-all text-center"
+            className="flex items-center justify-center w-full bg-black text-white py-4 px-6 rounded-2xl font-black text-sm hover:bg-gray-900 transition-all shadow-xl shadow-pink-100/50"
           >
             Continuar comprando
+            <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
           <Link
             href="/orders"
-            className="block w-full bg-gray-100 text-gray-800 py-3 px-4 rounded-xl font-bold hover:bg-gray-200 transition-all text-center"
+            className="block w-full bg-white text-gray-500 py-3 px-4 rounded-xl font-bold hover:text-gray-900 transition-all text-center text-xs"
           >
             Ver mis pedidos
           </Link>

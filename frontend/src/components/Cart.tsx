@@ -107,21 +107,21 @@ function EfectivoCheckout({
   if (showConfirmation) {
     return (
       <div className="efectivo-checkout">
-        <div className="bg-emerald-50 border-2 border-emerald-100 rounded-2xl p-5 mb-4">
-          <h4 className="text-lg font-bold text-emerald-900 mb-3 flex items-center">
+        <div className="bg-pink-50 border-2 border-pink-100 rounded-2xl p-5 mb-4">
+          <h4 className="text-lg font-bold text-pink-900 mb-3 flex items-center">
             <CheckCircle2 className="w-5 h-5 mr-2" />
             Confirmar Pedido
           </h4>
           <div className="space-y-2 mb-4">
-            <div className="flex justify-between text-sm text-emerald-800">
+            <div className="flex justify-between text-sm text-pink-800">
               <span className="font-medium">Entrega:</span>
               <span className="font-bold">{deliveryMethod?.name}</span>
             </div>
-            <div className="flex justify-between text-sm text-emerald-800">
+            <div className="flex justify-between text-sm text-pink-800">
               <span className="font-medium">Total:</span>
               <span className="text-lg font-bold">COP {total.toLocaleString('es-CO')}</span>
             </div>
-            <p className="text-xs text-emerald-700 mt-3 pt-3 border-t border-emerald-200/50">
+            <p className="text-xs text-pink-700 mt-3 pt-3 border-t border-pink-200/50">
               El pago se realizará al momento de la entrega o recogida.
             </p>
           </div>
@@ -137,7 +137,7 @@ function EfectivoCheckout({
           <button
             onClick={handleConfirmOrder}
             disabled={loading}
-            className="flex-1 bg-emerald-600 text-white py-3 px-4 rounded-xl hover:bg-emerald-700 font-bold shadow-lg shadow-emerald-100 transition-all active:scale-95 disabled:opacity-50"
+            className="flex-1 bg-black text-white py-3 px-4 rounded-xl hover:bg-gray-900 font-bold shadow-lg shadow-pink-100 transition-all active:scale-95 disabled:opacity-50"
           >
             {loading ? (
               <span className="flex items-center justify-center">
@@ -157,16 +157,16 @@ function EfectivoCheckout({
     <div className="efectivo-checkout">
       <h3 className="text-lg font-bold mb-4 text-gray-900">Pago Contraentrega (Efectivo)</h3>
 
-      <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mb-4">
+      <div className="bg-pink-50 border border-pink-100 rounded-2xl p-4 mb-4">
         <div className="flex items-start">
-          <div className="bg-white p-2 rounded-xl border border-emerald-100 mr-3">
-            <Wallet className="h-5 w-5 text-emerald-600" />
+          <div className="bg-white p-2 rounded-xl border border-pink-100 mr-3">
+            <Wallet className="h-5 w-5 text-pink-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm text-emerald-900 font-bold mb-1">
+            <p className="text-sm text-pink-900 font-bold mb-1">
               Pago al momento de la entrega
             </p>
-            <p className="text-xs text-emerald-700 leading-relaxed">
+            <p className="text-xs text-pink-700 leading-relaxed">
               {deliveryMethod?.id === 'pickup'
                 ? 'Pagarás cuando recojas tu pedido en la tienda'
                 : 'Pagarás cuando recibas tu pedido en el domicilio'}
@@ -179,15 +179,15 @@ function EfectivoCheckout({
         <p className="text-sm font-bold text-gray-900 mb-3">Instrucciones:</p>
         <ul className="text-sm text-gray-600 space-y-2">
           <li className="flex items-start">
-            <span className="text-emerald-500 mr-2">•</span>
+            <span className="text-pink-500 mr-2">•</span>
             <span>El pago es al momento de la {deliveryMethod?.id === 'pickup' ? 'recogida' : 'entrega'}</span>
           </li>
           <li className="flex items-start">
-            <span className="text-emerald-500 mr-2">•</span>
+            <span className="text-pink-500 mr-2">•</span>
             <span>Por favor, ten el monto exacto o aproximado</span>
           </li>
           <li className="flex items-start">
-            <span className="text-emerald-500 mr-2">•</span>
+            <span className="text-pink-500 mr-2">•</span>
             <span>Total: <strong className="text-gray-900">COP {total.toLocaleString('es-CO')}</strong></span>
           </li>
         </ul>
@@ -207,7 +207,7 @@ function EfectivoCheckout({
 
       <button
         onClick={() => setShowConfirmation(true)}
-        className="w-full bg-emerald-600 text-white py-4 px-6 rounded-2xl hover:bg-emerald-700 font-bold shadow-xl shadow-emerald-100 transition-all active:scale-[0.98]"
+        className="w-full bg-black text-white py-4 px-6 rounded-2xl hover:bg-gray-900 font-bold shadow-xl shadow-pink-100 transition-all active:scale-[0.98]"
       >
         Confirmar Pedido
       </button>
@@ -269,12 +269,12 @@ export default function Cart({ isOpen, onClose }: CartProps) {
             {/* Header */}
             <div className="p-6 border-b border-gray-100 dark:border-white/10 flex justify-between items-center bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md sticky top-0 z-10">
               <div className="flex items-center space-x-3">
-                <div className="bg-emerald-50 dark:bg-emerald-900/30 p-2 rounded-xl">
-                  <ShoppingBag className="w-6 h-6 text-emerald-600" />
+                <div className="bg-pink-50 dark:bg-pink-900/30 p-2 rounded-xl">
+                  <ShoppingBag className="w-6 h-6 text-pink-600" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Tu Carrito</h2>
                 {state.items.length > 0 && (
-                  <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  <span className="bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                     {state.items.length}
                   </span>
                 )}
@@ -299,7 +299,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                   </div>
                   <button
                     onClick={onClose}
-                    className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-full font-bold text-sm hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-200 dark:shadow-none"
+                    className="mt-4 px-6 py-2 bg-pink-600 text-white rounded-full font-bold text-sm hover:bg-pink-700 transition-colors shadow-lg shadow-pink-200 dark:shadow-none"
                   >
                     Ir a la tienda
                   </button>
@@ -329,7 +329,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
 
                           <div className="ml-4 flex-1">
                             <h3 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{item.name}</h3>
-                            <p className="text-sm font-bold text-emerald-600 mt-0.5">
+                            <p className="text-sm font-bold text-pink-600 mt-0.5">
                               COP {item.price.toLocaleString('es-CO')}
                             </p>
 
@@ -373,8 +373,8 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                           className={cn(
                             "flex items-start p-4 rounded-2xl border-2 transition-all cursor-pointer",
                             state.deliveryMethod?.id === method.id
-                              ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10"
-                              : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-emerald-200"
+                              ? "border-pink-600 bg-pink-50/50 dark:bg-pink-900/10"
+                              : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-pink-200"
                           )}
                         >
                           <input
@@ -391,19 +391,19 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             className="mt-1 sr-only"
                           />
                           <div className="bg-white dark:bg-zinc-800 p-2 rounded-xl border border-gray-100 dark:border-white/10 mr-4">
-                            {method.id === 'pickup' ? <Store className="w-5 h-5 text-emerald-600" /> : <Truck className="w-5 h-5 text-emerald-600" />}
+                            {method.id === 'pickup' ? <Store className="w-5 h-5 text-pink-600" /> : <Truck className="w-5 h-5 text-pink-600" />}
                           </div>
                           <div className="flex-1">
                             <div className="flex justify-between items-center mb-0.5">
                               <span className="font-bold text-sm text-gray-900 dark:text-white">{method.name}</span>
-                              <span className="text-xs font-black text-emerald-600">
+                              <span className="text-xs font-black text-pink-600">
                                 {method.cost === 0 ? 'GRATIS' : `COP ${method.cost.toLocaleString('es-CO')}`}
                               </span>
                             </div>
                             <p className="text-xs text-gray-500 leading-relaxed">{method.description}</p>
                           </div>
                           {state.deliveryMethod?.id === method.id && (
-                            <div className="w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center ml-2">
+                            <div className="w-5 h-5 bg-pink-600 rounded-full flex items-center justify-center ml-2">
                               <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                             </div>
                           )}
@@ -432,13 +432,13 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-500 font-medium">Envío</span>
-                        <span className="text-emerald-600 font-bold">
+                        <span className="text-pink-600 font-bold">
                           {state.deliveryCost === 0 ? 'Gratis' : `+ COP ${state.deliveryCost.toLocaleString('es-CO')}`}
                         </span>
                       </div>
                       <div className="pt-3 border-t border-gray-200 dark:border-white/10 flex justify-between items-center">
                         <span className="text-base font-black text-gray-900 dark:text-white">Total</span>
-                        <span className="text-xl font-black text-emerald-600">
+                        <span className="text-xl font-black text-pink-600">
                           COP {state.total.toLocaleString('es-CO')}
                         </span>
                       </div>
@@ -454,18 +454,18 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             className={cn(
                               "flex items-center p-4 rounded-2xl border-2 transition-all group",
                               paymentMethod === 'efectivo'
-                                ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10 shadow-lg shadow-emerald-100/50 dark:shadow-none"
-                                : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-emerald-200"
+                                ? "border-pink-600 bg-pink-50/50 dark:bg-pink-900/10 shadow-lg shadow-pink-100/50 dark:shadow-none"
+                                : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-pink-200"
                             )}
                           >
                             <div className={cn(
                               "w-10 h-10 rounded-full flex items-center justify-center mr-4 transition-all",
-                              paymentMethod === 'efectivo' ? "bg-emerald-600 text-white" : "bg-gray-50 dark:bg-zinc-800 text-gray-400 group-hover:text-emerald-500"
+                              paymentMethod === 'efectivo' ? "bg-pink-600 text-white" : "bg-gray-50 dark:bg-zinc-800 text-gray-400 group-hover:text-pink-500"
                             )}>
                               <CreditCard className="w-5 h-5" />
                             </div>
                             <div className="text-left">
-                              <span className={cn("text-sm font-bold block", paymentMethod === 'efectivo' ? "text-emerald-900 dark:text-emerald-400" : "text-gray-500")}>Pago Contra Entrega / Efectivo</span>
+                              <span className={cn("text-sm font-bold block", paymentMethod === 'efectivo' ? "text-pink-900 dark:text-pink-400" : "text-gray-500")}>Pago Contra Entrega / Efectivo</span>
                               <span className="text-[10px] text-gray-400 font-medium">Paga al recibir tu pedido</span>
                             </div>
                           </button>

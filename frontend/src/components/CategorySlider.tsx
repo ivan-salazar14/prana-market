@@ -56,9 +56,9 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
             <div className="flex items-center justify-between mb-8">
                 <div className="space-y-1">
                     <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                        Nuestras Categorías
+                        Explora por Estilo
                     </h2>
-                    <p className="text-gray-500 font-medium">Explora productos seleccionados para tu bienestar</p>
+                    <p className="text-gray-500 font-medium">Encuentra los tonos perfectos para resaltar tu esencia</p>
                 </div>
                 <div className="flex gap-2">
                     {selectedCategory && (
@@ -66,7 +66,7 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             onClick={() => onSelectCategory(null)}
-                            className="text-emerald-600 hover:text-emerald-700 font-bold text-sm bg-emerald-50 px-4 py-2 rounded-full transition-colors"
+                            className="text-pink-600 hover:text-pink-700 font-bold text-sm bg-pink-50 px-4 py-2 rounded-full transition-colors"
                         >
                             Ver todas
                         </motion.button>
@@ -80,7 +80,7 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                     {showLeftArrow && (
                         <button
                             onClick={() => scroll('left')}
-                            className="p-3 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-gray-50 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
+                            className="p-3 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-gray-50 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:text-pink-600 transition-all hover:scale-110 active:scale-95"
                         >
                             <ChevronLeft className="h-6 w-6" />
                         </button>
@@ -91,7 +91,7 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                     {showRightArrow && (
                         <button
                             onClick={() => scroll('right')}
-                            className="p-3 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-gray-50 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
+                            className="p-3 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-gray-50 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:text-pink-600 transition-all hover:scale-110 active:scale-95"
                         >
                             <ChevronRight className="h-6 w-6" />
                         </button>
@@ -117,7 +117,7 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                                 <div className={cn(
                                     "relative w-24 h-24 md:w-32 md:h-32 rounded-3xl overflow-hidden transition-all duration-500 shadow-lg",
                                     selectedCategory === category.id
-                                        ? "ring-4 ring-emerald-500 ring-offset-4 scale-105 shadow-emerald-100"
+                                        ? "ring-4 ring-pink-500 ring-offset-4 scale-105 shadow-pink-100"
                                         : "ring-0 ring-offset-0 grayscale-[0.3] group-hover/item:grayscale-0 group-hover/item:scale-105"
                                 )}>
                                     {category.Image ? (
@@ -128,13 +128,13 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                                             className="object-cover transition-transform duration-700 group-hover/item:scale-110"
                                         />
                                     ) : (
-                                        <div className="w-full h-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                        <div className="w-full h-full bg-pink-50 flex items-center justify-center text-pink-600">
                                             <span className="text-3xl font-bold uppercase">{category.Name[0]}</span>
                                         </div>
                                     )}
                                     {/* Overlay for selected state */}
                                     {selectedCategory === category.id && (
-                                        <div className="absolute inset-0 bg-emerald-600/10 backdrop-blur-[1px]" />
+                                        <div className="absolute inset-0 bg-pink-600/10 backdrop-blur-[1px]" />
                                     )}
                                 </div>
 
@@ -142,13 +142,13 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                                     <span className={cn(
                                         "text-base md:text-lg font-bold transition-all duration-300 text-center",
                                         selectedCategory === category.id
-                                            ? "text-emerald-700 dark:text-emerald-400 scale-110"
-                                            : "text-gray-700 dark:text-gray-300 group-hover/item:text-emerald-600"
+                                            ? "text-pink-700 dark:text-pink-400 scale-110"
+                                            : "text-gray-700 dark:text-gray-300 group-hover/item:text-pink-600"
                                     )}>
                                         {category.Name}
                                     </span>
                                     <div className={cn(
-                                        "h-1 rounded-full bg-emerald-500 transition-all duration-300",
+                                        "h-1 rounded-full bg-pink-500 transition-all duration-300",
                                         selectedCategory === category.id ? "w-8 mt-1 opacity-100" : "w-0 mt-1 opacity-0 group-hover/item:w-4 group-hover/item:opacity-50"
                                     )} />
                                 </div>

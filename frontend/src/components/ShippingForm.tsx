@@ -60,7 +60,7 @@ export default function ShippingForm() {
             id="fullName"
             value={formData.fullName}
             onChange={(e) => handleChange('fullName', e.target.value)}
-            className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none ${errors.fullName ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-emerald-500'
+            className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.fullName ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
               }`}
             placeholder="Ej: Juan Pérez"
           />
@@ -77,7 +77,7 @@ export default function ShippingForm() {
               id="city"
               value={formData.city}
               onChange={(e) => handleChange('city', e.target.value)}
-              className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none ${errors.city ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-emerald-500'
+              className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.city ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
                 }`}
               placeholder="Ej: Bogotá"
             />
@@ -93,7 +93,7 @@ export default function ShippingForm() {
               id="phone"
               value={formData.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
-              className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none ${errors.phone ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-emerald-500'
+              className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.phone ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
                 }`}
               placeholder="300 123 4567"
             />
@@ -110,7 +110,7 @@ export default function ShippingForm() {
             id="address"
             value={formData.address}
             onChange={(e) => handleChange('address', e.target.value)}
-            className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none ${errors.address ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-emerald-500'
+            className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.address ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
               }`}
             placeholder="Ej: Calle 123 #45-67 apto 101"
           />
@@ -126,7 +126,7 @@ export default function ShippingForm() {
             id="email"
             value={formData.email || ''}
             onChange={(e) => handleChange('email', e.target.value)}
-            className="w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-medium focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+            className="w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-medium focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all"
             placeholder="juan@ejemplo.com"
           />
         </div>
@@ -134,14 +134,14 @@ export default function ShippingForm() {
 
       <button
         onClick={handleSave}
-        className="w-full bg-emerald-600 text-white py-4 px-6 rounded-2xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-emerald-100 dark:shadow-none hover:bg-emerald-700"
+        className="w-full bg-pink-600 text-white py-4 px-6 rounded-2xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-pink-100 dark:shadow-none hover:bg-pink-700"
       >
         Guardar Dirección
       </button>
 
       {state.shippingAddress && (
-        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-xl p-3 flex items-center justify-center animate-in zoom-in duration-300">
-          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center">
+        <div className="bg-pink-50 dark:bg-pink-900/20 border border-pink-100 dark:border-pink-900/30 rounded-xl p-3 flex items-center justify-center animate-in zoom-in duration-300">
+          <span className="text-xs font-bold text-pink-700 dark:text-pink-400 flex items-center">
             <CheckCircle2 className="w-4 h-4 mr-2" />
             ¡Dirección guardada con éxito!
           </span>

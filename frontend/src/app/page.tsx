@@ -101,7 +101,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-transparent">
+    <div className="min-h-screen bg-[#fff5f7] dark:bg-zinc-950">
       <div className="container mx-auto px-4 py-8 md:py-12">
 
         {/* Promotional Slider */}
@@ -156,8 +156,8 @@ export default function Home() {
                 className={cn(
                   "px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border-2",
                   !selectedCategory
-                    ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/20"
-                    : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-emerald-200 dark:hover:border-emerald-900/30"
+                    ? "bg-black border-black text-white shadow-lg shadow-pink-200 dark:shadow-pink-900/20"
+                    : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-pink-200 dark:hover:border-pink-900/30"
                 )}
               >
                 Todas
@@ -169,8 +169,8 @@ export default function Home() {
                   className={cn(
                     "px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border-2",
                     selectedCategory === subcat.documentId || selectedCategory === subcat.id.toString()
-                      ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/20 text-emerald-50"
-                      : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-emerald-200 dark:hover:border-emerald-900/30"
+                      ? "bg-pink-600 border-pink-600 text-white shadow-lg shadow-pink-200 dark:shadow-pink-900/20 text-pink-50"
+                      : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-pink-200 dark:hover:border-pink-900/30"
                   )}
                 >
                   {subcat.Name}
@@ -190,10 +190,10 @@ export default function Home() {
                     ? `Productos en ${categories.find(c => c.documentId === selectedCategory || c.id === (selectedCategory as any))?.Name}`
                     : selectedTopCategory
                       ? `Todo en ${topCategories.find(c => c.documentId === selectedTopCategory || c.id === (selectedTopCategory as any))?.Name}`
-                      : "Nuestra Selección de Productos"
+                      : "Explora Nuestra Colección"
                   }
                 </h2>
-                <p className="text-gray-500 font-medium">Calidad y consciencia en cada detalle</p>
+                <p className="text-gray-500 font-medium">Belleza y sofisticación en cada detalle</p>
               </div>
             </div>
 
@@ -209,7 +209,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="group bg-white dark:bg-zinc-900 rounded-[2rem] shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-500"
+                    className="group bg-white dark:bg-zinc-900 rounded-[2rem] shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden hover:shadow-xl hover:shadow-pink-900/5 transition-all duration-500"
                   >
                     {product.images?.[0] && (
                       <div className="h-64 overflow-hidden relative">
@@ -225,12 +225,12 @@ export default function Home() {
                           <div className="absolute top-4 left-4 flex flex-col gap-1">
                             {/* Top Category Badge */}
                             {(product.product_category as any).category && (
-                              <span className="bg-emerald-600/90 backdrop-blur px-3 py-0.5 rounded-full text-[9px] font-black text-white shadow-sm uppercase tracking-widest w-fit">
+                              <span className="bg-black/90 backdrop-blur px-3 py-0.5 rounded-full text-[9px] font-black text-white shadow-sm uppercase tracking-widest w-fit">
                                 {(product.product_category as any).category.Name}
                               </span>
                             )}
                             {/* Subcategory Badge */}
-                            <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 shadow-sm uppercase tracking-wider w-fit">
+                            <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-pink-700 dark:text-pink-400 border border-pink-100 dark:border-pink-900/50 shadow-sm uppercase tracking-wider w-fit">
                               {product.product_category.Name}
                             </span>
                           </div>
@@ -240,7 +240,7 @@ export default function Home() {
                     <div className="p-8">
                       <div className="flex flex-col mb-4">
                         <Link href={`/product/${product.documentId}`}>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors mb-2 line-clamp-1">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-pink-600 transition-colors mb-2 line-clamp-1">
                             {product.name}
                           </h3>
                         </Link>
@@ -249,7 +249,7 @@ export default function Home() {
                         </p>
                       </div>
                       <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                        <span className="text-2xl font-black text-emerald-600">
+                        <span className="text-2xl font-black text-pink-600">
                           {new Intl.NumberFormat('es-CO', {
                             style: 'currency',
                             currency: 'COP',
@@ -258,7 +258,7 @@ export default function Home() {
                         </span>
                         <button
                           onClick={() => addToCart(product)}
-                          className="p-3 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 active:scale-90"
+                          className="p-3 rounded-2xl bg-black text-white hover:bg-gray-900 transition-all shadow-lg shadow-pink-100 active:scale-90"
                           title="Añadir al carrito"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
