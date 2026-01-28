@@ -28,6 +28,7 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
   const [status, setStatus] = useState<'pending' | 'completed' | 'expired'>('pending');
   const [timeRemaining, setTimeRemaining] = useState<number>(600);
   const [error, setError] = useState<string | null>(null);
+  const [isSandbox, setIsSandbox] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -57,6 +58,7 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
 
       setQrCodeData(qrData);
       setPaymentId(data.payment_id);
+      setIsSandbox(data.is_sandbox || false);
       setTimeRemaining(600);
       setStatus('pending');
     } catch (error) {
@@ -127,6 +129,22 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const simulateSuccess = async () => {
+    if (!paymentId) return;
+    try {
+      await fetch(`/api/nequi/payment-status/${paymentId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'completed' }),
+      });
+      // La verificación periódica detectará el cambio:
+      setStatus('completed');
+      onSuccess();
+    } catch (error) {
+      console.error('Error simulating success:', error);
+    }
+  };
+
   return (
     <div className="nequi-checkout animate-in fade-in slide-in-from-bottom-4 duration-500">
       {!qrCodeData && !loading && (
@@ -171,15 +189,30 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
         <div className="space-y-6">
           <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl border-2 border-emerald-100 dark:border-white/5 shadow-inner flex flex-col items-center">
             <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-4">
-              <QRCodeSVG value={qrCodeData} size={180} level="M" />
+              {qrCodeData.startsWith('data:image') ? (
+                <img src={qrCodeData} alt="Nequi QR Code" className="w-[180px] h-[180px] object-contain" />
+              ) : (
+                <QRCodeSVG value={qrCodeData} size={180} level="M" />
+              )}
             </div>
 
             {status === 'pending' && timeRemaining > 0 && (
-              <div className="flex items-center space-x-2 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-full border border-emerald-100 dark:border-emerald-500/20">
-                <Timer className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-[11px] font-black text-emerald-700 dark:text-emerald-400">
-                  EXPIRA EN {formatTime(timeRemaining)}
-                </span>
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center space-x-2 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-full border border-emerald-100 dark:border-emerald-500/20">
+                  <Timer className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-[11px] font-black text-emerald-700 dark:text-emerald-400">
+                    EXPIRA EN {formatTime(timeRemaining)}
+                  </span>
+                </div>
+
+                {isSandbox && (
+                  <button
+                    onClick={simulateSuccess}
+                    className="mt-2 text-[10px] bg-amber-100 text-amber-700 px-3 py-1 rounded-full border border-amber-200 hover:bg-amber-200 transition-colors font-bold uppercase tracking-wider"
+                  >
+                    Simular Pago Exitoso (Sandbox)
+                  </button>
+                )}
               </div>
             )}
           </div>

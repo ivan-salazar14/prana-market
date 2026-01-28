@@ -242,7 +242,7 @@ const DELIVERY_METHODS: DeliveryMethod[] = [
 
 export default function Cart({ isOpen, onClose }: CartProps) {
   const { state, dispatch } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState<'nequi' | 'efectivo'>('nequi');
+  const [paymentMethod, setPaymentMethod] = useState<'nequi' | 'efectivo'>('efectivo');
 
   return (
     <AnimatePresence>
@@ -447,111 +447,43 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                     {state.deliveryMethod && (state.deliveryMethod.id === 'pickup' || state.shippingAddress) ? (
                       <div className="space-y-6 pb-6">
                         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Método de pago</h4>
-                        <div className="grid grid-cols-2 gap-3 pb-8">
-                          <button
-                            onClick={() => setPaymentMethod('nequi')}
-                            className={cn(
-                              "flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all group",
-                              paymentMethod === 'nequi'
-                                ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10 shadow-lg shadow-emerald-100/50 dark:shadow-none"
-                                : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-emerald-200"
-                            )}
-                          >
-                            <div className={cn(
-                              "w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all",
-                              paymentMethod === 'nequi' ? "bg-emerald-600 text-white" : "bg-gray-50 dark:bg-zinc-800 text-gray-400 group-hover:text-emerald-500"
-                            )}>
-                              <Wallet className="w-5 h-5" />
-                            </div>
-                            <span className={cn("text-xs font-bold", paymentMethod === 'nequi' ? "text-emerald-900 dark:text-emerald-400" : "text-gray-500")}>Nequi</span>
-                          </button>
-
+                        <div className="grid grid-cols-1 gap-3 pb-8">
                           <button
                             onClick={() => setPaymentMethod('efectivo')}
                             className={cn(
-                              "flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all group",
+                              "flex items-center p-4 rounded-2xl border-2 transition-all group",
                               paymentMethod === 'efectivo'
                                 ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10 shadow-lg shadow-emerald-100/50 dark:shadow-none"
                                 : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-emerald-200"
                             )}
                           >
                             <div className={cn(
-                              "w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all",
+                              "w-10 h-10 rounded-full flex items-center justify-center mr-4 transition-all",
                               paymentMethod === 'efectivo' ? "bg-emerald-600 text-white" : "bg-gray-50 dark:bg-zinc-800 text-gray-400 group-hover:text-emerald-500"
                             )}>
                               <CreditCard className="w-5 h-5" />
                             </div>
-                            <span className={cn("text-xs font-bold", paymentMethod === 'efectivo' ? "text-emerald-900 dark:text-emerald-400" : "text-gray-500")}>Efectivo</span>
+                            <div className="text-left">
+                              <span className={cn("text-sm font-bold block", paymentMethod === 'efectivo' ? "text-emerald-900 dark:text-emerald-400" : "text-gray-500")}>Pago Contra Entrega / Efectivo</span>
+                              <span className="text-[10px] text-gray-400 font-medium">Paga al recibir tu pedido</span>
+                            </div>
                           </button>
                         </div>
 
-                        {paymentMethod === 'nequi' ? (
-                          <NequiCheckout
-                            amount={state.total}
-                            onSuccess={async () => {
-                              try {
-                                const transactionId = `nequi_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                                if (!user || !user.id) {
-                                  throw new Error('User ID not found in local storage');
-                                }
-                                const orderResponse = await fetch('/api/orders', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({
-                                    items: state.items,
-                                    deliveryMethod: state.deliveryMethod,
-                                    shippingAddress: state.shippingAddress,
-                                    subtotal: state.subtotal,
-                                    deliveryCost: state.deliveryCost,
-                                    total: state.total,
-                                    transactionId,
-                                    paymentMethod: 'nequi',
-                                    userId: user.id
-                                  }),
-                                });
-
-                                if (!orderResponse.ok) throw new Error('Failed to create order');
-
-                                localStorage.setItem('lastOrder', JSON.stringify({
-                                  items: state.items,
-                                  deliveryMethod: state.deliveryMethod,
-                                  subtotal: state.subtotal,
-                                  deliveryCost: state.deliveryCost,
-                                  total: state.total,
-                                  paymentMethod: 'nequi',
-                                  transactionId,
-                                  timestamp: new Date().toISOString()
-                                }));
-
-                                dispatch({ type: 'CLEAR_CART' });
-                                onClose();
-                                if (process.env.NODE_ENV === 'development') {
-                                  window.location.href = '/payment/success?mock=true';
-                                }
-                              } catch (error) {
-                                console.error('Error creating order:', error);
-                                alert('Pago exitoso pero hubo un error al crear la orden. Contacta soporte.');
-                              }
-                            }}
-                            onError={(error) => alert(`Error en el pago: ${error}`)}
-                          />
-                        ) : (
-                          <EfectivoCheckout
-                            items={state.items}
-                            deliveryMethod={state.deliveryMethod}
-                            shippingAddress={state.shippingAddress}
-                            subtotal={state.subtotal}
-                            deliveryCost={state.deliveryCost}
-                            total={state.total}
-                            onSuccess={() => {
-                              dispatch({ type: 'CLEAR_CART' });
-                              onClose();
-                              window.location.href = '/payment/success';
-                            }}
-                            onError={(error) => alert(`Error: ${error}`)}
-                          />
-                        )}
+                        <EfectivoCheckout
+                          items={state.items}
+                          deliveryMethod={state.deliveryMethod}
+                          shippingAddress={state.shippingAddress}
+                          subtotal={state.subtotal}
+                          deliveryCost={state.deliveryCost}
+                          total={state.total}
+                          onSuccess={() => {
+                            dispatch({ type: 'CLEAR_CART' });
+                            onClose();
+                            window.location.href = '/payment/success';
+                          }}
+                          onError={(error) => alert(`Error: ${error}`)}
+                        />
                       </div>
                     ) : (
                       <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 flex items-start mb-10">

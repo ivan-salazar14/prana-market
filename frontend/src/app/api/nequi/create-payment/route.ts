@@ -5,6 +5,7 @@ import { paymentStatusStore } from '../payment-store';
 const NEQUI_CLIENT_ID = process.env.NEQUI_CLIENT_ID;
 const NEQUI_CLIENT_SECRET = process.env.NEQUI_CLIENT_SECRET;
 const NEQUI_API_KEY = process.env.NEQUI_API_KEY;
+const hasNequiKeys = !!(NEQUI_CLIENT_ID && NEQUI_CLIENT_SECRET && NEQUI_API_KEY);
 
 // Cache para el token de acceso
 let accessToken: string | null = null;
@@ -105,28 +106,27 @@ export async function POST(request: NextRequest) {
     }
 
     const isDevelopment = process.env.NODE_ENV === 'development';
-    const hasNequiKeys = NEQUI_CLIENT_ID && NEQUI_CLIENT_SECRET && NEQUI_API_KEY;
 
-    // Modo mock para desarrollo
-    if (isDevelopment && !hasNequiKeys) {
+    // Sandbox/Mock mode if credentials are missing
+    if (!hasNequiKeys) {
       console.log('🧪 Using mock Nequi response for development');
 
       // Simular delay de API
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const mockPaymentId = `nequi_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       // Generar QR code real con datos del pago
       // En producción, Nequi proporcionaría este QR, pero en mock lo generamos
       const qrData = `nequi://pay?amount=${amount_in_cents}&ref=${mockPaymentId}&desc=${encodeURIComponent(description)}`;
-      
+
       let qrCodeDataUrl: string;
       try {
         // Generar QR code como data URL
         qrCodeDataUrl = await QRCode.toDataURL(qrData, {
           errorCorrectionLevel: 'M',
           type: 'image/png',
-      //    quality: 0.92,
+          //    quality: 0.92,
           margin: 1,
           color: {
             dark: '#000000',
@@ -159,15 +159,16 @@ export async function POST(request: NextRequest) {
         description,
         reference,
         expires_at: new Date(expiresAt).toISOString(),
-        status: 'pending'
+        status: 'pending',
+        is_sandbox: true
       });
     }
 
     // Verificar si Nequi está configurado para producción
     if (!hasNequiKeys) {
       return NextResponse.json(
-        { 
-          error: 'Nequi payment gateway is not configured. Please set NEQUI_CLIENT_ID, NEQUI_CLIENT_SECRET, and NEQUI_API_KEY environment variables.' 
+        {
+          error: 'Nequi payment gateway is not configured. Please set NEQUI_CLIENT_ID, NEQUI_CLIENT_SECRET, and NEQUI_API_KEY environment variables.'
         },
         { status: 500 }
       );

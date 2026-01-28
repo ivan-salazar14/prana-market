@@ -4,6 +4,7 @@ import { paymentStatusStore, cleanupExpiredPayments } from '../../payment-store'
 const NEQUI_CLIENT_ID = process.env.NEQUI_CLIENT_ID;
 const NEQUI_CLIENT_SECRET = process.env.NEQUI_CLIENT_SECRET;
 const NEQUI_API_KEY = process.env.NEQUI_API_KEY;
+const hasNequiKeys = !!(NEQUI_CLIENT_ID && NEQUI_CLIENT_SECRET && NEQUI_API_KEY);
 
 // Cache para el token de acceso
 let accessToken: string | null = null;
@@ -94,10 +95,9 @@ export async function GET(
     }
 
     const isDevelopment = process.env.NODE_ENV === 'development';
-    const hasNequiKeys = NEQUI_CLIENT_ID && NEQUI_CLIENT_SECRET && NEQUI_API_KEY;
 
-    // Modo mock para desarrollo
-    if (isDevelopment && !hasNequiKeys) {
+    // Sandbox/Mock mode if credentials are missing
+    if (!hasNequiKeys) {
       cleanupExpiredPayments();
 
       let payment = paymentStatusStore.get(paymentId);
@@ -139,8 +139,8 @@ export async function GET(
     // Verificar si Nequi está configurado para producción
     if (!hasNequiKeys) {
       return NextResponse.json(
-        { 
-          error: 'Nequi payment gateway is not configured. Please set NEQUI_CLIENT_ID, NEQUI_CLIENT_SECRET, and NEQUI_API_KEY environment variables.' 
+        {
+          error: 'Nequi payment gateway is not configured. Please set NEQUI_CLIENT_ID, NEQUI_CLIENT_SECRET, and NEQUI_API_KEY environment variables.'
         },
         { status: 500 }
       );
@@ -232,10 +232,10 @@ export async function POST(
       );
     }
 
-    // Solo permitir en desarrollo para testing
-    if (process.env.NODE_ENV === 'development') {
+    // Permitir en desarrollo o si no hay llaves configuradas (modo sandbox)
+    if (process.env.NODE_ENV === 'development' || !hasNequiKeys) {
       let payment = paymentStatusStore.get(paymentId);
-      
+
       if (!payment) {
         payment = {
           payment_id: paymentId,
@@ -253,7 +253,7 @@ export async function POST(
       }
 
       paymentStatusStore.set(paymentId, payment);
-      
+
       return NextResponse.json({
         success: true,
         payment_id: paymentId,
