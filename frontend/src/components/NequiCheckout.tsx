@@ -13,19 +13,24 @@ interface NequiCheckoutProps {
  * Componente para procesar pagos con Nequi
  * Genera un código QR que el usuario puede escanear con la app de Nequi
  */
+import { AlertCircle, CheckCircle2, QrCode, Timer, Wallet } from 'lucide-react';
+
+interface NequiCheckoutProps {
+  amount: number;
+  onSuccess: () => void;
+  onError: (error: string) => void;
+}
+
 export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheckoutProps) {
   const [loading, setLoading] = useState(false);
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [status, setStatus] = useState<'pending' | 'completed' | 'expired'>('pending');
-  const [timeRemaining, setTimeRemaining] = useState<number>(600); // 10 minutos en segundos
+  const [timeRemaining, setTimeRemaining] = useState<number>(600);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  /**
-   * Crea un pago con Nequi y genera el código QR
-   */
   const createPayment = async () => {
     setLoading(true);
     setError(null);
@@ -48,16 +53,12 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
       }
 
       const data = await response.json();
-      
-      // El QR code puede venir como data URL o como string para generar
-      // Si viene como string, lo usamos directamente; si no, generamos uno
       const qrData = data.qr_code || data.qr_data || `nequi://pay?amount=${Math.round(amount * 100)}&ref=${data.payment_id}`;
-      
+
       setQrCodeData(qrData);
       setPaymentId(data.payment_id);
-      setTimeRemaining(600); // Reset timer
+      setTimeRemaining(600);
       setStatus('pending');
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Payment failed';
       setError(errorMessage);
@@ -67,20 +68,13 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
     }
   };
 
-  /**
-   * Verifica el estado del pago periódicamente
-   */
   useEffect(() => {
     if (!paymentId) return;
 
     const checkStatus = async () => {
       try {
         const response = await fetch(`/api/nequi/payment-status/${paymentId}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to check payment status');
-        }
-
+        if (!response.ok) throw new Error('Failed to check status');
         const data = await response.json();
 
         if (data.status === 'completed') {
@@ -92,18 +86,16 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
           setStatus('expired');
           if (intervalRef.current) clearInterval(intervalRef.current);
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
-          onError('Payment expired. Please try again.');
+          onError('Pago expirado. Intenta nuevamente.');
         }
       } catch (error) {
-        console.error('Error checking payment status:', error);
+        console.error('Error status check:', error);
       }
     };
 
-    // Check immediately and then every 5 seconds
     checkStatus();
     intervalRef.current = setInterval(checkStatus, 5000);
 
-    // Timer countdown
     const countdownInterval = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
@@ -114,13 +106,12 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
       });
     }, 1000);
 
-    // Cleanup after 10 minutes (Nequi payments typically expire)
     timeoutRef.current = setTimeout(() => {
       setStatus('expired');
       setTimeRemaining(0);
       if (intervalRef.current) clearInterval(intervalRef.current);
       clearInterval(countdownInterval);
-      onError('Payment session expired. Please try again.');
+      onError('Sesión expirada. Intenta nuevamente.');
     }, 10 * 60 * 1000);
 
     return () => {
@@ -130,9 +121,6 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
     };
   }, [paymentId, onSuccess, onError]);
 
-  /**
-   * Formatea el tiempo restante en minutos y segundos
-   */
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -140,103 +128,105 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
   };
 
   return (
-    <div className="nequi-checkout">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Pago con Nequi</h3>
-        <p className="text-sm text-gray-700">
-          Nequi es la billetera digital más usada en Colombia con más de 10 millones de usuarios.
-        </p>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-800">{error}</p>
+    <div className="nequi-checkout animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {!qrCodeData && !loading && (
+        <div className="space-y-4">
+          <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-4">
+            <div className="flex items-start">
+              <div className="bg-emerald-600 p-2 rounded-xl mr-3 shadow-lg shadow-emerald-200 dark:shadow-none">
+                <Wallet className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">Pago con Nequi</h3>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  Paga de forma segura y rápida usando tu billetera digital Nequi.
+                </p>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={createPayment}
+            className="w-full bg-emerald-600 text-white py-4 px-6 rounded-2xl font-bold flex items-center justify-center space-x-2 hover:bg-emerald-700 transition-all active:scale-[0.98] shadow-xl shadow-emerald-100 dark:shadow-none"
+          >
+            <QrCode className="w-5 h-5" />
+            <span>Generar QR de Pago</span>
+          </button>
         </div>
       )}
 
-      {!qrCodeData && !loading && (
-        <button
-          onClick={createPayment}
-          className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 font-semibold shadow-md transition-colors"
-        >
-          Generar Código QR de Pago
-        </button>
-      )}
-
       {loading && (
-        <div className="text-center py-6">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-3"></div>
-          <p className="text-sm text-gray-700 font-medium">Generando código QR...</p>
-          <p className="text-xs text-gray-500 mt-1">Por favor espera un momento</p>
+        <div className="text-center py-12 flex flex-col items-center">
+          <div className="relative">
+            <div className="h-16 w-16 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <QrCode className="w-6 h-6 text-emerald-600" />
+            </div>
+          </div>
+          <p className="text-sm font-bold text-gray-900 dark:text-white mt-4">Generando código QR...</p>
+          <p className="text-xs text-gray-500 mt-1">Conectando con Nequi</p>
         </div>
       )}
 
       {qrCodeData && (
-        <div className="text-center">
-          <div className="bg-white p-6 rounded-lg border-2 border-green-200 mb-4 shadow-sm">
-            <div className="flex justify-center mb-3">
-              <div className="bg-white p-3 rounded-lg">
-                <QRCodeSVG
-                  value={qrCodeData}
-                  size={200}
-                  level="M"
-                />
-              </div>
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl border-2 border-emerald-100 dark:border-white/5 shadow-inner flex flex-col items-center">
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-4">
+              <QRCodeSVG value={qrCodeData} size={180} level="M" />
             </div>
-            {process.env.NODE_ENV === 'development' && (
-              <p className="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded mt-2 inline-block">
-                🧪 Modo de desarrollo - QR simulado
-              </p>
+
+            {status === 'pending' && timeRemaining > 0 && (
+              <div className="flex items-center space-x-2 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-full border border-emerald-100 dark:border-emerald-500/20">
+                <Timer className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-[11px] font-black text-emerald-700 dark:text-emerald-400">
+                  EXPIRA EN {formatTime(timeRemaining)}
+                </span>
+              </div>
             )}
           </div>
 
-          {status === 'pending' && timeRemaining > 0 && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-800 font-medium mb-1">
-                ⏳ Esperando confirmación de pago...
-              </p>
-              <p className="text-xs text-blue-600">
-                Tiempo restante: <strong>{formatTime(timeRemaining)}</strong>
-              </p>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2 text-xs font-bold text-gray-400 uppercase tracking-widest px-1">
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span>Instrucciones</span>
             </div>
-          )}
+            <div className="bg-gray-50 dark:bg-zinc-900/50 rounded-2xl p-5 border border-gray-100 dark:border-white/5">
+              <ol className="text-xs text-gray-600 dark:text-gray-400 space-y-3">
+                <li className="flex items-center space-x-3">
+                  <span className="w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border-2 border-emerald-500 flex flex-shrink-0 items-center justify-center font-black text-emerald-600 text-[10px]">1</span>
+                  <span>Abre tu app <strong>Nequi</strong></span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <span className="w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border-2 border-emerald-500 flex flex-shrink-0 items-center justify-center font-black text-emerald-600 text-[10px]">2</span>
+                  <span>Escanea el código QR superior</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <span className="w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border-2 border-emerald-500 flex flex-shrink-0 items-center justify-center font-black text-emerald-600 text-[10px]">3</span>
+                  <span>Confirma el pago de <strong>COP {amount.toLocaleString('es-CO')}</strong></span>
+                </li>
+              </ol>
+            </div>
+          </div>
 
           {status === 'completed' && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800 font-semibold">
-                ✅ ¡Pago confirmado exitosamente!
-              </p>
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-4 flex items-center justify-center animate-in zoom-in duration-300">
+              <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 flex items-center">
+                <CheckCircle2 className="w-5 h-5 mr-3" />
+                ¡Pago confirmado exitosamente!
+              </span>
             </div>
           )}
 
           {status === 'expired' && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800 font-medium mb-2">
-                ⏰ El código QR ha expirado
-              </p>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 rounded-2xl p-5 text-center">
+              <p className="text-sm font-bold text-red-800 dark:text-red-400 mb-4">El código QR ha expirado</p>
               <button
                 onClick={createPayment}
-                className="text-sm bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                className="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-red-700 transition-all active:scale-95"
               >
-                Generar nuevo código
+                Generar Nuevo Código
               </button>
             </div>
           )}
-
-          <div className="mb-4 bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm font-semibold text-gray-900 mb-3">Instrucciones:</p>
-            <ol className="text-sm text-gray-700 text-left list-decimal list-inside space-y-2">
-              <li>Abre la app de Nequi en tu celular</li>
-              <li>Escanea el código QR de arriba</li>
-              <li>Confirma el pago de <strong className="text-gray-900">COP {amount.toLocaleString()}</strong></li>
-              <li>El pago se procesará automáticamente</li>
-            </ol>
-          </div>
-
-          <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg">
-            <p className="font-semibold text-gray-900 mb-1">💡 ¿No tienes Nequi?</p>
-            <p>Descarga la app gratuita en App Store o Google Play</p>
-          </div>
         </div>
       )}
     </div>
