@@ -51,6 +51,16 @@
         "files",
         "images"
       ]
+    },
+    "Slider": {
+      "type": "component",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "shared.promo-banner"
     }
   }
 }

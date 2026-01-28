@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import CategorySlider from '@/components/CategorySlider';
+import PromoSlider from '@/components/PromoSlider';
 import { useCart } from '@/context/CartContext';
 import { getStrapiMedia } from '@/utils/strapi';
 import { cn } from '@/utils/cn';
@@ -44,11 +45,18 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [topCategories, setTopCategories] = useState<any[]>([]);
+  const [homeData, setHomeData] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTopCategory, setSelectedTopCategory] = useState<string | null>(null);
   const { dispatch } = useCart();
 
   useEffect(() => {
+    fetch('/api/home')
+      .then(res => res.json())
+      .then(data => {
+        setHomeData(data.data || null);
+      })
+      .catch(err => console.error('Error fetching home data:', err));
 
     fetch('/api/products')
       .then(res => res.json())
@@ -94,7 +102,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-transparent">
-      <div className="container mx-auto px-4 py-12 md:py-16">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+
+        {/* Promotional Slider */}
+        {homeData?.Slider && homeData.Slider.length > 0 && (
+          <div className="mb-12">
+            <PromoSlider items={homeData.Slider} />
+          </div>
+        )}
 
         {/* hierarchy Section: Top Level Categories Slider */}
         {topCategories.length > 0 ? (
