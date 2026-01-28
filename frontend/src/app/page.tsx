@@ -72,14 +72,20 @@ export default function Home() {
       .catch(err => console.error('Error fetching top categories:', err));
   }, []);
 
+  const selectedTopCategoryObj = topCategories.find(c => c.documentId === selectedTopCategory || c.id === (selectedTopCategory as any));
+  const subcategoryIds = selectedTopCategoryObj?.product_categories?.map((sc: any) => sc.documentId) || [];
+
   const filteredCategories = selectedTopCategory
-    ? categories.filter(cat => cat.category?.documentId === selectedTopCategory || (cat.category as any)?.id === selectedTopCategory)
+    ? selectedTopCategoryObj?.product_categories || []
     : categories;
 
   const filteredProducts = selectedCategory
     ? products.filter(product => product.product_category?.documentId === selectedCategory || product.product_category?.id === (selectedCategory as any))
     : selectedTopCategory
-      ? products.filter(product => (product.product_category as any)?.category?.documentId === selectedTopCategory || (product.product_category as any)?.category?.id === selectedTopCategory)
+      ? products.filter(product => {
+        const productSubcatId = product.product_category?.documentId;
+        return subcategoryIds.includes(productSubcatId);
+      })
       : products;
 
   const addToCart = (product: Product) => {
