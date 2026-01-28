@@ -53,8 +53,8 @@ export default function Navbar() {
         className={cn(
           "sticky top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
           isScrolled
-            ? "bg-white/90 backdrop-blur-md border-gray-100 py-2 shadow-sm"
-            : "bg-white border-transparent py-4"
+            ? "bg-white/90 backdrop-blur-md border-gray-100 py-2 shadow-sm dark:bg-zinc-950/90 dark:border-white/10"
+            : "bg-white border-transparent py-4 dark:bg-zinc-950"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -166,7 +166,7 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-t border-gray-100 overflow-hidden"
+              className="md:hidden bg-white dark:bg-zinc-950 border-t border-gray-100 dark:border-white/10 overflow-hidden"
             >
               <div className="px-4 pt-2 pb-6 space-y-1">
                 {navLinks.map((link) => (

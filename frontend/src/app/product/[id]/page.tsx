@@ -93,7 +93,7 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
         <div className="flex flex-col items-center">
           <motion.div
             animate={{ rotate: 360 }}
@@ -108,7 +108,7 @@ export default function ProductPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
             <ShoppingBag className="h-10 w-10 text-gray-400" />
@@ -133,9 +133,9 @@ export default function ProductPage() {
   }).format(product.price);
 
   return (
-    <div className="min-h-screen bg-white pb-20">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 pb-20">
       {/* Breadcrumbs */}
-      <div className="bg-white border-b border-gray-100 px-4 py-4">
+      <div className="bg-white dark:bg-zinc-950 border-b border-gray-100 dark:border-white/10 px-4 py-4">
         <div className="container mx-auto flex items-center justify-between">
           <button
             onClick={() => router.back()}
@@ -160,7 +160,7 @@ export default function ProductPage() {
 
           {/* Left Column: Image Gallery */}
           <div className="space-y-6">
-            <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-50 group border border-gray-100 shadow-sm">
+            <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-50 dark:bg-zinc-900 group border border-gray-100 dark:border-white/10 shadow-sm">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedImage}
@@ -225,7 +225,7 @@ export default function ProductPage() {
               <span className="ml-2 text-sm text-gray-500">(4.8 / 5)</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-4">
               {product.name}
             </h1>
 
@@ -234,7 +234,7 @@ export default function ProductPage() {
               <span className="ml-2 text-gray-400 text-sm">incl. IVA</span>
             </div>
 
-            <div className="prose prose-sm text-gray-600 mb-10">
+            <div className="prose prose-sm text-gray-600 dark:text-gray-300 mb-10">
               <p className="text-lg leading-relaxed">
                 {product.description}
               </p>

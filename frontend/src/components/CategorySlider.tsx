@@ -55,7 +55,7 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
         <section className="mb-16 relative">
             <div className="flex items-center justify-between mb-8">
                 <div className="space-y-1">
-                    <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                         Nuestras Categorías
                     </h2>
                     <p className="text-gray-500 font-medium">Explora productos seleccionados para tu bienestar</p>
@@ -74,13 +74,13 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                 </div>
             </div>
 
-            <div className="relative group/slider rounded-3xl bg-white p-6 shadow-sm border border-gray-100">
+            <div className="relative group/slider rounded-3xl bg-white dark:bg-zinc-900 p-6 shadow-sm border border-gray-100 dark:border-white/5">
                 {/* Navigation Arrows */}
                 <div className="absolute top-1/2 -translate-y-1/2 -left-4 z-10 opacity-0 group-hover/slider:opacity-100 transition-opacity">
                     {showLeftArrow && (
                         <button
                             onClick={() => scroll('left')}
-                            className="p-3 rounded-full bg-white shadow-xl border border-gray-50 text-gray-700 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
+                            className="p-3 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-gray-50 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
                         >
                             <ChevronLeft className="h-6 w-6" />
                         </button>
@@ -91,7 +91,7 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                     {showRightArrow && (
                         <button
                             onClick={() => scroll('right')}
-                            className="p-3 rounded-full bg-white shadow-xl border border-gray-50 text-gray-700 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
+                            className="p-3 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-gray-50 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
                         >
                             <ChevronRight className="h-6 w-6" />
                         </button>
@@ -142,8 +142,8 @@ export default function CategorySlider({ categories, selectedCategory, onSelectC
                                     <span className={cn(
                                         "text-base md:text-lg font-bold transition-all duration-300 text-center",
                                         selectedCategory === category.id
-                                            ? "text-emerald-700 scale-110"
-                                            : "text-gray-700 group-hover/item:text-emerald-600"
+                                            ? "text-emerald-700 dark:text-emerald-400 scale-110"
+                                            : "text-gray-700 dark:text-gray-300 group-hover/item:text-emerald-600"
                                     )}>
                                         {category.Name}
                                     </span>

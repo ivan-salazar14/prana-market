@@ -64,7 +64,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-white dark:bg-transparent">
       <div className="container mx-auto px-4 py-12 md:py-16">
 
         {/* Categories Slider Section */}
@@ -81,7 +81,7 @@ export default function Home() {
           <div>
             <div className="flex items-center justify-between mb-8">
               <div className="space-y-1">
-                <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                   {selectedCategory
                     ? `Productos en ${categories.find(c => c.id === selectedCategory)?.Name}`
                     : "Descubre nuestra selección"
@@ -103,7 +103,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="group bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-500"
+                    className="group bg-white dark:bg-zinc-900 rounded-[2rem] shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-500"
                   >
                     {product.images?.[0] && (
                       <div className="h-64 overflow-hidden relative">
@@ -117,7 +117,7 @@ export default function Home() {
                         </Link>
                         {product.product_category && (
                           <div className="absolute top-4 left-4">
-                            <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-emerald-700 border border-emerald-100 shadow-sm uppercase tracking-wider">
+                            <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 shadow-sm uppercase tracking-wider">
                               {product.product_category.Name}
                             </span>
                           </div>
@@ -127,7 +127,7 @@ export default function Home() {
                     <div className="p-8">
                       <div className="flex flex-col mb-4">
                         <Link href={`/product/${product.documentId}`}>
-                          <h3 className="text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors mb-2 line-clamp-1">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors mb-2 line-clamp-1">
                             {product.name}
                           </h3>
                         </Link>
