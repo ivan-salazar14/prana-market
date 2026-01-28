@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+const BASE_STRAPI_URL = (process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337').replace(/\/$/, '');
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
 interface OrderData {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     });
     console.log('formData:', formData);
 
-    const response = await fetch(`${STRAPI_URL}/api/orders/public`, {
+    const response = await fetch(`${BASE_STRAPI_URL}/api/orders/public`, {
       method: 'POST',
       // No Content-Type header for FormData
       headers: {
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
-    
+
     // Extract userId from JWT token if available
     let userId: string | null = null;
     if (authHeader) {
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
 
     // Build query with user filter if userId is available
     // Use public endpoint to allow API token access
-    let url = `${STRAPI_URL}/api/orders/public`;
+    let url = `${BASE_STRAPI_URL}/api/orders/public`;
     if (userId) {
       // Use URLSearchParams to properly encode the filter
       const params = new URLSearchParams();

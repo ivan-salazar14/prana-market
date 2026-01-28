@@ -38,7 +38,7 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; payload: Product }
+  | { type: 'ADD_ITEM'; payload: Product & { quantity?: number } }
   | { type: 'REMOVE_ITEM'; payload: number }
   | { type: 'UPDATE_QUANTITY'; payload: { id: number; quantity: number } }
   | { type: 'SET_DELIVERY_METHOD'; payload: DeliveryMethod }
@@ -55,17 +55,18 @@ const calculateTotals = (items: CartItem[], deliveryMethod: DeliveryMethod | nul
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const { quantity = 1, ...product } = action.payload;
+      const existingItem = state.items.find(item => item.id === product.id);
       let updatedItems: CartItem[];
 
       if (existingItem) {
         updatedItems = state.items.map(item =>
-          item.id === action.payload.id
-            ? { ...item, quantity: item.quantity + 1 }
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       } else {
-        const newItem: CartItem = { ...action.payload, quantity: 1 };
+        const newItem: CartItem = { ...product, quantity };
         updatedItems = [...state.items, newItem];
       }
 
