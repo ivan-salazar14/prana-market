@@ -1,104 +1,234 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ShoppingBag,
+  Menu,
+  X,
+  User,
+  LogOut,
+  Package,
+  Home
+} from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/utils/cn';
 import Cart from './Cart';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { state } = useCart();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const { state: cartState } = useCart();
   const { state: authState, logout } = useAuth();
+  const pathname = usePathname();
+
+  const cartItemsCount = cartState.items.reduce((sum, item) => sum + item.quantity, 0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
+  const navLinks = [
+    { name: 'Inicio', href: '/', icon: Home },
+    { name: 'Mis Pedidos', href: '/orders', icon: Package },
+  ];
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <h1 className="text-xl font-bold text-gray-900">Prana MakeUp</h1>
-            </div>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-4">
-            <Link href="/" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-              Inicio
+    <>
+      <nav
+        className={cn(
+          "sticky top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+          isScrolled
+            ? "bg-white/90 backdrop-blur-md border-gray-100 py-2 shadow-sm"
+            : "bg-white border-transparent py-4"
+        )}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-12">
+            {/* Logo */}
+            <Link href="/" className="flex items-center space-x-2 group">
+              <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:scale-105 transition-transform">
+                <span className="text-white font-black text-xl">P</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900 tracking-tight">
+                Prana <span className="text-emerald-600">Market</span>
+              </span>
             </Link>
-            <Link href="/orders" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-              Mis Pedidos
-            </Link>
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium relative"
-            >
-              <svg className="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h10a2 2 0 002-2v-3" />
-              </svg>
-              Cart ({state.items.reduce((sum, item) => sum + item.quantity, 0)})
-            </button>
-            {authState.user ? (
-              <>
-                <span className="text-gray-700 px-3 py-2 text-sm">Hello, {authState.user.username}</span>
-                <button onClick={logout} className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Logout</button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Login</Link>
-                <Link href="/register" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Register</Link>
-              </>
-            )}
-          </div>
 
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-700 hover:text-gray-900 focus:outline-none focus:text-gray-900"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2",
+                    pathname === link.href
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  )}
+                >
+                  <link.icon className="w-4 h-4" />
+                  {link.name}
+                </Link>
+              ))}
+
+              <div className="h-6 w-px bg-gray-200 mx-2" />
+
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all group"
+              >
+                <ShoppingBag className="w-6 h-6" />
+                {cartItemsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform group-hover:scale-110">
+                    {cartItemsCount}
+                  </span>
                 )}
-              </svg>
-            </button>
+              </button>
+
+              {authState.user ? (
+                <div className="flex items-center ml-2 space-x-1">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
+                    <div className="w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-xs font-bold">
+                      {authState.user.username[0].toUpperCase()}
+                    </div>
+                    <span className="text-sm font-semibold text-gray-700">{authState.user.username}</span>
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all tooltip"
+                    title="Cerrar Sesión"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 ml-2">
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-md shadow-emerald-100 active:scale-95"
+                  >
+                    Registro
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Actions */}
+            <div className="md:hidden flex items-center space-x-3">
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 text-gray-600 bg-gray-50 rounded-xl"
+              >
+                <ShoppingBag className="w-6 h-6" />
+                {cartItemsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">
+                    {cartItemsCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
           </div>
         </div>
 
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <Link href="/" className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">
-                Menu
-              </Link>
-              <Link href="/orders" className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">
-                Mis Pedidos
-              </Link>
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                Cart ({state.items.reduce((sum, item) => sum + item.quantity, 0)})
-              </button>
-              {authState.user ? (
-                <>
-                  <span className="text-gray-700 block px-3 py-2 text-base">Hello, {authState.user.username}</span>
-                  <button onClick={logout} className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Logout</button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Login</Link>
-                  <Link href="/register" className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Register</Link>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-white border-t border-gray-100 overflow-hidden"
+            >
+              <div className="px-4 pt-2 pb-6 space-y-1">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors",
+                      pathname === link.href
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    <link.icon className="w-5 h-5" />
+                    {link.name}
+                  </Link>
+                ))}
 
-        <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      </div>
-    </nav>
+                <div className="my-4 h-px bg-gray-100" />
+
+                {authState.user ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3 px-4 py-3 text-gray-700">
+                      <div className="w-8 h-8 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold">
+                        {authState.user.username[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">{authState.user.username}</p>
+                        <p className="text-xs text-gray-500">{authState.user.email}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={logout}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      Cerrar Sesión
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3 p-2">
+                    <Link
+                      href="/login"
+                      className="flex items-center justify-center px-4 py-3 rounded-xl text-sm font-bold text-gray-600 bg-gray-50 hover:bg-gray-100"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="flex items-center justify-center px-4 py-3 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      Registro
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+    </>
   );
 }

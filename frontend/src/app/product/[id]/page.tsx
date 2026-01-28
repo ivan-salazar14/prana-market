@@ -134,8 +134,8 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 py-4">
+      {/* Breadcrumbs */}
+      <div className="bg-white border-b border-gray-100 px-4 py-4">
         <div className="container mx-auto flex items-center justify-between">
           <button
             onClick={() => router.back()}
@@ -153,7 +153,7 @@ export default function ProductPage() {
           </div>
           <div className="w-10"></div> {/* Spacer for balance */}
         </div>
-      </nav>
+      </div>
 
       <main className="container mx-auto px-4 pt-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
