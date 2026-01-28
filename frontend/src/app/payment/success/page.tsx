@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { MessageCircle, CheckCircle2, ShoppingBag, ArrowRight } from 'lucide-react';
 
 interface OrderItem {
   name: string;
@@ -23,6 +24,8 @@ interface OrderDetails {
   total: number;
   paymentMethod?: string;
   transactionId?: string;
+  orderId?: string | number;
+  timestamp?: string;
 }
 
 function PaymentSuccessContent() {
@@ -108,10 +111,10 @@ function PaymentSuccessContent() {
           {isMock
             ? 'Tu pago de prueba ha sido procesado correctamente. En producción, esto sería un pago real.'
             : orderDetails?.paymentMethod === 'efectivo'
-            ? '✅ Tu pedido ha sido confirmado. El pago se realizará al momento de la entrega o recogida. Te contactaremos pronto para coordinar la entrega.'
-            : orderDetails?.paymentMethod === 'nequi'
-            ? '✅ Tu pago con Nequi ha sido procesado correctamente. Recibirás un correo de confirmación pronto.'
-            : '✅ Tu pago ha sido procesado correctamente. Recibirás un correo de confirmación pronto.'
+              ? '✅ Tu pedido ha sido confirmado. El pago se realizará al momento de la entrega o recogida. Te contactaremos pronto para coordinar la entrega.'
+              : (orderDetails?.paymentMethod === 'nequi' || orderDetails?.paymentMethod === 'nequi_manual')
+                ? '✅ Tu pedido ha sido registrado. Si realizaste una transferencia, procesaremos tu pedido una vez verifiquemos el comprobante.'
+                : '✅ Tu pago ha sido procesado correctamente. Recibirás un correo de confirmación pronto.'
           }
         </p>
 
@@ -120,12 +123,12 @@ function PaymentSuccessContent() {
             ID de transacción: {transactionId || orderDetails?.transactionId}
           </p>
         )}
-        
+
         {orderDetails?.paymentMethod && (
           <div className="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-200">
             <p className="text-sm text-gray-700">
               <span className="font-semibold">Método de pago:</span>{' '}
-              {orderDetails.paymentMethod === 'nequi' ? (
+              {(orderDetails.paymentMethod === 'nequi' || orderDetails.paymentMethod === 'nequi_manual') ? (
                 <span className="text-green-700 font-medium">📱 Nequi</span>
               ) : orderDetails.paymentMethod === 'efectivo' ? (
                 <span className="text-blue-700 font-medium">💵 Efectivo (Contraentrega)</span>
@@ -161,7 +164,7 @@ function PaymentSuccessContent() {
                 <span>{orderDetails.deliveryCost === 0 ? 'Gratis' : `COP ${orderDetails.deliveryCost}`}</span>
               </div>
               <div className="flex justify-between font-semibold border-t border-gray-300 pt-2 mt-2">
-                <span className="text-gray-900">Total {orderDetails.paymentMethod === 'efectivo' ? 'a pagar' : 'pagado'}:</span>
+                <span className="text-gray-900">Total {(orderDetails.paymentMethod === 'efectivo' || orderDetails.paymentMethod === 'nequi_manual') ? 'a pagar' : 'pagado'}:</span>
                 <span className="text-gray-900">COP {orderDetails.total.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
@@ -174,15 +177,29 @@ function PaymentSuccessContent() {
         )}
 
         <div className="space-y-3">
+          {orderDetails?.paymentMethod === 'nequi_manual' && (
+            <button
+              onClick={() => {
+                const message = `¡Hola Prana Market! Acabo de realizar una transferencia Nequi por mi pedido #${orderDetails.orderId || ''}. El total es COP ${orderDetails.total.toLocaleString('es-CO')}. Adjunto el comprobante.`;
+                const whatsappUrl = `https://wa.me/573182026212?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+              }}
+              className="flex items-center justify-center w-full bg-[#25D366] text-white py-4 px-6 rounded-xl font-bold hover:bg-[#20ba5a] transition-all shadow-lg shadow-emerald-100 mb-4"
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Enviar comprobante por WhatsApp
+            </button>
+          )}
+
           <Link
             href="/"
-            className="block w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+            className="block w-full bg-emerald-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-emerald-700 transition-all text-center"
           >
             Continuar comprando
           </Link>
           <Link
             href="/orders"
-            className="block w-full bg-gray-200 text-gray-800 py-2 px-4 rounded hover:bg-gray-300"
+            className="block w-full bg-gray-100 text-gray-800 py-3 px-4 rounded-xl font-bold hover:bg-gray-200 transition-all text-center"
           >
             Ver mis pedidos
           </Link>

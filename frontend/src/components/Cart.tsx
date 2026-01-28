@@ -17,6 +17,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import NequiCheckout from './NequiCheckout';
+import ManualNequiCheckout from './ManualNequiCheckout';
 import ShippingForm from './ShippingForm';
 import { cn } from '@/utils/cn';
 
@@ -468,22 +469,60 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                               <span className="text-[10px] text-gray-400 font-medium">Paga al recibir tu pedido</span>
                             </div>
                           </button>
+
+                          <button
+                            onClick={() => setPaymentMethod('nequi')}
+                            className={cn(
+                              "flex items-center p-4 rounded-2xl border-2 transition-all group",
+                              paymentMethod === 'nequi'
+                                ? "border-[#FF0082] bg-[#FF0082]/5 shadow-lg shadow-[#FF0082]/10"
+                                : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-[#FF0082]/30"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-10 h-10 rounded-full flex items-center justify-center mr-4 transition-all",
+                              paymentMethod === 'nequi' ? "bg-[#FF0082] text-white" : "bg-gray-50 dark:bg-zinc-800 text-gray-400 group-hover:text-[#FF0082]"
+                            )}>
+                              <Wallet className="w-5 h-5" />
+                            </div>
+                            <div className="text-left">
+                              <span className={cn("text-sm font-bold block", paymentMethod === 'nequi' ? "text-[#FF0082]" : "text-gray-500")}>Nequi (Transferencia)</span>
+                              <span className="text-[10px] text-gray-400 font-medium">Transferencia directa inmediata</span>
+                            </div>
+                          </button>
                         </div>
 
-                        <EfectivoCheckout
-                          items={state.items}
-                          deliveryMethod={state.deliveryMethod}
-                          shippingAddress={state.shippingAddress}
-                          subtotal={state.subtotal}
-                          deliveryCost={state.deliveryCost}
-                          total={state.total}
-                          onSuccess={() => {
-                            dispatch({ type: 'CLEAR_CART' });
-                            onClose();
-                            window.location.href = '/payment/success';
-                          }}
-                          onError={(error) => alert(`Error: ${error}`)}
-                        />
+                        {paymentMethod === 'efectivo' ? (
+                          <EfectivoCheckout
+                            items={state.items}
+                            deliveryMethod={state.deliveryMethod}
+                            shippingAddress={state.shippingAddress}
+                            subtotal={state.subtotal}
+                            deliveryCost={state.deliveryCost}
+                            total={state.total}
+                            onSuccess={() => {
+                              dispatch({ type: 'CLEAR_CART' });
+                              onClose();
+                              window.location.href = '/payment/success';
+                            }}
+                            onError={(error: string) => alert(`Error: ${error}`)}
+                          />
+                        ) : (
+                          <ManualNequiCheckout
+                            items={state.items}
+                            deliveryMethod={state.deliveryMethod}
+                            shippingAddress={state.shippingAddress}
+                            subtotal={state.subtotal}
+                            deliveryCost={state.deliveryCost}
+                            total={state.total}
+                            onSuccess={() => {
+                              dispatch({ type: 'CLEAR_CART' });
+                              onClose();
+                              window.location.href = '/payment/success';
+                            }}
+                            onError={(error: string) => alert(`Error: ${error}`)}
+                          />
+                        )}
                       </div>
                     ) : (
                       <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 flex items-start mb-10">

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     const orderData: OrderData = {
       items,
-      status: 'paid',
+      status: (paymentMethod === 'efectivo' || paymentMethod === 'nequi_manual') ? 'pending' : 'paid',
       total,
       subtotal,
       deliveryCost,
