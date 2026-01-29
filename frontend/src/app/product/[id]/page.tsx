@@ -14,7 +14,8 @@ import {
   ShieldCheck,
   Truck,
   ArrowLeft,
-  CheckCircle2
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { getStrapiMedia } from '@/utils/strapi';
@@ -36,6 +37,7 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  stock: number;
   images?: Array<{
     url: string;
     alternativeText?: string;
@@ -54,14 +56,19 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
 
-  const { dispatch } = useCart();
+  const { dispatch, state } = useCart();
 
   useEffect(() => {
     // Fetch product
     fetch(`/api/products/${id}`)
       .then(res => res.json())
       .then(data => {
-        setProduct(data.data);
+        const productData = data.data;
+        setProduct(productData);
+        // Initial quantity should be 1 if stock exists, else 0
+        if (productData && productData.stock <= 0) {
+          setQuantity(0);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -71,7 +78,16 @@ export default function ProductPage() {
   }, [id]);
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || product.stock <= 0) return;
+
+    // Optional: check if already in cart and cap total quantity
+    const existingInCart = state.items.find(item => item.id === product.id);
+    const currentQtyInCart = existingInCart?.quantity || 0;
+
+    if (currentQtyInCart + quantity > product.stock) {
+      alert(`No puedes añadir más de ${product.stock} unidades de este producto.`);
+      return;
+    }
 
     dispatch({
       type: 'ADD_ITEM',
@@ -80,6 +96,7 @@ export default function ProductPage() {
         name: product.name,
         price: product.price,
         image: product.images?.[0]?.url,
+        stock: product.stock,
         quantity
       }
     });
@@ -88,8 +105,14 @@ export default function ProductPage() {
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
-  const incrementQuantity = () => setQuantity(prev => prev + 1);
-  const decrementQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
+  const incrementQuantity = () => {
+    if (!product) return;
+    setQuantity(prev => (prev < product.stock ? prev + 1 : prev));
+  };
+  const decrementQuantity = () => setQuantity(prev => {
+    if (product && product.stock <= 0) return 0;
+    return prev > 1 ? prev - 1 : 1;
+  });
 
   if (loading) {
     return (
@@ -250,7 +273,8 @@ export default function ProductPage() {
                   <div className="inline-flex items-center bg-gray-50 border border-gray-200 rounded-2xl p-1 shadow-inner">
                     <button
                       onClick={decrementQuantity}
-                      className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 active:scale-90"
+                      disabled={product.stock <= 0}
+                      className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 active:scale-90 disabled:opacity-30"
                     >
                       <Minus className="h-5 w-5" />
                     </button>
@@ -259,12 +283,21 @@ export default function ProductPage() {
                     </span>
                     <button
                       onClick={incrementQuantity}
-                      className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 active:scale-90"
+                      disabled={product.stock <= 0 || quantity >= product.stock}
+                      className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 active:scale-90 disabled:opacity-30"
                     >
                       <Plus className="h-5 w-5" />
                     </button>
                   </div>
-                  <span className="text-sm text-gray-500 italic">Disponibilidad en stock</span>
+                  <div className="flex flex-col">
+                    <span className={cn(
+                      "text-xs font-bold uppercase tracking-wider",
+                      product.stock > 10 ? "text-emerald-600" : product.stock > 0 ? "text-amber-600" : "text-red-600"
+                    )}>
+                      {product.stock > 0 ? `En Stock: ${product.stock} unidades` : 'Agotado'}
+                    </span>
+                    <span className="text-[10px] text-gray-400 italic">Disponibilidad en tiempo real</span>
+                  </div>
                 </div>
               </div>
 
@@ -272,16 +305,28 @@ export default function ProductPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleAddToCart}
-                  disabled={addedToCart}
+                  disabled={addedToCart || product.stock <= 0}
                   className={cn(
-                    "flex-1 relative flex items-center justify-center space-x-2 px-8 py-4 rounded-2xl text-lg font-bold transition-all shadow-xl active:scale-95 disabled:opacity-90",
-                    addedToCart
-                      ? "bg-gray-900 text-white shadow-gray-200"
-                      : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200"
+                    "flex-1 relative flex items-center justify-center space-x-2 px-8 py-4 rounded-2xl text-lg font-bold transition-all shadow-xl active:scale-95 disabled:opacity-50",
+                    product.stock <= 0
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed shadow-none"
+                      : addedToCart
+                        ? "bg-gray-900 text-white shadow-gray-200"
+                        : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200"
                   )}
                 >
                   <AnimatePresence mode="wait">
-                    {addedToCart ? (
+                    {product.stock <= 0 ? (
+                      <motion.div
+                        key="soldout"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center"
+                      >
+                        <AlertCircle className="h-5 w-5 mr-2" />
+                        Producto Agotado
+                      </motion.div>
+                    ) : addedToCart ? (
                       <motion.div
                         key="added"
                         initial={{ y: 20, opacity: 0 }}

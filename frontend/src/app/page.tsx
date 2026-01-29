@@ -33,6 +33,7 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  stock: number;
   documentId: string;
   images?: Array<{
     url: string;
@@ -48,7 +49,7 @@ export default function Home() {
   const [homeData, setHomeData] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTopCategory, setSelectedTopCategory] = useState<string | null>(null);
-  const { dispatch } = useCart();
+  const { dispatch, state } = useCart();
 
   useEffect(() => {
     fetch('/api/home')
@@ -97,7 +98,26 @@ export default function Home() {
       : products;
 
   const addToCart = (product: Product) => {
-    dispatch({ type: 'ADD_ITEM', payload: product });
+    if (product.stock <= 0) {
+      alert('Este producto está agotado.');
+      return;
+    }
+
+    const existingInCart = state.items.find(item => item.id === product.id);
+    const currentQty = existingInCart?.quantity || 0;
+
+    if (currentQty + 1 > product.stock) {
+      alert(`Solo quedan ${product.stock} unidades de este producto.`);
+      return;
+    }
+
+    dispatch({
+      type: 'ADD_ITEM',
+      payload: {
+        ...product,
+        image: product.images?.[0]?.url
+      }
+    });
   };
 
   return (
@@ -249,21 +269,41 @@ export default function Home() {
                         </p>
                       </div>
                       <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                        <span className="text-2xl font-black text-pink-600">
-                          {new Intl.NumberFormat('es-CO', {
-                            style: 'currency',
-                            currency: 'COP',
-                            maximumFractionDigits: 0,
-                          }).format(product.price)}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-2xl font-black text-pink-600">
+                            {new Intl.NumberFormat('es-CO', {
+                              style: 'currency',
+                              currency: 'COP',
+                              maximumFractionDigits: 0,
+                            }).format(product.price)}
+                          </span>
+                          <span className={cn(
+                            "text-[10px] font-bold uppercase tracking-tight mt-0.5",
+                            product.stock > 10 ? "text-emerald-500" : product.stock > 0 ? "text-amber-500" : "text-red-500"
+                          )}>
+                            {product.stock > 0 ? `${product.stock} disponibles` : "Agotado"}
+                          </span>
+                        </div>
                         <button
                           onClick={() => addToCart(product)}
-                          className="p-3 rounded-2xl bg-black text-white hover:bg-gray-900 transition-all shadow-lg shadow-pink-100 active:scale-90"
-                          title="Añadir al carrito"
+                          disabled={product.stock <= 0}
+                          className={cn(
+                            "p-3 rounded-2xl transition-all shadow-lg active:scale-95",
+                            product.stock <= 0
+                              ? "bg-gray-100 text-gray-300 shadow-none cursor-not-allowed"
+                              : "bg-black text-white hover:bg-gray-900 shadow-pink-100"
+                          )}
+                          title={product.stock > 0 ? "Añadir al carrito" : "Producto agotado"}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                          </svg>
+                          {product.stock > 0 ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          )}
                         </button>
                       </div>
                     </div>

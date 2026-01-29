@@ -7,6 +7,7 @@ interface Product {
   name: string;
   price: number;
   image?: string;
+  stock: number;
 }
 
 interface CartItem extends Product {
@@ -60,13 +61,15 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       let updatedItems: CartItem[];
 
       if (existingItem) {
-        updatedItems = state.items.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
+        updatedItems = state.items.map(item => {
+          if (item.id === product.id) {
+            const newQuantity = Math.min(item.quantity + quantity, item.stock);
+            return { ...item, quantity: newQuantity };
+          }
+          return item;
+        });
       } else {
-        const newItem: CartItem = { ...product, quantity };
+        const newItem: CartItem = { ...product, quantity: Math.min(quantity, product.stock) };
         updatedItems = [...state.items, newItem];
       }
 
@@ -91,11 +94,13 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       };
     }
     case 'UPDATE_QUANTITY': {
-      const updatedItems = state.items.map(item =>
-        item.id === action.payload.id
-          ? { ...item, quantity: action.payload.quantity }
-          : item
-      ).filter(item => item.quantity > 0);
+      const updatedItems = state.items.map(item => {
+        if (item.id === action.payload.id) {
+          const newQuantity = Math.min(action.payload.quantity, item.stock);
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      }).filter(item => item.quantity > 0);
 
       const { subtotal, deliveryCost, total } = calculateTotals(updatedItems, state.deliveryMethod);
       return {
