@@ -65,7 +65,6 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
       ctx.state.auth = { strategy: { name: 'public' } };
 
       console.log('Request body:', ctx.request.body);
-      console.log('Request type:', ctx.request.type);
 
       // The body is already parsed by the body parser middleware
       let orderData = { ...ctx.request.body };
@@ -101,33 +100,73 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
       if (orderData.subtotal) orderData.subtotal = parseFloat(orderData.subtotal) || 0;
       if (orderData.deliveryCost) orderData.deliveryCost = parseFloat(orderData.deliveryCost) || 0;
 
-      // Ensure status is captured and default to 'paid' for new orders from frontend
-      orderData.status = orderData.status || 'paid';
+      // Ensure status is captured and default to 'pending' for new orders
+      orderData.status = orderData.status || 'pending';
 
-      console.log('Final orderData for creation:', JSON.stringify(orderData, null, 2));
-
-      // Convert user a número si viene como string
+      // Convert user to number if it comes as string
       if (orderData.user && typeof orderData.user === 'string') {
         orderData.user = parseInt(orderData.user, 10);
       }
-      console.log('orderData:', orderData);
-      // Create the order directamente usando el ID de usuario correcto
-      const result = await strapi.service('api::order.order').create({
-        data: orderData
+
+      // START TRANSACTION FOR INVENTORY MANAGEMENT
+      const result = await strapi.db.transaction(async ({ rollback }) => {
+        const items = orderData.items || [];
+
+        // 1. Verify availability and prepare updates
+        const stockUpdates = [];
+
+        for (const item of items) {
+          if (!item.id) continue;
+
+          const product = await strapi.query('api::product.product').findOne({
+            where: { id: item.id }
+          });
+
+          if (!product) {
+            console.error(`Product not found: ${item.id}`);
+            throw new Error(`Producto no encontrado (ID: ${item.id})`);
+          }
+
+          if (product.stock < item.quantity) {
+            console.error(`Insufficient stock for product ${product.name}: has ${product.stock}, requested ${item.quantity}`);
+            throw new Error(`Stock insuficiente para ${product.name}. Disponible: ${product.stock}`);
+          }
+
+          stockUpdates.push({
+            id: item.id,
+            newStock: product.stock - item.quantity,
+            name: product.name
+          });
+        }
+
+        // 2. Deduct stock
+        for (const update of stockUpdates) {
+          await strapi.query('api::product.product').update({
+            where: { id: update.id },
+            data: { stock: update.newStock }
+          });
+          console.log(`Stock updated for ${update.name}: ${update.newStock}`);
+        }
+
+        // 3. Create the order
+        const createdOrder = await strapi.service('api::order.order').create({
+          data: orderData
+        });
+
+        return createdOrder;
       });
 
-      // Send email notifications (non-blocking)
+      // Send email notifications (non-blocking) - outside transaction to avoid delaying it
       try {
         await sendOrderEmail(strapi, result);
       } catch (emailError) {
         console.error('Error sending order emails:', emailError);
-        // Continue even if email fails - order is already created
       }
 
       ctx.send(result);
     } catch (error) {
       console.error('Order creation error:', error);
-      ctx.badRequest('Unable to create order', { error: error.message });
+      ctx.badRequest(error.message || 'Unable to create order');
     }
   },
 }));

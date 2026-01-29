@@ -87,16 +87,23 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Strapi API error:', response.status, response.statusText, errorText);
-      throw new Error(`Failed to create order: ${response.status} ${response.statusText} - ${errorText}`);
+      const errorData = await response.json().catch(() => ({}));
+      const message = errorData.error?.message || response.statusText;
+      console.error('Strapi API error:', response.status, message);
+      return NextResponse.json(
+        { error: message },
+        { status: response.status }
+      );
     }
 
     const result = await response.json();
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error creating order:', error);
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create order' },
+      { status: 500 }
+    );
   }
 }
 

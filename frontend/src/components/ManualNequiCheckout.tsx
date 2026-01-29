@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     CheckCircle2,
     Copy,
@@ -37,6 +37,7 @@ export default function ManualNequiCheckout({
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
     const [orderCreated, setOrderCreated] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     // CONFIGURACIÓN DE NEQUI - El usuario puede cambiar esto fácilmente
     const NEQUI_NUMBER = "318 202 6212"; // Cambiar por el número real
@@ -50,16 +51,22 @@ export default function ManualNequiCheckout({
 
     const handleConfirmOrder = async () => {
         if (!deliveryMethod) {
-            onError('Por favor selecciona un método de entrega');
+            setError('Por favor selecciona un método de entrega');
             return;
         }
 
         setLoading(true);
+        setError(null);
 
         try {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user || !user.id) {
+            const userString = localStorage.getItem('user');
+            if (!userString) {
                 throw new Error('Debes iniciar sesión para realizar un pedido');
+            }
+
+            const user = JSON.parse(userString);
+            if (!user || !user.id) {
+                throw new Error('Información de usuario no encontrada. Por favor inicia sesión nuevamente.');
             }
 
             const orderResponse = await fetch('/api/orders', {
@@ -99,9 +106,11 @@ export default function ManualNequiCheckout({
 
             setOrderCreated(true);
             onSuccess();
-        } catch (error) {
-            console.error('Error creating order:', error);
-            onError(error instanceof Error ? error.message : 'Hubo un error al crear la orden.');
+        } catch (err) {
+            console.error('Error creating order:', err);
+            const errorMessage = err instanceof Error ? err.message : 'Hubo un error al crear la orden.';
+            setError(errorMessage);
+            // onError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -115,6 +124,23 @@ export default function ManualNequiCheckout({
 
     return (
         <div className="manual-nequi-checkout space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <AnimatePresence mode="wait">
+                {error && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0, scale: 0.95 }}
+                        animate={{ height: 'auto', opacity: 1, scale: 1 }}
+                        exit={{ height: 0, opacity: 0, scale: 0.95 }}
+                        className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-start space-x-3 mb-2"
+                    >
+                        <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                            <p className="text-xs font-bold text-red-900 uppercase tracking-tight mb-0.5">Atención</p>
+                            <p className="text-xs text-red-700 leading-relaxed font-medium">{error}</p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="bg-[#FF0082]/5 border-2 border-[#FF0082]/10 rounded-2xl p-5 overflow-hidden relative">
                 {/* Decoración de fondo */}
                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#FF0082]/5 rounded-full blur-2xl" />

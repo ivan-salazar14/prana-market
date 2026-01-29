@@ -45,20 +45,28 @@ function EfectivoCheckout({
 }) {
   const [loading, setLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleConfirmOrder = async () => {
     if (!deliveryMethod) {
-      onError('Por favor selecciona un método de entrega');
+      setError('Por favor selecciona un método de entrega');
       return;
     }
 
     setLoading(true);
+    setError(null);
 
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (!user || !user.id) {
-        throw new Error('User ID not found in local storage');
+      const userString = localStorage.getItem('user');
+      if (!userString) {
+        throw new Error('Debes iniciar sesión para realizar un pedido');
       }
+
+      const user = JSON.parse(userString);
+      if (!user || !user.id) {
+        throw new Error('Información de usuario no encontrada. Por favor inicia sesión nuevamente.');
+      }
+
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -76,7 +84,7 @@ function EfectivoCheckout({
 
       if (!orderResponse.ok) {
         const errorData = await orderResponse.json();
-        throw new Error(errorData.error || 'Failed to create order');
+        throw new Error(errorData.error || 'No se pudo crear el pedido');
       }
 
       const orderData = await orderResponse.json();
@@ -95,19 +103,37 @@ function EfectivoCheckout({
       localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
 
       onSuccess();
-    } catch (error) {
-      console.error('Error creating order:', error);
-      onError(error instanceof Error ? error.message : 'Hubo un error al crear la orden. Por favor, intenta nuevamente.');
+    } catch (err) {
+      console.error('Error creating order:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Hubo un error al crear la orden. Por favor, intenta de nuevo.';
+      setError(errorMessage);
+      // onError(errorMessage);
     } finally {
       setLoading(false);
-      setShowConfirmation(false);
     }
   };
 
   if (showConfirmation) {
     return (
-      <div className="efectivo-checkout">
-        <div className="bg-pink-50 border-2 border-pink-100 rounded-2xl p-5 mb-4">
+      <div className="efectivo-checkout space-y-4">
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, scale: 0.95 }}
+              animate={{ height: 'auto', opacity: 1, scale: 1 }}
+              exit={{ height: 0, opacity: 0, scale: 0.95 }}
+              className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-start space-x-3 mb-2"
+            >
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs font-bold text-red-900 uppercase tracking-tight mb-0.5">Atención</p>
+                <p className="text-xs text-red-700 leading-relaxed font-medium">{error}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="bg-pink-50 border-2 border-pink-100 rounded-2xl p-5 mb-0">
           <h4 className="text-lg font-bold text-pink-900 mb-3 flex items-center">
             <CheckCircle2 className="w-5 h-5 mr-2" />
             Confirmar Pedido
@@ -505,7 +531,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                               onClose();
                               window.location.href = '/payment/success';
                             }}
-                            onError={(error: string) => alert(`Error: ${error}`)}
+                            onError={(error: string) => console.error(`Order Error: ${error}`)}
                           />
                         ) : (
                           <ManualNequiCheckout
@@ -520,7 +546,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                               onClose();
                               window.location.href = '/payment/success';
                             }}
-                            onError={(error: string) => alert(`Error: ${error}`)}
+                            onError={(error: string) => console.error(`Order Error: ${error}`)}
                           />
                         )}
                       </div>
