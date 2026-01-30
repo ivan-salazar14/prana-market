@@ -3,6 +3,17 @@
  * Temporary endpoint to seed cities in production
  */
 
+interface Department {
+    id: number;
+    name: string;
+}
+
+interface City {
+    id: number;
+    name: string;
+    departmentId: number;
+}
+
 export default {
     async seedCities(ctx) {
         try {
@@ -18,19 +29,19 @@ export default {
 
             // Fetch departments
             const deptResponse = await fetch('https://api-colombia.com/api/v1/Department');
-            const departments = await deptResponse.json();
+            const departments = await deptResponse.json() as Department[];
 
             // Fetch cities
             const cityResponse = await fetch('https://api-colombia.com/api/v1/City');
-            const cities = await cityResponse.json();
+            const cities = await cityResponse.json() as City[];
 
-            const departmentMap = departments.reduce((acc, dept) => {
+            const departmentMap: Record<number, string> = departments.reduce((acc, dept) => {
                 acc[dept.id] = dept.name;
                 return acc;
-            }, {});
+            }, {} as Record<number, string>);
 
             let count = 0;
-            const errors = [];
+            const errors: Array<{ city: string; error: string }> = [];
 
             for (const city of cities) {
                 const departmentName = departmentMap[city.departmentId] || 'Unknown';
@@ -44,7 +55,7 @@ export default {
                     });
                     count++;
                 } catch (err) {
-                    errors.push({ city: city.name, error: err.message });
+                    errors.push({ city: city.name, error: (err as Error).message });
                 }
             }
 
@@ -82,7 +93,7 @@ export default {
             });
         } catch (error) {
             strapi.log.error('Error in seed endpoint:', error);
-            return ctx.badRequest('Seeding failed', { error: error.message });
+            return ctx.badRequest('Seeding failed', { error: (error as Error).message });
         }
     },
 };
