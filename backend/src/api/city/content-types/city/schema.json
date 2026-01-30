@@ -1,0 +1,23 @@
+{
+    "kind": "collectionType",
+    "collectionName": "cities",
+    "info": {
+        "singularName": "city",
+        "pluralName": "cities",
+        "displayName": "City",
+        "description": "Colombian cities for shipping"
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "attributes": {
+        "name": {
+            "type": "string",
+            "required": true
+        },
+        "department": {
+            "type": "string",
+            "required": true
+        }
+    }
+}

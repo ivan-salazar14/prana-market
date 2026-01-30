@@ -31,7 +31,7 @@ module.exports = ({ strapi }) => ({
 
             const payload = {
                 customer: {
-                    name: `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim(),
+                    name: shippingAddress.fullName || `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim(),
                     phone: shippingAddress.phone || '',
                     email: shippingAddress.email || order.user?.email || '',
                     address: shippingAddress.address || '',
