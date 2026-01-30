@@ -61,6 +61,34 @@
     },
     "paymentMethod": {
       "type": "string"
+    },
+    "dropi_order_id": {
+      "type": "string"
+    },
+    "shipping_status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "shipped",
+        "in_transit",
+        "delivered",
+        "returned"
+      ],
+      "default": "pending"
+    },
+    "tracking_number": {
+      "type": "string"
+    },
+    "tracking_url": {
+      "type": "string"
+    },
+    "payment_method_type": {
+      "type": "enumeration",
+      "enum": [
+        "online",
+        "cod"
+      ],
+      "default": "online"
     }
   }
 }
