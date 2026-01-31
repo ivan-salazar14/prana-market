@@ -11,6 +11,7 @@
     "develop": "strapi develop",
     "seed:example": "node ./scripts/seed.js",
     "seed:cities": "node ./scripts/seed-cities.js",
+    "cleanup:cities": "node ./scripts/cleanup-duplicate-cities.js",
     "fix:permissions": "node ./scripts/fix-city-permissions.js",
     "start": "strapi start",
     "strapi": "strapi",
