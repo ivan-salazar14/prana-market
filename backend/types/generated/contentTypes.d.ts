@@ -852,18 +852,22 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     };
   };
   attributes: {
+    cost_price: Schema.Attribute.Decimal;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
+    dropi_id: Schema.Attribute.String;
     images: Schema.Attribute.Media<'images', true>;
     isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    last_sync_date: Schema.Attribute.DateTime;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::product.product'
     > &
       Schema.Attribute.Private;
+    mastershop_id: Schema.Attribute.String & Schema.Attribute.Unique;
     name: Schema.Attribute.String & Schema.Attribute.Required;
     price: Schema.Attribute.Decimal & Schema.Attribute.Required;
     product_category: Schema.Attribute.Relation<
@@ -875,6 +879,8 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     stock: Schema.Attribute.Integer &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<1>;
+    supplier_name: Schema.Attribute.String;
+    supplier_sku: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

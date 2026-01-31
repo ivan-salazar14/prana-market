@@ -52,6 +52,26 @@
     },
     "slug": {
       "type": "uid"
+    },
+    "dropi_id": {
+      "type": "string",
+      "unique": false
+    },
+    "mastershop_id": {
+      "type": "string",
+      "unique": true
+    },
+    "supplier_sku": {
+      "type": "string"
+    },
+    "supplier_name": {
+      "type": "string"
+    },
+    "cost_price": {
+      "type": "decimal"
+    },
+    "last_sync_date": {
+      "type": "datetime"
     }
   }
 }
