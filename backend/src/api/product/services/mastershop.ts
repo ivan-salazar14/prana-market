@@ -1,9 +1,11 @@
 import { factories } from '@strapi/strapi';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 export default ({ strapi }) => ({
     /**
      * Search/List products from MasterShop
-     * Useful for linking products in Admin
      */
     async searchProducts(params: any = {}) {
         const apiKey = process.env.MASTERSHOP_API_KEY;
@@ -14,7 +16,6 @@ export default ({ strapi }) => ({
         }
 
         try {
-            // Build query string
             const queryParams = new URLSearchParams();
             if (params.page) queryParams.append('page', params.page);
             if (params.limit) queryParams.append('limit', params.limit);
@@ -41,7 +42,6 @@ export default ({ strapi }) => ({
             }
 
             const data = await response.json() as MasterShopListResponse;
-            // MasterShop returns { results: [...] }
             return data.results || data;
         } catch (error) {
             strapi.log.error('Failed to search MasterShop products:', error);
@@ -59,10 +59,11 @@ export default ({ strapi }) => ({
         if (!apiKey) return null;
 
         try {
-            // Get local product with mastershop_id
+            // Get local product
             const product = await strapi.documents('api::product.product').findOne({
                 documentId: productId,
-                fields: ['name', 'mastershop_id', 'stock', 'price', 'cost_price'],
+                fields: ['name', 'mastershop_id', 'stock', 'price', 'cost_price', 'description'],
+                populate: ['images']
             });
 
             if (!product || !product.mastershop_id) {
@@ -70,8 +71,6 @@ export default ({ strapi }) => ({
             }
 
             // Fetch from MasterShop
-            // Assuming ID lookup endpoint exists, otherwise might need search
-            // For now, let's assume /products/{id} works with idProduct
             const response = await fetch(`${apiUrl}/products/${product.mastershop_id}`, {
                 method: 'GET',
                 headers: {
@@ -92,23 +91,99 @@ export default ({ strapi }) => ({
                 wholesale_price?: number;
                 price?: number;
                 active?: boolean;
+                stockTotal?: number;
+                basePrice?: number;
+                suggestedPrice?: number;
+                urlImageProduct?: string;
+                name?: string;
+                description?: string;
             }
 
             const remoteProduct = await response.json() as MasterShopProduct;
 
-            // Adjust field names based on actual API response structure
-            // We saw 'results', so if this returns a single object it might be direct, or wrapped in 'data'
-            const productData = (remoteProduct as any).data || remoteProduct;
+            // CORRECT PARSING LOGIC
+            let productData = (remoteProduct as any).data || (remoteProduct as any).results || remoteProduct;
 
-            // Calculate fields
-            const newStock = productData.stock || productData.inventory || 0;
-            const newCost = productData.cost || productData.wholesale_price || 0;
-            // Use suggested retail price if available, otherwise fallback to cost * markup or keep existing
-            const newPrice = productData.price || productData.suggested_price || product.price;
+            // If it's an array (from results), take the first item
+            if (Array.isArray(productData)) {
+                productData = productData[0];
+            }
 
-            // Update local product with FULL details
+            if (!productData) {
+                strapi.log.warn(`⚠️ Empty data for product ${product.mastershop_id}`);
+                return null;
+            }
+
+            // DEBUG LOGS
+            strapi.log.info(`🔍 Debug Sync for ${productId}:`);
+            strapi.log.info(`   - Stock: ${productData.stockTotal}`);
+            strapi.log.info(`   - Image: ${productData.urlImageProduct}`);
+
+            // 1. Calculate Field Updates
+            const newStock = productData.stockTotal || productData.stock || 0;
+            const newCost = productData.basePrice || productData.cost_price || 0;
+            const newPrice = productData.suggestedPrice || productData.price || product.price;
+
+            // 2. Image Synchronization Logic
+            const remoteImageUrl = productData.urlImageProduct;
+            let imageUploaded = false;
+
+            if (remoteImageUrl && (!product.images || product.images.length === 0)) {
+                try {
+                    strapi.log.info(`🖼️ Downloading image from ${remoteImageUrl}...`);
+                    const imgRes = await fetch(remoteImageUrl);
+                    if (imgRes.ok) {
+                        const buffer = await imgRes.arrayBuffer();
+                        const fileName = `${product.mastershop_id}-${Date.now()}.jpg`;
+                        const tempFilePath = path.join(os.tmpdir(), fileName);
+
+                        // Write temp file
+                        fs.writeFileSync(tempFilePath, Buffer.from(buffer));
+
+                        // Debug log temp path
+                        strapi.log.info(`   - Temp file created at: ${tempFilePath}`);
+
+                        try {
+                            // Upload to Strapi using path, WRAPPED IN ARRAY
+                            // Adding filepath alias to be safe
+                            await strapi.plugin('upload').service('upload').upload({
+                                data: {
+                                    refId: product.documentId,
+                                    ref: 'api::product.product',
+                                    field: 'images',
+                                },
+                                files: [{
+                                    name: fileName,
+                                    type: imgRes.headers.get('content-type') || 'image/jpeg',
+                                    size: fs.statSync(tempFilePath).size,
+                                    path: tempFilePath,
+                                    filepath: tempFilePath,
+                                }],
+                            });
+                            imageUploaded = true;
+                            strapi.log.info('✅ Image uploaded successfully');
+                        } finally {
+                            // Clean up temp file safely (Async and silent fail)
+                            if (fs.existsSync(tempFilePath)) {
+                                fs.unlink(tempFilePath, (err) => {
+                                    if (err) strapi.log.debug(`Could not delete temp file: ${err.message}`);
+                                });
+                            }
+                        }
+                    } else {
+                        strapi.log.warn(`⚠️ Failed to download image: ${imgRes.status}`);
+                    }
+                } catch (imgErr) {
+                    strapi.log.error(`❌ Failed to upload image:`, imgErr);
+                }
+            } else {
+                strapi.log.info('ℹ️  Skipping image sync (Local images exist or no remote URL)');
+            }
+
+            // 3. Update Product Data (PUBLISHED)
             const updated = await strapi.documents('api::product.product').update({
                 documentId: productId,
+                status: 'published', // Ensuring we target the published version if draft mode is on
                 data: {
                     name: productData.name || product.name,
                     description: productData.description || product.description,
@@ -119,7 +194,7 @@ export default ({ strapi }) => ({
                 },
             });
 
-            strapi.log.info(`✅ Synced MasterShop product (Full Data): ${updated.name}`);
+            strapi.log.info(`✅ Synced MasterShop product: ${updated.name}`);
             return updated;
         } catch (error) {
             strapi.log.error(`Failed to sync product ${productId}:`, (error as Error).message);
@@ -128,20 +203,18 @@ export default ({ strapi }) => ({
     },
 
     /**
-     * Sync all products that have a mastershop_id
+     * Sync all products
      */
     async syncAllProducts() {
         const apiKey = process.env.MASTERSHOP_API_KEY;
 
         if (!apiKey) {
-            strapi.log.warn('⚠️  MasterShop API Key is missing. Skipping sync.');
             return { success: false, message: 'API Key not configured' };
         }
 
         try {
             strapi.log.info('🔄 Starting MasterShop product synchronization...');
 
-            // Get all products with mastershop_id
             const products = await strapi.documents('api::product.product').findMany({
                 filters: {
                     mastershop_id: {
@@ -159,26 +232,18 @@ export default ({ strapi }) => ({
 
             for (const product of products) {
                 const result = await this.syncProduct(product.documentId);
-                if (result) {
-                    successCount++;
-                } else {
-                    errorCount++;
-                }
-
-                // Add small delay to avoid rate limiting
+                if (result) successCount++;
+                else errorCount++;
                 await new Promise(resolve => setTimeout(resolve, 800));
             }
 
-            const summary = {
+            return {
                 success: true,
                 total: products.length,
                 synced: successCount,
                 errors: errorCount,
                 timestamp: new Date().toISOString(),
             };
-
-            strapi.log.info(`✅ Sync completed: ${successCount} synced, ${errorCount} errors`);
-            return summary;
 
         } catch (error) {
             strapi.log.error('❌ Sync failed:', error);
@@ -190,7 +255,7 @@ export default ({ strapi }) => ({
     },
 
     /**
-     * Send an order to MasterShop (Dropshipping)
+     * Send an order to MasterShop
      */
     async createOrder(orderData: any) {
         const apiKey = process.env.MASTERSHOP_API_KEY;

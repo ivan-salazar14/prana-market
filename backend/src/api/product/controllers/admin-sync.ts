@@ -14,9 +14,9 @@ export default {
                 return ctx.unauthorized('Invalid token');
             }
 
-            strapi.log.info('🚀 Starting manual Dropi sync via API...');
+            strapi.log.info('🚀 Starting manual MasterShop sync via API...');
 
-            const result = await strapi.service('api::product.dropi-sync').syncAllProducts();
+            const result = await strapi.service('api::product.mastershop').syncAllProducts();
 
             return ctx.send({
                 message: 'Sync process completed',
