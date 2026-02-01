@@ -20,6 +20,7 @@ export default function ShippingForm() {
     address: state.shippingAddress?.address || '',
     city: state.shippingAddress?.city || '',
     department: state.shippingAddress?.department || '',
+    neighborhood: state.shippingAddress?.neighborhood || '',
     phone: state.shippingAddress?.phone || '',
     email: state.shippingAddress?.email || '',
   });
@@ -86,6 +87,7 @@ export default function ShippingForm() {
     if (!formData.address.trim()) newErrors.address = 'Requerido';
     if (!formData.city.trim()) newErrors.city = 'Requerido';
     if (!formData.department.trim()) newErrors.department = 'Requerido';
+    if (!formData.neighborhood?.trim()) newErrors.neighborhood = 'Requerido';
     if (!formData.phone.trim()) {
       newErrors.phone = 'Requerido';
     } else if (!/^[0-9+\-\s()]+$/.test(formData.phone)) {
@@ -183,6 +185,23 @@ export default function ShippingForm() {
             </div>
             {errors.city && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.city}</p>}
           </div>
+        </div>
+
+        {/* Barrio */}
+        <div>
+          <label htmlFor="neighborhood" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+            Barrio
+          </label>
+          <input
+            type="text"
+            id="neighborhood"
+            value={formData.neighborhood || ''}
+            onChange={(e) => handleChange('neighborhood', e.target.value)}
+            className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.neighborhood ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
+              }`}
+            placeholder="Ej: El Poblado"
+          />
+          {errors.neighborhood && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.neighborhood}</p>}
         </div>
 
         {/* Teléfono */}

@@ -718,6 +718,9 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
   };
   options: {
     draftAndPublish: false;
+    preview: {
+      enabled: false;
+    };
   };
   attributes: {
     createdAt: Schema.Attribute.DateTime;
