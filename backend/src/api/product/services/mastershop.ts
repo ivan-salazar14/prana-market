@@ -144,8 +144,8 @@ export default ({ strapi }) => ({
                         strapi.log.info(`   - Temp file created at: ${tempFilePath}`);
 
                         try {
-                            // 1. Upload file (Orphan)
-                            // Must wrap in array and provide empty data object for Strapi service to be happy
+                            // 1. Upload file (Orphan) - using STREAM
+                            // This bypasses Strapi trying to open the file itself if logic is flawed
                             const uploadResult = await strapi.plugin('upload').service('upload').upload({
                                 data: {},
                                 files: [{
@@ -153,10 +153,12 @@ export default ({ strapi }) => ({
                                     type: imgRes.headers.get('content-type') || 'image/jpeg',
                                     size: fs.statSync(tempFilePath).size,
                                     path: tempFilePath,
+                                    // Some providers/versions prefer explicit stream
+                                    stream: fs.createReadStream(tempFilePath),
                                 }],
                             });
 
-                            // Handle response being array or single object
+                            // Handle response
                             const uploadedFile = Array.isArray(uploadResult) ? uploadResult[0] : uploadResult;
 
                             if (uploadedFile && uploadedFile.id) {
