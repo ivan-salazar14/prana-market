@@ -132,21 +132,38 @@ export default ({ strapi }) => ({
                 try {
                     strapi.log.info(`🖼️ Downloading image from ${remoteImageUrl}...`);
                     const imgRes = await fetch(remoteImageUrl);
-                    if (imgRes.ok) {
-                        try {
-                            const buffer = await imgRes.arrayBuffer(); // Get buffer
-                            const fileName = `${product.mastershop_id}-${Date.now()}.jpg`;
 
-                            // 1. Upload file (Orphan) - USING BUFFER DIRECTLY
-                            // Avoids filesystem path issues completely
+                    if (imgRes.ok) {
+                        const buffer = await imgRes.arrayBuffer();
+                        const fileName = `${product.mastershop_id}-${Date.now()}.jpg`;
+                        const tempFilePath = path.join(os.tmpdir(), fileName);
+
+                        // writeFileSync
+                        fs.writeFileSync(tempFilePath, Buffer.from(buffer));
+
+                        if (!fs.existsSync(tempFilePath)) {
+                            throw new Error(`Failed to write temp file at ${tempFilePath}`);
+                        }
+
+                        const fileSize = fs.statSync(tempFilePath).size;
+                        strapi.log.info(`   - Temp File: ${tempFilePath} (${fileSize} bytes)`);
+
+                        try {
+                            // BRUTE FORCE ATTRIBUTE STRATEGY
+                            // Providing all possible path property names used by different parsers
+                            const filePayload = {
+                                name: fileName,
+                                type: imgRes.headers.get('content-type') || 'image/jpeg',
+                                size: fileSize,
+                                // Standard properties
+                                path: tempFilePath,
+                                filepath: tempFilePath,
+                            };
+
+                            // Upload to Strapi (Orphan first)
                             const uploadResult = await strapi.plugin('upload').service('upload').upload({
                                 data: {},
-                                files: [{
-                                    name: fileName,
-                                    type: imgRes.headers.get('content-type') || 'image/jpeg',
-                                    size: buffer.byteLength,
-                                    buffer: Buffer.from(buffer), // Direct Buffer
-                                }],
+                                files: [filePayload], // Wrapped in Array
                             });
 
                             // Handle response
@@ -162,18 +179,16 @@ export default ({ strapi }) => ({
                                 });
                                 imageUploaded = true;
                                 strapi.log.info(`✅ Image uploaded and linked (ID: ${uploadedFile.id})`);
-                            } else {
-                                strapi.log.warn('⚠️ Upload succeeded but no ID returned');
                             }
-                        } catch (err) {
-                            strapi.log.error(`❌ Upload failed: ${(err as Error).message}`);
+                        } finally {
+                            // Async Cleanup to avoid EPERM on Windows
+                            fs.unlink(tempFilePath, (err) => {
+                                if (err) strapi.log.debug(`Cleanup warning: ${err.message}`);
+                            });
                         }
-                        // No finally/unlink needed as we use memory buffer
-                    } else {
-                        strapi.log.warn(`⚠️ Failed to download image: ${imgRes.status}`);
                     }
                 } catch (imgErr) {
-                    strapi.log.error(`❌ Failed to upload image:`, imgErr);
+                    strapi.log.error(`❌ Upload failed: ${(imgErr as Error).message}`);
                 }
             } else {
                 strapi.log.info('ℹ️  Skipping image sync (Local images exist or no remote URL)');
@@ -182,7 +197,7 @@ export default ({ strapi }) => ({
             // 3. Update Product Data (PUBLISHED)
             const updated = await strapi.documents('api::product.product').update({
                 documentId: productId,
-                status: 'published', // Ensuring we target the published version if draft mode is on
+                status: 'published',
                 data: {
                     name: productData.name || product.name,
                     description: productData.description || product.description,
