@@ -145,14 +145,19 @@ export default ({ strapi }) => ({
 
                         try {
                             // 1. Upload file (Orphan)
-                            const [uploadedFile] = await strapi.plugin('upload').service('upload').upload({
-                                files: {
+                            // Must wrap in array and provide empty data object for Strapi service to be happy
+                            const uploadResult = await strapi.plugin('upload').service('upload').upload({
+                                data: {},
+                                files: [{
                                     name: fileName,
                                     type: imgRes.headers.get('content-type') || 'image/jpeg',
                                     size: fs.statSync(tempFilePath).size,
                                     path: tempFilePath,
-                                },
+                                }],
                             });
+
+                            // Handle response being array or single object
+                            const uploadedFile = Array.isArray(uploadResult) ? uploadResult[0] : uploadResult;
 
                             if (uploadedFile && uploadedFile.id) {
                                 // 2. Link image to product
@@ -164,6 +169,8 @@ export default ({ strapi }) => ({
                                 });
                                 imageUploaded = true;
                                 strapi.log.info(`✅ Image uploaded and linked (ID: ${uploadedFile.id})`);
+                            } else {
+                                strapi.log.warn('⚠️ Upload succeeded but no ID returned');
                             }
                         } finally {
                             // Clean up temp file safely (Async and silent fail)
