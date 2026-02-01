@@ -133,28 +133,19 @@ export default ({ strapi }) => ({
                     strapi.log.info(`🖼️ Downloading image from ${remoteImageUrl}...`);
                     const imgRes = await fetch(remoteImageUrl);
                     if (imgRes.ok) {
-                        const buffer = await imgRes.arrayBuffer();
-                        const fileName = `${product.mastershop_id}-${Date.now()}.jpg`;
-                        const tempFilePath = path.join(os.tmpdir(), fileName);
-
-                        // Write temp file
-                        fs.writeFileSync(tempFilePath, Buffer.from(buffer));
-
-                        // Debug log temp path
-                        strapi.log.info(`   - Temp file created at: ${tempFilePath}`);
-
                         try {
-                            // 1. Upload file (Orphan) - using STREAM
-                            // This bypasses Strapi trying to open the file itself if logic is flawed
+                            const buffer = await imgRes.arrayBuffer(); // Get buffer
+                            const fileName = `${product.mastershop_id}-${Date.now()}.jpg`;
+
+                            // 1. Upload file (Orphan) - USING BUFFER DIRECTLY
+                            // Avoids filesystem path issues completely
                             const uploadResult = await strapi.plugin('upload').service('upload').upload({
                                 data: {},
                                 files: [{
                                     name: fileName,
                                     type: imgRes.headers.get('content-type') || 'image/jpeg',
-                                    size: fs.statSync(tempFilePath).size,
-                                    path: tempFilePath,
-                                    // Some providers/versions prefer explicit stream
-                                    stream: fs.createReadStream(tempFilePath),
+                                    size: buffer.byteLength,
+                                    buffer: Buffer.from(buffer), // Direct Buffer
                                 }],
                             });
 
@@ -174,14 +165,10 @@ export default ({ strapi }) => ({
                             } else {
                                 strapi.log.warn('⚠️ Upload succeeded but no ID returned');
                             }
-                        } finally {
-                            // Clean up temp file safely (Async and silent fail)
-                            if (fs.existsSync(tempFilePath)) {
-                                fs.unlink(tempFilePath, (err) => {
-                                    if (err) strapi.log.debug(`Could not delete temp file: ${err.message}`);
-                                });
-                            }
+                        } catch (err) {
+                            strapi.log.error(`❌ Upload failed: ${(err as Error).message}`);
                         }
+                        // No finally/unlink needed as we use memory buffer
                     } else {
                         strapi.log.warn(`⚠️ Failed to download image: ${imgRes.status}`);
                     }
