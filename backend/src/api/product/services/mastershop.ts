@@ -144,24 +144,27 @@ export default ({ strapi }) => ({
                         strapi.log.info(`   - Temp file created at: ${tempFilePath}`);
 
                         try {
-                            // Upload to Strapi using path, WRAPPED IN ARRAY
-                            // Adding filepath alias to be safe
-                            await strapi.plugin('upload').service('upload').upload({
-                                data: {
-                                    refId: product.documentId,
-                                    ref: 'api::product.product',
-                                    field: 'images',
-                                },
-                                files: [{
+                            // 1. Upload file (Orphan)
+                            const [uploadedFile] = await strapi.plugin('upload').service('upload').upload({
+                                files: {
                                     name: fileName,
                                     type: imgRes.headers.get('content-type') || 'image/jpeg',
                                     size: fs.statSync(tempFilePath).size,
                                     path: tempFilePath,
-                                    filepath: tempFilePath,
-                                }],
+                                },
                             });
-                            imageUploaded = true;
-                            strapi.log.info('✅ Image uploaded successfully');
+
+                            if (uploadedFile && uploadedFile.id) {
+                                // 2. Link image to product
+                                await strapi.documents('api::product.product').update({
+                                    documentId: productId,
+                                    data: {
+                                        images: [uploadedFile.id]
+                                    }
+                                });
+                                imageUploaded = true;
+                                strapi.log.info(`✅ Image uploaded and linked (ID: ${uploadedFile.id})`);
+                            }
                         } finally {
                             // Clean up temp file safely (Async and silent fail)
                             if (fs.existsSync(tempFilePath)) {
