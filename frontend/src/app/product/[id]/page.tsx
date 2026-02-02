@@ -45,6 +45,7 @@ interface Product {
   product_category?: ProductCategory;
 }
 
+
 export default function ProductPage() {
   const params = useParams();
   const router = useRouter();

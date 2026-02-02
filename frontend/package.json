@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@browserbasehq/stagehand": "^3.0.8",
     "@strapi/blocks-react-renderer": "^1.0.2",
     "@stripe/react-stripe-js": "^4.0.2",
     "@stripe/stripe-js": "^7.9.0",

@@ -1,0 +1,14 @@
+# robots.txt for Prana Make up
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /orders
+
+# Sitemap location
+Sitemap: https://prana-market-production.up.railway.app/sitemap.xml
