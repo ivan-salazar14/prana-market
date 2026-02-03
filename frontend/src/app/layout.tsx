@@ -16,16 +16,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://prana-market-production.up.railway.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pranamarket.store'),
   title: {
-    default: "Prana Make up - Belleza y Sofisticación | Maquillaje y Cosméticos",
-    template: "%s | Prana Make up"
+    default: "Prana Market - Belleza, Salud y Bienestar | Tienda Online",
+    template: "%s | Prana Market"
   },
-  description: "Descubre la mejor selección de productos de maquillaje y cosméticos en Prana Make up. Belleza y sofisticación en cada detalle. Envío a todo Colombia.",
-  keywords: ["maquillaje", "cosméticos", "belleza", "makeup", "productos de belleza", "cosmética", "maquillaje Colombia", "tienda de maquillaje", "prana makeup"],
-  authors: [{ name: "Prana Make up" }],
-  creator: "Prana Make up",
-  publisher: "Prana Make up",
+  description: "Encuentra lo mejor en belleza, salud y cuidado personal en Prana Market. Productos de alta calidad para tu bienestar. Envío a todo Colombia.",
+  keywords: ["belleza", "salud", "bienestar", "cuidado personal", "maquillaje", "cosméticos", "beauty", "health", "productos de belleza", "productos de salud", "prana market", "tienda online Colombia"],
+  authors: [{ name: "Prana Market" }],
+  creator: "Prana Market",
+  publisher: "Prana Market",
   formatDetection: {
     email: false,
     address: false,
@@ -35,24 +35,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_CO",
     url: "/",
-    siteName: "Prana Make up",
-    title: "Prana Make up - Belleza y Sofisticación",
-    description: "Descubre la mejor selección de productos de maquillaje y cosméticos. Belleza y sofisticación en cada detalle.",
+    siteName: "Prana Market",
+    title: "Prana Market - Belleza, Salud y Bienestar",
+    description: "Tu destino para productos de belleza, salud y cuidado personal. Calidad y bienestar en cada detalle.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Prana Make up - Productos de Belleza",
+        alt: "Prana Market - Belleza y Salud",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prana Make up - Belleza y Sofisticación",
-    description: "Descubre la mejor selección de productos de maquillaje y cosméticos. Belleza y sofisticación en cada detalle.",
+    title: "Prana Market - Belleza, Salud y Bienestar",
+    description: "Tu destino para productos de belleza, salud y cuidado personal. Calidad y bienestar en cada detalle.",
     images: ["/og-image.jpg"],
-    creator: "@pranamakeup",
+    creator: "@pranamarket",
   },
   robots: {
     index: true,
@@ -67,8 +67,6 @@ export const metadata: Metadata = {
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
-    // yandex: 'yandex-verification-code',
-    // bing: 'bing-verification-code',
   },
 };
 

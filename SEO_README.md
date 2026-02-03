@@ -2,7 +2,7 @@
 
 ## 📦 What's Included
 
-This SEO optimization package includes everything you need to rank well in search engines and attract organic traffic to Prana Make up.
+This SEO optimization package includes everything you need to rank well in search engines and attract organic traffic to Prana Market.
 
 ### 📄 Documentation Files
 
@@ -114,15 +114,15 @@ git push
 
 ### Primary Focus
 
-- **maquillaje Colombia** - Main market
-- **productos de belleza** - High intent
+- **belleza y salud Colombia** - Mercado principal
+- **productos de bienestar** - Alta intención
 - **cosméticos online** - E-commerce
-- **tienda de maquillaje** - Direct searches
+- **tienda de cuidado personal** - Búsquedas directas
 
 ### Brand Building
 
-- **prana makeup** - Brand awareness
-- **prana make up Colombia** - Local brand
+- **prana market** - Reconocimiento de marca
+- **prana market Colombia** - Marca local
 
 ## 📈 Expected Results
 
@@ -320,7 +320,7 @@ See **SEO_GUIDE.md** for:
 - **Compatibility**: Next.js 16, React 19
 - **Language**: Spanish (es-CO)
 - **Market**: Colombia
-- **Industry**: Cosmetics/Makeup
+- **Industry**: Beauty, Health and Wellness
 
 **Created**: February 2, 2026  
 **Status**: Production Ready ✅  

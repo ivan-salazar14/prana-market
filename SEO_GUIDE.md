@@ -1,4 +1,4 @@
-# SEO Optimization Guide for Prana Make up
+# SEO Optimization Guide for Prana Market
 
 ## Overview
 
@@ -13,7 +13,7 @@ This document outlines all SEO optimizations implemented for production deployme
 - ✅ Twitter Card metadata
 - ✅ Robots directives for search engines
 - ✅ Google Search Console verification support
-- ✅ Keywords optimization for makeup/cosmetics industry
+- ✅ Keywords optimization for beauty, health and wellness industry
 
 ### 2. **Sitemap Generation** (`src/app/sitemap.ts`)
 
@@ -82,8 +82,8 @@ Add to `.env` or `.env.production`:
 
 ```env
 # Site Configuration
-NEXT_PUBLIC_SITE_URL=https://prana-market-production.up.railway.app
-NEXT_PUBLIC_BACKEND_URL=https://prana-market-production.up.railway.app
+NEXT_PUBLIC_SITE_URL=https://www.pranamarket.store
+NEXT_PUBLIC_BACKEND_URL=https://www.pranamarket.store
 
 # SEO Verification Codes (Get these from search engines)
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-google-verification-code
@@ -95,7 +95,7 @@ NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-google-verification-code
 1. **Create OG Image** (`public/og-image.jpg`):
    - Size: 1200x630px
    - Include brand logo and tagline
-   - Use high-quality makeup/cosmetics imagery
+   - Use high-quality beauty, health and wellness imagery
 
 2. **Add Logo** (`public/logo.png`):
    - Square format (recommended: 512x512px)
@@ -303,6 +303,7 @@ Test your Twitter Cards:
 <https://cards-dev.twitter.com/validator>
 
 ### LinkedIn Post Inspector
+
 <https://www.linkedin.com/post-inspector/>
 
 ## 🎨 Content Strategy for SEO
@@ -311,19 +312,19 @@ Test your Twitter Cards:
 
 Focus on:
 
-- "maquillaje Colombia"
-- "productos de belleza"
-- "cosméticos online"
-- "tienda de maquillaje"
+- "belleza y salud Colombia"
+- "productos de bienestar"
+- "cosméticos y salud online"
+- "tienda de cuidado personal"
 - Brand-specific searches
 - Product category searches
 
 ### Content Ideas
 
-1. Blog section for makeup tutorials
-2. Product comparison guides
-3. Seasonal collections
-4. Beauty tips and tricks
+1. Blog section for beauty/health tips
+2. Wellness guides and tutorials
+3. Seasonal health & beauty collections
+4. Care tips and tricks
 5. Customer testimonials
 
 ## 🔒 Security & Trust Signals

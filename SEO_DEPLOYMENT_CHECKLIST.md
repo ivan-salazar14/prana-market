@@ -1,4 +1,4 @@
-# SEO Deployment Checklist for Prana Make up
+# SEO Deployment Checklist for Prana Market
 
 ## ✅ Pre-Deployment (Completed)
 
@@ -61,7 +61,7 @@ git push
 #### B. Test Metadata
 
 - [ ] View source on homepage - check for:
-  - `<title>` tag with "Prana Make up"
+  - `<title>` tag with "Prana Market"
   - `<meta name="description">` tag
   - `<meta property="og:*">` tags
   - `<meta name="twitter:*">` tags
@@ -190,7 +190,7 @@ git push
 
 ### Month 1
 
-- [ ] Appearing in brand searches ("Prana Make up")
+- [ ] Appearing in brand searches ("Prana Market")
 - [ ] 10+ pages indexed
 - [ ] Organic impressions > 100/week
 

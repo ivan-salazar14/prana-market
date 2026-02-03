@@ -36,7 +36,7 @@ export function generateProductJsonLd(product: Product, productUrl: string) {
         image: imageUrl,
         brand: {
             '@type': 'Brand',
-            name: 'Prana Make up',
+            name: 'Prana Market',
         },
         offers: {
             '@type': 'Offer',
@@ -48,7 +48,7 @@ export function generateProductJsonLd(product: Product, productUrl: string) {
                 : 'https://schema.org/OutOfStock',
             itemCondition: 'https://schema.org/NewCondition',
         },
-        category: product.product_category?.Name || 'Cosméticos',
+        category: product.product_category?.Name || 'Salud y Belleza',
     };
 }
 
@@ -59,10 +59,10 @@ export function generateOrganizationJsonLd() {
     return {
         '@context': 'https://schema.org',
         '@type': 'Organization',
-        name: 'Prana Make up',
-        url: process.env.NEXT_PUBLIC_SITE_URL || 'https://prana-market-production.up.railway.app',
-        logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://prana-market-production.up.railway.app'}/logo.png`,
-        description: 'Tienda de maquillaje y cosméticos de alta calidad en Colombia',
+        name: 'Prana Market',
+        url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pranamarket.store',
+        logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pranamarket.store'}/logo.png`,
+        description: 'Tienda online de productos de belleza, salud y bienestar en Colombia',
         address: {
             '@type': 'PostalAddress',
             addressCountry: 'CO',
@@ -80,12 +80,12 @@ export function generateOrganizationJsonLd() {
  * Generate WebSite structured data with search functionality
  */
 export function generateWebsiteJsonLd() {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prana-market-production.up.railway.app';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pranamarket.store';
 
     return {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'Prana Make up',
+        name: 'Prana Market',
         url: siteUrl,
         potentialAction: {
             '@type': 'SearchAction',

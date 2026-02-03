@@ -225,7 +225,7 @@ export default function Home() {
                         : "Explora Nuestra Colección"
                     }
                   </h2>
-                  <p className="text-gray-500 font-medium">Belleza y sofisticación en cada detalle</p>
+                  <p className="text-gray-500 font-medium">Belleza, salud y bienestar en cada detalle</p>
                 </div>
               </div>
 

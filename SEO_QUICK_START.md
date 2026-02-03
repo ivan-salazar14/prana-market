@@ -1,4 +1,4 @@
-# 🚀 SEO Quick Start Guide - Prana Make up
+# 🚀 SEO Quick Start Guide - Prana Market
 
 ## ⚡ Immediate Actions (Do This First!)
 
@@ -6,8 +6,8 @@
 
 ```bash
 # In your production environment (Railway, Vercel, etc.)
-NEXT_PUBLIC_SITE_URL=https://prana-market-production.up.railway.app
-NEXT_PUBLIC_BACKEND_URL=https://prana-market-production.up.railway.app
+NEXT_PUBLIC_SITE_URL=https://www.pranamarket.store
+NEXT_PUBLIC_BACKEND_URL=https://www.pranamarket.store
 ```
 
 ### 2. Deploy to Production
@@ -89,7 +89,7 @@ curl https://your-domain.com/robots.txt
 1. Visit your homepage
 2. Right-click → "View Page Source"
 3. Search for: `og:title`
-4. Should see: "Prana Make up"
+4. Should see: "Prana Market"
 
 ### Test Social Preview
 

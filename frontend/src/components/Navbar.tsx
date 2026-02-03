@@ -65,7 +65,7 @@ export default function Navbar() {
                 <span className="text-white font-black text-xl">P</span>
               </div>
               <span className="text-xl font-bold text-gray-900 tracking-tight">
-                Prana <span className="text-pink-600">Make up</span>
+                Prana <span className="text-pink-600">Market</span>
               </span>
             </Link>
 

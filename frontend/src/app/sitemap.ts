@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://prana-market-production.up.railway.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pranamarket.store';
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://prana-market-production.up.railway.app';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
