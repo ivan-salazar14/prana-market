@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -49,6 +50,9 @@ export default function Navbar() {
 
   return (
     <>
+      <div className="bg-black text-white py-2.5 text-center text-[10px] md:text-xs font-black tracking-[0.2em] px-4 uppercase relative z-[60]">
+        ✨ Envíos a todo Colombia | Belleza, Salud y Bienestar ✨
+      </div>
       <nav
         className={cn(
           "sticky top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
@@ -60,11 +64,17 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-12">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-lg shadow-pink-200 group-hover:scale-105 transition-transform">
-                <span className="text-white font-black text-xl">P</span>
+            <Link href="/" className="flex items-center space-x-3 group">
+              <div className="relative w-10 h-10 group-hover:scale-110 transition-transform duration-300">
+                <Image
+                  src="/logo.png"
+                  alt="Prana Market Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
-              <span className="text-xl font-bold text-gray-900 tracking-tight">
+              <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
                 Prana <span className="text-pink-600">Market</span>
               </span>
             </Link>

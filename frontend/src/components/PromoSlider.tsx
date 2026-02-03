@@ -133,7 +133,7 @@ export default function PromoSlider({ items }: PromoSliderProps) {
                                     transition={{ delay: 0.4 }}
                                     className="text-white/80 text-sm md:text-lg font-medium max-w-md line-clamp-2 md:line-clamp-none"
                                 >
-                                    Descubre la magia del maquillaje profesional. Resalta tu belleza con nuestra selección exclusiva.
+                                    Descubre lo mejor en belleza, salud y bienestar. Resalta tu esencia con nuestra selección exclusiva.
                                 </motion.p>
 
                                 <motion.div

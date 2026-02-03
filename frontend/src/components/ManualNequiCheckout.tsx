@@ -117,7 +117,7 @@ export default function ManualNequiCheckout({
     };
 
     const handleWhatsAppNotify = () => {
-        const message = `¡Hola Prana Make up! Acabo de realizar una transferencia Nequi por mi pedido. El total es COP ${total.toLocaleString('es-CO')}. Adjunto el comprobante.`;
+        const message = `¡Hola Prana Market! Acabo de realizar una transferencia Nequi por mi pedido. El total es COP ${total.toLocaleString('es-CO')}. Adjunto el comprobante.`;
         const whatsappUrl = `https://wa.me/573182026212?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };

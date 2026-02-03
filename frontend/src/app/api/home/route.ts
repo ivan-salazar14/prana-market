@@ -8,8 +8,8 @@ export async function GET() {
         return Response.json({
           data: {
             id: 1,
-            Title: "Welcome to Prana Market",
-            Description: "Discover fresh organic products from local farmers",
+            Title: "Bienvenido a Prana Market",
+            Description: "Tu destino premium para productos de belleza, salud y bienestar.",
             Cover: null,
             Slider: []
           }
@@ -25,8 +25,8 @@ export async function GET() {
     return Response.json({
       data: {
         id: 1,
-        Title: "Welcome to Prana Market",
-        Description: "Discover fresh organic products from local farmers",
+        Title: "Bienvenido a Prana Market",
+        Description: "Tu destino premium para productos de belleza, salud y bienestar.",
         Cover: null,
         Slider: []
       }

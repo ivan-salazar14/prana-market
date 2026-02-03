@@ -43,8 +43,8 @@ export default function NequiCheckout({ amount, onSuccess, onError }: NequiCheck
         body: JSON.stringify({
           amount_in_cents: Math.round(amount * 100),
           currency: 'COP',
-          description: `Prana Make up Order - COP ${amount.toLocaleString()}`,
-          reference: `prana-nequi-${Date.now()}`,
+          description: `Prana Market Order - COP ${amount.toLocaleString()}`,
+          reference: `prana-market-nequi-${Date.now()}`,
         }),
       });
 
