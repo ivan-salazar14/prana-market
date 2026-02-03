@@ -1,5 +1,7 @@
 // import type { Core } from '@strapi/strapi';
 
+import productSyncCron from './cron/product-sync';
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -17,5 +19,7 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
+    // Register Product sync cron job
+    await productSyncCron.register({ strapi });
   },
 };

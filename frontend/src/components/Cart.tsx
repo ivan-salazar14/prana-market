@@ -512,7 +512,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                               <Wallet className="w-5 h-5" />
                             </div>
                             <div className="text-left">
-                              <span className={cn("text-sm font-bold block", paymentMethod === 'nequi' ? "text-[#FF0082]" : "text-gray-500")}>Nequi (Transferencia)</span>
+                              <span className={cn("text-sm font-bold block", paymentMethod === 'nequi' ? "text-[#FF0082]" : "text-gray-500")}>Pago Anticipado (Nequi / Bancolombia)</span>
                               <span className="text-[10px] text-gray-400 font-medium">Transferencia directa inmediata</span>
                             </div>
                           </button>
