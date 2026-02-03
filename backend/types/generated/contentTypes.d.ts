@@ -882,6 +882,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     stock: Schema.Attribute.Integer &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<1>;
+    supplier_id: Schema.Attribute.String;
     supplier_name: Schema.Attribute.String;
     supplier_sku: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;

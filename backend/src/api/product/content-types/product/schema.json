@@ -72,6 +72,9 @@
     },
     "last_sync_date": {
       "type": "datetime"
+    },
+    "supplier_id": {
+      "type": "string"
     }
   }
 }
