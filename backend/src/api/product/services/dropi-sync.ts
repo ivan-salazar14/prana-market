@@ -16,7 +16,7 @@ export default ({ strapi }) => ({
         try {
             const product = await strapi.documents('api::product.product').findOne({
                 documentId: productId,
-                fields: ['name', 'dropi_id', 'price', 'stock', 'cost_price'],
+                fields: ['name', 'dropi_id', 'price', 'original_price', 'discount_percentage', 'stock', 'cost_price'],
             });
 
             if (!product || !product.dropi_id) {
@@ -53,6 +53,9 @@ export default ({ strapi }) => ({
                 data: {
                     stock: dropiProduct.stock || dropiProduct.available_quantity || product.stock,
                     cost_price: dropiProduct.price || dropiProduct.cost || product.cost_price,
+                    original_price: dropiProduct.price || dropiProduct.cost || product.cost_price,
+                    price: Math.round((dropiProduct.price || dropiProduct.cost || product.cost_price) * 0.9),
+                    discount_percentage: 10,
                     last_sync_date: new Date(),
                 }
             });

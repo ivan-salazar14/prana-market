@@ -37,6 +37,8 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  original_price?: number;
+  discount_percentage?: number;
   stock: number;
   images?: Array<{
     url: string;
@@ -96,6 +98,8 @@ export default function ProductPage() {
         id: product.id,
         name: product.name,
         price: product.price,
+        original_price: product.original_price,
+        discount_percentage: product.discount_percentage,
         image: product.images?.[0]?.url,
         stock: product.stock,
         quantity
@@ -204,7 +208,7 @@ export default function ProductPage() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Product Badge */}
+              {/* Product Badges */}
               <div className="absolute top-4 left-4">
                 {product.product_category && (
                   <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-emerald-700 border border-emerald-100 shadow-sm uppercase tracking-wider">
@@ -212,6 +216,15 @@ export default function ProductPage() {
                   </span>
                 )}
               </div>
+
+              {/* Discount Badge */}
+              {product.discount_percentage && product.discount_percentage > 0 && (
+                <div className="absolute top-4 right-4">
+                  <span className="bg-pink-600 text-white px-4 py-1.5 rounded-full text-sm font-black shadow-xl shadow-pink-200 animate-pulse">
+                    -{product.discount_percentage}% OFF
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Thumbnails */}
@@ -253,9 +266,30 @@ export default function ProductPage() {
               {product.name}
             </h1>
 
-            <div className="flex items-baseline mb-8">
-              <span className="text-3xl font-bold text-emerald-600">{formattedPrice}</span>
-              <span className="ml-2 text-gray-400 text-sm">incl. IVA</span>
+            <div className="flex flex-col mb-8">
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-black text-emerald-600">{formattedPrice}</span>
+                {product.original_price && product.original_price > product.price && (
+                  <span className="text-xl text-gray-400 line-through font-medium">
+                    {new Intl.NumberFormat('es-CO', {
+                      style: 'currency',
+                      currency: 'COP',
+                      maximumFractionDigits: 0,
+                    }).format(product.original_price)}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">IVA Incluido</span>
+
+              {product.original_price && product.original_price > product.price && (
+                <div className="mt-2 inline-flex items-center text-xs font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded-lg w-fit">
+                  Ahorras: {new Intl.NumberFormat('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    maximumFractionDigits: 0,
+                  }).format(product.original_price - product.price)}
+                </div>
+              )}
             </div>
 
             <div className="prose prose-sm text-gray-600 dark:text-gray-300 mb-10">

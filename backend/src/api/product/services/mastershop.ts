@@ -45,7 +45,7 @@ export default ({ strapi }) => ({
         try {
             const product = await strapi.documents('api::product.product').findOne({
                 documentId: productId,
-                fields: ['name', 'mastershop_id', 'stock', 'price', 'cost_price', 'description'],
+                fields: ['name', 'mastershop_id', 'stock', 'price', 'original_price', 'discount_percentage', 'cost_price', 'description'],
                 populate: ['images']
             });
 
@@ -76,7 +76,11 @@ export default ({ strapi }) => ({
             // 1. Calculate Field Updates
             const newStock = productData.stockTotal || productData.stock || 0;
             const newCost = productData.basePrice || productData.cost_price || 0;
-            const newPrice = productData.suggestedPrice || productData.price || product.price;
+            const remotePrice = productData.suggestedPrice || productData.price || product.price;
+
+            // Apply 10% discount
+            const discountPercentage = 10;
+            const discountedPrice = Math.round(remotePrice * (1 - (discountPercentage / 100)));
 
             // 2. Image Synchro logic (Manual Bypass Strategy)
             const remoteImageUrl = productData.urlImageProduct;
@@ -141,7 +145,9 @@ export default ({ strapi }) => ({
                 description: productData.description || product.description,
                 stock: newStock,
                 cost_price: newCost,
-                price: newPrice,
+                original_price: remotePrice,
+                price: discountedPrice,
+                discount_percentage: discountPercentage,
                 supplier_id: productData.productOwner?.idBusiness?.toString(),
                 supplier_name: productData.productOwner?.publicName,
                 last_sync_date: new Date(),

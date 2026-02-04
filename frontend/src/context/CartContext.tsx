@@ -6,6 +6,8 @@ interface Product {
   id: number;
   name: string;
   price: number;
+  original_price?: number;
+  discount_percentage?: number;
   image?: string;
   stock: number;
 }

@@ -355,9 +355,16 @@ export default function Cart({ isOpen, onClose }: CartProps) {
 
                           <div className="ml-4 flex-1">
                             <h3 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{item.name}</h3>
-                            <p className="text-sm font-bold text-pink-600 mt-0.5">
-                              COP {item.price.toLocaleString('es-CO')}
-                            </p>
+                            <div className="flex items-baseline gap-2 mt-0.5">
+                              <p className="text-sm font-bold text-pink-600">
+                                COP {item.price.toLocaleString('es-CO')}
+                              </p>
+                              {item.original_price && item.original_price > item.price && (
+                                <p className="text-[10px] text-gray-400 line-through">
+                                  COP {item.original_price.toLocaleString('es-CO')}
+                                </p>
+                              )}
+                            </div>
 
                             <div className="flex items-center mt-2">
                               <div className="flex items-center bg-white dark:bg-zinc-800 border border-gray-200 dark:border-white/10 rounded-lg p-1">

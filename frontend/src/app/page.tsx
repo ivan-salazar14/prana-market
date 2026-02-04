@@ -36,6 +36,8 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  original_price?: number;
+  discount_percentage?: number;
   stock: number;
   documentId: string;
   images?: Array<{
@@ -263,7 +265,16 @@ export default function Home() {
                               )}
                               {/* Subcategory Badge */}
                               <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-pink-700 dark:text-pink-400 border border-pink-100 dark:border-pink-900/50 shadow-sm uppercase tracking-wider w-fit">
-                                {product.product_category.Name}
+                                {product.product_category?.Name}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Discount Badge */}
+                          {product.discount_percentage && product.discount_percentage > 0 && (
+                            <div className="absolute top-4 right-4">
+                              <span className="bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-black shadow-lg shadow-pink-200 animate-pulse">
+                                -{product.discount_percentage}%
                               </span>
                             </div>
                           )}
@@ -282,13 +293,24 @@ export default function Home() {
                         </div>
                         <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                           <div className="flex flex-col">
-                            <span className="text-2xl font-black text-pink-600">
-                              {new Intl.NumberFormat('es-CO', {
-                                style: 'currency',
-                                currency: 'COP',
-                                maximumFractionDigits: 0,
-                              }).format(product.price)}
-                            </span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-black text-pink-600">
+                                {new Intl.NumberFormat('es-CO', {
+                                  style: 'currency',
+                                  currency: 'COP',
+                                  maximumFractionDigits: 0,
+                                }).format(product.price)}
+                              </span>
+                              {product.original_price && product.original_price > product.price && (
+                                <span className="text-sm text-gray-400 line-through">
+                                  {new Intl.NumberFormat('es-CO', {
+                                    style: 'currency',
+                                    currency: 'COP',
+                                    maximumFractionDigits: 0,
+                                  }).format(product.original_price)}
+                                </span>
+                              )}
+                            </div>
                             <span className={cn(
                               "text-[10px] font-bold uppercase tracking-tight mt-0.5",
                               product.stock > 10 ? "text-emerald-500" : product.stock > 0 ? "text-amber-500" : "text-red-500"

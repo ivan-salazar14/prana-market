@@ -70,6 +70,12 @@
     "cost_price": {
       "type": "decimal"
     },
+    "original_price": {
+      "type": "decimal"
+    },
+    "discount_percentage": {
+      "type": "decimal"
+    },
     "last_sync_date": {
       "type": "datetime"
     },
