@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     });
     console.log('formData:', formData);
 
-    const response = await fetch(`${BASE_STRAPI_URL}/api/orders/public`, {
+    const response = await fetch(`${BASE_STRAPI_URL}/api/orders`, {
       method: 'POST',
       // No Content-Type header for FormData
       headers: {
@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
 
     // Build query with user filter if userId is available
     // Use public endpoint to allow API token access
-    let url = `${BASE_STRAPI_URL}/api/orders/public`;
+    let url = `${BASE_STRAPI_URL}/api/orders`;
     if (userId) {
       // Use URLSearchParams to properly encode the filter
       const params = new URLSearchParams();

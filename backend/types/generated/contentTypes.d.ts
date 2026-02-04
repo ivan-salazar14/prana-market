@@ -860,6 +860,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
+    discount_percentage: Schema.Attribute.Decimal;
     dropi_id: Schema.Attribute.String;
     images: Schema.Attribute.Media<'images', true>;
     isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
@@ -872,6 +873,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     mastershop_id: Schema.Attribute.String & Schema.Attribute.Unique;
     name: Schema.Attribute.String & Schema.Attribute.Required;
+    original_price: Schema.Attribute.Decimal;
     price: Schema.Attribute.Decimal & Schema.Attribute.Required;
     product_category: Schema.Attribute.Relation<
       'manyToOne',
