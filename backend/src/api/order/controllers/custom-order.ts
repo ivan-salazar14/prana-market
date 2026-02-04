@@ -9,8 +9,9 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
             // 1. Fetch the order with full details
             const order = await strapi.documents('api::order.order').findOne({
                 documentId: id, // Try documentId first
-                populate: ['items', 'shippingAddress', 'deliveryMethod', 'user'],
+                populate: ['user'],
             });
+
 
             let realOrder = order;
 
@@ -18,9 +19,10 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
                 // Fallback to numeric ID search if documentId fails
                 const orders = await strapi.documents('api::order.order').findMany({
                     filters: { id: id },
-                    populate: ['items', 'shippingAddress', 'deliveryMethod', 'user'],
+                    populate: ['user'],
                     limit: 1
                 });
+
                 if (orders.length > 0) realOrder = orders[0];
             }
 

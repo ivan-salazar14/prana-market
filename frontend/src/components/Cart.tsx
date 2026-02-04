@@ -21,6 +21,9 @@ import ManualNequiCheckout from './ManualNequiCheckout';
 import ShippingForm from './ShippingForm';
 import { cn } from '@/utils/cn';
 
+const FREE_SHIPPING_THRESHOLD = Number(process.env.NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD) || 50000;
+
+
 /**
  * Componente para pago contraentrega (efectivo)
  */
@@ -400,52 +403,103 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                   <div className="space-y-4">
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Método de entrega</h4>
                     <div className="space-y-3">
-                      {DELIVERY_METHODS.map((method) => (
-                        <label
-                          key={method.id}
-                          className={cn(
-                            "flex items-start p-4 rounded-2xl border-2 transition-all cursor-pointer",
-                            state.deliveryMethod?.id === method.id
-                              ? "border-pink-600 bg-pink-50/50 dark:bg-pink-900/10"
-                              : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-pink-200"
-                          )}
-                        >
-                          <input
-                            type="radio"
-                            name="delivery"
-                            value={method.id}
-                            checked={state.deliveryMethod?.id === method.id}
-                            onChange={() => {
-                              dispatch({ type: 'SET_DELIVERY_METHOD', payload: method });
-                              if (method.id === 'pickup') {
-                                dispatch({ type: 'SET_SHIPPING_ADDRESS', payload: null });
-                              }
-                            }}
-                            className="mt-1 sr-only"
-                          />
-                          <div className="bg-white dark:bg-zinc-800 p-2 rounded-xl border border-gray-100 dark:border-white/10 mr-4">
-                            {method.id === 'pickup' ? <Store className="w-5 h-5 text-pink-600" /> : <Truck className="w-5 h-5 text-pink-600" />}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-center mb-0.5">
-                              <span className="font-bold text-sm text-gray-900 dark:text-white">{method.name}</span>
-                              <span className="text-xs font-black text-pink-600">
-                                {method.cost === 0 ? 'GRATIS' : `COP ${method.cost.toLocaleString('es-CO')}`}
-                              </span>
+                      {DELIVERY_METHODS.map((method) => {
+                        const isFreeShipping = state.subtotal >= FREE_SHIPPING_THRESHOLD && method.id !== 'pickup';
+                        return (
+                          <label
+                            key={method.id}
+                            className={cn(
+                              "flex items-start p-4 rounded-2xl border-2 transition-all cursor-pointer",
+                              state.deliveryMethod?.id === method.id
+                                ? "border-pink-600 bg-pink-50/50 dark:bg-pink-900/10"
+                                : "border-gray-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-pink-200"
+                            )}
+                          >
+                            <input
+                              type="radio"
+                              name="delivery"
+                              value={method.id}
+                              checked={state.deliveryMethod?.id === method.id}
+                              onChange={() => {
+                                dispatch({ type: 'SET_DELIVERY_METHOD', payload: method });
+                                if (method.id === 'pickup') {
+                                  dispatch({ type: 'SET_SHIPPING_ADDRESS', payload: null });
+                                }
+                              }}
+                              className="mt-1 sr-only"
+                            />
+                            <div className="bg-white dark:bg-zinc-800 p-2 rounded-xl border border-gray-100 dark:border-white/10 mr-4">
+                              {method.id === 'pickup' ? <Store className="w-5 h-5 text-pink-600" /> : <Truck className="w-5 h-5 text-pink-600" />}
                             </div>
-                            <p className="text-xs text-gray-500 leading-relaxed">{method.description}</p>
-                          </div>
-                          {state.deliveryMethod?.id === method.id && (
-                            <div className="w-5 h-5 bg-pink-600 rounded-full flex items-center justify-center ml-2">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                            <div className="flex-1">
+                              <div className="flex justify-between items-center mb-0.5">
+                                <span className="font-bold text-sm text-gray-900 dark:text-white">{method.name}</span>
+                                <div className="flex flex-col items-end">
+                                  {isFreeShipping && method.cost > 0 && (
+                                    <span className="text-[10px] text-gray-400 line-through font-medium">
+                                      COP {method.cost.toLocaleString('es-CO')}
+                                    </span>
+                                  )}
+                                  <span className={cn(
+                                    "text-xs font-black",
+                                    isFreeShipping || method.cost === 0 ? "text-emerald-500" : "text-pink-600"
+                                  )}>
+                                    {(method.cost === 0 || isFreeShipping) ? 'GRATIS' : `COP ${method.cost.toLocaleString('es-CO')}`}
+                                  </span>
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-500 leading-relaxed">{method.description}</p>
                             </div>
-                          )}
-                        </label>
-                      ))}
+                            {state.deliveryMethod?.id === method.id && (
+                              <div className="w-5 h-5 bg-pink-600 rounded-full flex items-center justify-center ml-2">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                              </div>
+                            )}
+                          </label>
+                        );
+                      })}
+
                     </div>
                   </div>
 
+                  {/* Free Shipping Progress */}
+                  {state.subtotal < FREE_SHIPPING_THRESHOLD ? (
+                    <div className="bg-pink-50 dark:bg-pink-900/10 rounded-2xl p-4 border border-pink-100 dark:border-pink-900/20">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-[10px] font-black text-pink-900 dark:text-pink-400 uppercase tracking-wider">
+                          ¡Estás muy cerca!
+                        </span>
+                        <span className="text-[10px] font-bold text-pink-600">
+                          Faltan COP {(FREE_SHIPPING_THRESHOLD - state.subtotal).toLocaleString('es-CO')} para envío gratis
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full bg-pink-200 dark:bg-pink-900/30 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(state.subtotal / FREE_SHIPPING_THRESHOLD) * 100}%` }}
+                          className="h-full bg-pink-600"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl p-4 border border-emerald-100 dark:border-emerald-900/20 flex items-center">
+                      <div className="bg-emerald-500 p-1.5 rounded-full mr-3">
+                        <CheckCircle2 className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-emerald-900 dark:text-emerald-400 uppercase tracking-wider">
+                          ¡Envío Gratis!
+                        </p>
+
+                        <p className="text-[10px] text-emerald-700 dark:text-emerald-500 font-medium">
+                          Has alcanzado el monto para envío gratis en tu zona.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Shipping Form Overlay for scroll context */}
+
                   {state.deliveryMethod && state.deliveryMethod.id !== 'pickup' && (
                     <div className="pt-2 animate-in fade-in slide-in-from-top-4 duration-300">
                       <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1 mb-4">Datos de envío</h4>

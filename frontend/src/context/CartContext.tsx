@@ -50,12 +50,21 @@ type CartAction =
   | { type: 'SET_SHIPPING_ADDRESS'; payload: ShippingAddress | null }
   | { type: 'CLEAR_CART' };
 
+const FREE_SHIPPING_THRESHOLD = Number(process.env.NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD) || 50000;
+
 const calculateTotals = (items: CartItem[], deliveryMethod: DeliveryMethod | null) => {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const deliveryCost = deliveryMethod?.cost || 0;
+  let deliveryCost = deliveryMethod?.cost || 0;
+
+  // Apply free shipping if subtotal is greater than or equal to threshold
+  if (subtotal >= FREE_SHIPPING_THRESHOLD && deliveryMethod?.id !== 'pickup') {
+    deliveryCost = 0;
+  }
+
   const total = subtotal + deliveryCost;
   return { subtotal, deliveryCost, total };
 };
+
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
