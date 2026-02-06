@@ -215,17 +215,27 @@ export default ({ strapi }) => ({
      * Send Order to MasterShop
      */
     async sendOrderToMasterShop(order: any) {
+        if (!order || !order.id) {
+            strapi.log.error('Invalid order object passed to MasterShop sync');
+            return { success: false, error: 'Invalid order object' };
+        }
+
         const apiKey = process.env.MASTERSHOP_API_KEY;
         const apiUrl = process.env.MASTERSHOP_API_URL || 'https://prod.api.mastershop.com/api';
 
         if (!apiKey) {
             strapi.log.warn('MasterShop API Key missing. Skipping order sync.');
-            return;
+            return { success: false, error: 'API Key missing' };
         }
 
         try {
             // 1. Filter items that are synced with MasterShop
             const items = order.items || [];
+            if (!Array.isArray(items) || items.length === 0) {
+                strapi.log.info(`Order ${order.id} has no items. Skipping.`);
+                return { success: false, error: 'No items in order' };
+            }
+
             const masterShopItems = [];
 
             for (const item of items) {
@@ -233,22 +243,23 @@ export default ({ strapi }) => ({
                 let product = null;
 
                 // Lookup by ID/DocumentID
-                if (item.product_document_id || (typeof item.id === 'string' && item.id.length > 10)) {
+                const productId = item.product_document_id || item.id || item.documentId;
+                if (productId) {
                     try {
+                        // Try documents API first (Strapi 5)
                         product = await strapi.documents('api::product.product').findOne({
-                            documentId: item.product_document_id || item.id,
+                            documentId: productId,
                             fields: ['mastershop_id', 'name', 'supplier_id', 'supplier_sku']
                         });
-                    } catch (err) { /* ignore */ }
-                }
-
-                if (!product && item.id) {
-                    try {
-                        product = await strapi.db.query('api::product.product').findOne({
-                            where: { id: item.id },
-                            select: ['mastershop_id', 'name', 'supplier_id', 'supplier_sku']
-                        });
-                    } catch (dbErr) { /* ignore */ }
+                    } catch (err) {
+                        try {
+                            // Fallback to db query
+                            product = await strapi.db.query('api::product.product').findOne({
+                                where: { $or: [{ documentId: productId }, { id: productId }] },
+                                select: ['mastershop_id', 'name', 'supplier_id', 'supplier_sku']
+                            });
+                        } catch (dbErr) { /* ignore */ }
+                    }
                 }
 
                 if (product && product.mastershop_id) {
@@ -257,8 +268,8 @@ export default ({ strapi }) => ({
                         id_variant: parseInt(product.mastershop_id),
                         sku: product.supplier_sku || `SKU-${product.mastershop_id}`,
                         name: product.name,
-                        quantity: item.quantity,
-                        price: item.price,
+                        quantity: Number(item.quantity) || 1,
+                        price: Number(item.price) || 0,
                         weight: 1,
                         supplier_id: product.supplier_id || 'default'
                     });
@@ -267,7 +278,7 @@ export default ({ strapi }) => ({
 
             if (masterShopItems.length === 0) {
                 strapi.log.info(`Order ${order.id} has no MasterShop products. Skipping.`);
-                return;
+                return { success: false, error: 'No MasterShop products in order' };
             }
 
             // 2. Group items by supplier_id
@@ -282,6 +293,7 @@ export default ({ strapi }) => ({
             strapi.log.info(`Order #${order.id} split into ${supplierIds.length} MasterShop shipments.`);
 
             const results = [];
+            const orderIdStr = order.id.toString();
 
             for (let i = 0; i < supplierIds.length; i++) {
                 const sId = supplierIds[i];
@@ -333,7 +345,7 @@ export default ({ strapi }) => ({
                 const delivery = order.deliveryMethod || {};
                 const carrier = delivery.carrier || delivery.name || 'Local';
 
-                const subTotalItems = currentSupplierItems.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+                const subTotalItems = currentSupplierItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
                 let currentShippingCost = 0;
                 if (i === 0) {
@@ -347,7 +359,7 @@ export default ({ strapi }) => ({
 
                 // 6. Construct Payload
                 const payload = {
-                    id_order: supplierIds.length > 1 ? `${order.id}-${i + 1}` : order.id.toString(),
+                    id_order: supplierIds.length > 1 ? `${orderIdStr}-${i + 1}` : orderIdStr,
                     customer: customerObj,
                     shipping_address: addressObj,
                     billing_address: addressObj,
@@ -358,7 +370,7 @@ export default ({ strapi }) => ({
                         shipping_cost: 0
                     },
                     order_transaction: {
-                        transaction_id: order.transactionId || `TRX-${order.id}-${i + 1}`,
+                        transaction_id: order.transactionId || `TRX-${orderIdStr}-${i + 1}`,
                         status: 'APPROVED',
                         payment_method: masterShopPaymentMethod,
                         total: shipmentTotal,
@@ -366,12 +378,12 @@ export default ({ strapi }) => ({
                     },
                     shipping: { carrier, cost: 0 },
                     notes: [
-                        `Pedido Prana #${order.id}${supplierIds.length > 1 ? ` (Envío ${i + 1}/${supplierIds.length})` : ''}`,
+                        `Pedido Prana #${orderIdStr}${supplierIds.length > 1 ? ` (Envío ${i + 1}/${supplierIds.length})` : ''}`,
                         `Proveedor: ${sId}`,
                     ]
                 };
 
-                strapi.log.info(`🚀 Sending Order #${order.id} (Shipment ${i + 1}/${supplierIds.length}) to MasterShop...`);
+                strapi.log.info(`🚀 Sending Order #${orderIdStr} (Shipment ${i + 1}/${supplierIds.length}) to MasterShop...`);
 
                 const response = await fetch(`${apiUrl}/orders`, {
                     method: 'POST',
@@ -381,7 +393,7 @@ export default ({ strapi }) => ({
 
                 if (response.ok) {
                     const responseData = await response.json();
-                    strapi.log.info(`✅ Shipment ${i + 1} synced! Remote ID: ${(responseData as any).id || 'N/A'}`);
+                    strapi.log.info(`✅ Shipment ${i + 1} synced! Remote ID: ${(responseData as any).id || (responseData as any).data?.id || 'N/A'}`);
                     results.push({ success: true, data: responseData });
                 } else {
                     const errorText = await response.text();
@@ -390,10 +402,10 @@ export default ({ strapi }) => ({
                 }
             }
 
-            return { success: results.every(r => r.success), results };
-        } catch (error) {
-            strapi.log.error('Failed to sync order to MasterShop:', error);
-            return { success: false, error: (error as Error).message };
+            return { success: results.some(r => r.success), results };
+        } catch (error: any) {
+            strapi.log.error('Failed to sync order to MasterShop:', error.message);
+            return { success: false, error: error.message };
         }
     }
 });

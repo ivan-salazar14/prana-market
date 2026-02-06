@@ -16,18 +16,22 @@ export default {
 
     async afterCreate(event) {
         const { result } = event;
-        // If created with status 'confirmed' (e.g. from frontend logic for certain payments)
-        if (result && result.status === 'confirmed') {
-            /* 
-             // Dropi Sync disabled as we are using MasterShop only for now
-             try {
-                await strapi.service('api::order.dropi').sendOrderToDropi(result);
-            } catch (error) {
-                strapi.log.error('Error in Dropi afterCreate hook:', error);
-            }
-            */
+        // If created with status 'confirmed' or 'paid'
+        if (result && (result.status === 'confirmed' || result.status === 'paid') && !result.mastershop_id) {
             try {
-                await strapi.service('api::product.mastershop').sendOrderToMasterShop(result);
+                strapi.log.info(`Syncing new order ${result.id} to MasterShop...`);
+                const syncResult = await strapi.service('api::product.mastershop').sendOrderToMasterShop(result);
+
+                if (syncResult && syncResult.success) {
+                    const mastershopId = syncResult.results?.[0]?.data?.id?.toString() || 'SYNCED';
+                    await strapi.db.query('api::order.order').update({
+                        where: { id: result.id },
+                        data: {
+                            mastershop_id: mastershopId,
+                            mastershop_data: syncResult
+                        }
+                    });
+                }
             } catch (error) {
                 strapi.log.error('Error in MasterShop afterCreate hook:', error);
             }
@@ -38,24 +42,34 @@ export default {
         const { result, params } = event;
         const { data } = params;
 
-        // If status changed to 'confirmed'
-        if (data && data.status === 'confirmed') {
-            /*
-            // Dropi Sync disabled as we are using MasterShop only for now
-            try {
-                // 1. Sync with Dropi (Existing)
-                await strapi.service('api::order.dropi').sendOrderToDropi(result);
-            } catch (error) {
-                strapi.log.error('Error in Dropi afterUpdate hook:', error);
-            }
-            */
+        // If status changed to 'confirmed' or 'paid' AND not already synced
+        if (data && (data.status === 'confirmed' || data.status === 'paid')) {
+            // Re-fetch to check mastershop_id (result might be stale or not containing all fields)
+            const order = await strapi.db.query('api::order.order').findOne({
+                where: { id: result.id }
+            });
 
-            try {
-                // 2. Sync with MasterShop (New)
-                // We pass the full result which contains items, shippingAddress, etc.
-                await strapi.service('api::product.mastershop').sendOrderToMasterShop(result);
-            } catch (error) {
-                strapi.log.error('Error in MasterShop afterUpdate hook:', error);
+            if (order && !order.mastershop_id) {
+                try {
+                    strapi.log.info(`Syncing updated order ${result.id} to MasterShop (Status: ${data.status})...`);
+                    const syncResult = await strapi.service('api::product.mastershop').sendOrderToMasterShop(order);
+
+                    if (syncResult && syncResult.success) {
+                        const mastershopId = syncResult.results?.[0]?.data?.id?.toString() || 'SYNCED';
+                        await strapi.db.query('api::order.order').update({
+                            where: { id: result.id },
+                            data: {
+                                mastershop_id: mastershopId,
+                                mastershop_data: syncResult
+                            }
+                        });
+                        strapi.log.info(`✅ Order ${result.id} successfully synced to MasterShop. ID: ${mastershopId}`);
+                    }
+                } catch (error) {
+                    strapi.log.error('Error in MasterShop afterUpdate hook:', error);
+                }
+            } else if (order && order.mastershop_id) {
+                strapi.log.info(`Order ${result.id} already synced to MasterShop (ID: ${order.mastershop_id}). Skipping.`);
             }
         }
     },

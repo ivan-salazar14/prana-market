@@ -8,10 +8,7 @@
     "description": "Customer orders"
   },
   "options": {
-    "draftAndPublish": false,
-    "preview": {
-      "enabled": false
-    }
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -92,6 +89,12 @@
         "cod"
       ],
       "default": "online"
+    },
+    "mastershop_id": {
+      "type": "string"
+    },
+    "mastershop_data": {
+      "type": "json"
     }
   }
 }
