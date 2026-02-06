@@ -8,7 +8,10 @@
     "description": "Customer orders"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": false,
+    "preview": {
+      "enabled": false
+    }
   },
   "pluginOptions": {},
   "attributes": {

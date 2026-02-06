@@ -16,6 +16,8 @@ export default {
 
     async afterCreate(event) {
         const { result } = event;
+        strapi.log.info(`[Lifecycle] afterCreate triggered for Order ${result?.id || 'unknown'}`);
+
         // If created with status 'confirmed' or 'paid'
         if (result && (result.status === 'confirmed' || result.status === 'paid') && !result.mastershop_id) {
             try {
@@ -31,9 +33,10 @@ export default {
                             mastershop_data: syncResult
                         }
                     });
+                    strapi.log.info(`✅ Order ${result.id} synced to MasterShop. ID: ${mastershopId}`);
                 }
             } catch (error) {
-                strapi.log.error('Error in MasterShop afterCreate hook:', error);
+                strapi.log.error(`Error in MasterShop afterCreate hook for order ${result?.id}:`, error);
             }
         }
     },
@@ -42,34 +45,44 @@ export default {
         const { result, params } = event;
         const { data } = params;
 
+        strapi.log.info(`[Lifecycle] afterUpdate triggered for Order ${result?.id || 'unknown'}. Data changed: ${JSON.stringify(data)}`);
+
         // If status changed to 'confirmed' or 'paid' AND not already synced
         if (data && (data.status === 'confirmed' || data.status === 'paid')) {
-            // Re-fetch to check mastershop_id (result might be stale or not containing all fields)
-            const order = await strapi.db.query('api::order.order').findOne({
-                where: { id: result.id }
-            });
+            try {
+                // Re-fetch to check mastershop_id
+                const targetId = result?.id;
+                if (!targetId) {
+                    strapi.log.warn('[Lifecycle] No ID found in result for afterUpdate. Skipping sync.');
+                    return;
+                }
 
-            if (order && !order.mastershop_id) {
-                try {
-                    strapi.log.info(`Syncing updated order ${result.id} to MasterShop (Status: ${data.status})...`);
+                const order = await strapi.db.query('api::order.order').findOne({
+                    where: { id: targetId }
+                });
+
+                if (order && !order.mastershop_id) {
+                    strapi.log.info(`Syncing updated order ${targetId} to MasterShop (Status: ${data.status})...`);
                     const syncResult = await strapi.service('api::product.mastershop').sendOrderToMasterShop(order);
 
                     if (syncResult && syncResult.success) {
                         const mastershopId = syncResult.results?.[0]?.data?.id?.toString() || 'SYNCED';
                         await strapi.db.query('api::order.order').update({
-                            where: { id: result.id },
+                            where: { id: targetId },
                             data: {
                                 mastershop_id: mastershopId,
                                 mastershop_data: syncResult
                             }
                         });
-                        strapi.log.info(`✅ Order ${result.id} successfully synced to MasterShop. ID: ${mastershopId}`);
+                        strapi.log.info(`✅ Order ${targetId} successfully synced to MasterShop. ID: ${mastershopId}`);
+                    } else {
+                        strapi.log.info(`MasterShop sync result: ${JSON.stringify(syncResult)}`);
                     }
-                } catch (error) {
-                    strapi.log.error('Error in MasterShop afterUpdate hook:', error);
+                } else if (order && order.mastershop_id) {
+                    strapi.log.info(`Order ${targetId} already synced to MasterShop (ID: ${order.mastershop_id}). Skipping.`);
                 }
-            } else if (order && order.mastershop_id) {
-                strapi.log.info(`Order ${result.id} already synced to MasterShop (ID: ${order.mastershop_id}). Skipping.`);
+            } catch (error) {
+                strapi.log.error(`Error in MasterShop afterUpdate hook for order ${result?.id}:`, error);
             }
         }
     },
