@@ -16,28 +16,33 @@ export default {
 
     async afterCreate(event) {
         const { result } = event;
-        strapi.log.info(`[Lifecycle] afterCreate triggered for Order ${result?.id || 'unknown'}`);
+        const id = result?.documentId || result?.id;
 
-        // If created with status 'confirmed' or 'paid'
         if (result && (result.status === 'confirmed' || result.status === 'paid') && !result.mastershop_id) {
-            try {
-                strapi.log.info(`Syncing new order ${result.id} to MasterShop...`);
-                const syncResult = await strapi.service('api::product.mastershop').sendOrderToMasterShop(result);
+            // Run sync in background to avoid blocking UI and prevent 400 errors from bubbling up
+            setImmediate(async () => {
+                try {
+                    strapi.log.info(`[Background Sync] Starting for new Order ${id}`);
+                    const syncResult = await strapi.service('api::product.mastershop').sendOrderToMasterShop(result);
 
-                if (syncResult && syncResult.success) {
-                    const mastershopId = syncResult.results?.[0]?.data?.id?.toString() || 'SYNCED';
-                    await strapi.db.query('api::order.order').update({
-                        where: { id: result.id },
-                        data: {
-                            mastershop_id: mastershopId,
-                            mastershop_data: syncResult
-                        }
-                    });
-                    strapi.log.info(`✅ Order ${result.id} synced to MasterShop. ID: ${mastershopId}`);
+                    if (syncResult && syncResult.success) {
+                        const mastershopId = syncResult.results?.[0]?.data?.id?.toString() || 'SYNCED';
+
+                        await strapi.documents('api::order.order').update({
+                            documentId: id,
+                            data: {
+                                mastershop_id: mastershopId,
+                                mastershop_data: syncResult,
+                                sync_mastershop: false
+                            },
+                            status: 'published'
+                        });
+                        strapi.log.info(`✅ [Background Sync] Order ${id} synced. MasterShop ID: ${mastershopId}`);
+                    }
+                } catch (error) {
+                    strapi.log.error(`[Background Sync] Error for order ${id}:`, error);
                 }
-            } catch (error) {
-                strapi.log.error(`Error in MasterShop afterCreate hook for order ${result?.id}:`, error);
-            }
+            });
         }
     },
 
@@ -45,45 +50,46 @@ export default {
         const { result, params } = event;
         const { data } = params;
 
-        strapi.log.info(`[Lifecycle] afterUpdate triggered for Order ${result?.id || 'unknown'}. Data changed: ${JSON.stringify(data)}`);
+        const orderId = result?.documentId || result?.id || params?.where?.documentId || params?.where?.id;
 
-        // If status changed to 'confirmed' or 'paid' AND not already synced
-        if (data && (data.status === 'confirmed' || data.status === 'paid')) {
-            try {
-                // Re-fetch to check mastershop_id
-                const targetId = result?.id;
-                if (!targetId) {
-                    strapi.log.warn('[Lifecycle] No ID found in result for afterUpdate. Skipping sync.');
-                    return;
-                }
+        // If status changed to 'confirmed' or 'paid' OR custom sync field is checked
+        if (data && (data.status === 'confirmed' || data.status === 'paid' || data.sync_mastershop === true)) {
+            // Run sync in background
+            setImmediate(async () => {
+                try {
+                    if (!orderId) return;
 
-                const order = await strapi.db.query('api::order.order').findOne({
-                    where: { id: targetId }
-                });
+                    // Re-fetch to check mastershop_id and ensure we have latest data
+                    const order = await strapi.documents('api::order.order').findOne({
+                        documentId: orderId,
+                        populate: ['user']
+                    });
 
-                if (order && !order.mastershop_id) {
-                    strapi.log.info(`Syncing updated order ${targetId} to MasterShop (Status: ${data.status})...`);
-                    const syncResult = await strapi.service('api::product.mastershop').sendOrderToMasterShop(order);
+                    if (order && (!order.mastershop_id || data.sync_mastershop === true)) {
+                        strapi.log.info(`[Background Sync] Syncing updated order ${orderId} to MasterShop...`);
+                        const syncResult = await strapi.service('api::product.mastershop').sendOrderToMasterShop(order);
 
-                    if (syncResult && syncResult.success) {
-                        const mastershopId = syncResult.results?.[0]?.data?.id?.toString() || 'SYNCED';
-                        await strapi.db.query('api::order.order').update({
-                            where: { id: targetId },
-                            data: {
-                                mastershop_id: mastershopId,
-                                mastershop_data: syncResult
-                            }
-                        });
-                        strapi.log.info(`✅ Order ${targetId} successfully synced to MasterShop. ID: ${mastershopId}`);
-                    } else {
-                        strapi.log.info(`MasterShop sync result: ${JSON.stringify(syncResult)}`);
+                        if (syncResult && syncResult.success) {
+                            const mastershopIdValue = syncResult.results?.[0]?.data?.id?.toString() || 'SYNCED';
+
+                            await strapi.documents('api::order.order').update({
+                                documentId: orderId,
+                                data: {
+                                    mastershop_id: mastershopIdValue,
+                                    mastershop_data: syncResult,
+                                    sync_mastershop: false
+                                },
+                                status: 'published'
+                            });
+                            strapi.log.info(`✅ [Background Sync] Order ${orderId} synced. ID: ${mastershopIdValue}`);
+                        } else {
+                            strapi.log.error(`❌ [Background Sync] Sync failed for order ${orderId}: ${JSON.stringify(syncResult)}`);
+                        }
                     }
-                } else if (order && order.mastershop_id) {
-                    strapi.log.info(`Order ${targetId} already synced to MasterShop (ID: ${order.mastershop_id}). Skipping.`);
+                } catch (error) {
+                    strapi.log.error(`[Background Sync] Error for order ${orderId}:`, error);
                 }
-            } catch (error) {
-                strapi.log.error(`Error in MasterShop afterUpdate hook for order ${result?.id}:`, error);
-            }
+            });
         }
     },
 };

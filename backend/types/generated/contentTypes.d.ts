@@ -719,7 +719,8 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: false;
     preview: {
-      enabled: false;
+      enabled: true;
+      url: 'http://localhost:3000/preview';
     };
   };
   attributes: {
@@ -735,6 +736,8 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
       Schema.Attribute.Private;
+    mastershop_data: Schema.Attribute.JSON;
+    mastershop_id: Schema.Attribute.String;
     payment_method_type: Schema.Attribute.Enumeration<['online', 'cod']> &
       Schema.Attribute.DefaultTo<'online'>;
     paymentMethod: Schema.Attribute.String;

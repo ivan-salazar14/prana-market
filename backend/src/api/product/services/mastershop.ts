@@ -358,7 +358,7 @@ export default ({ strapi }) => ({
                 const shipmentTotal = subTotalItems + (i === 0 ? currentShippingCost : 0);
 
                 // 6. Construct Payload
-                const payload = {
+                const payload: any = {
                     id_order: supplierIds.length > 1 ? `${orderIdStr}-${i + 1}` : orderIdStr,
                     customer: customerObj,
                     shipping_address: addressObj,
@@ -383,6 +383,7 @@ export default ({ strapi }) => ({
                     ]
                 };
 
+                strapi.log.info(`[MasterShop] Payload for Shipment ${i + 1}: ${JSON.stringify(payload)}`);
                 strapi.log.info(`🚀 Sending Order #${orderIdStr} (Shipment ${i + 1}/${supplierIds.length}) to MasterShop...`);
 
                 const response = await fetch(`${apiUrl}/orders`, {

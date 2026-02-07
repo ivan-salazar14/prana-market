@@ -8,10 +8,7 @@
     "description": "Customer orders"
   },
   "options": {
-    "draftAndPublish": false,
-    "preview": {
-      "enabled": false
-    }
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -98,6 +95,10 @@
     },
     "mastershop_data": {
       "type": "json"
+    },
+    "sync_mastershop": {
+      "type": "boolean",
+      "default": false
     }
   }
 }
