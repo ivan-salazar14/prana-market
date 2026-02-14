@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { Button } from './ui/Button';
 import { cn } from '@/utils/cn';
 import Cart from './Cart';
 
@@ -68,14 +69,14 @@ export default function Navbar() {
               <div className="relative w-10 h-10 group-hover:scale-110 transition-transform duration-300">
                 <Image
                   src="/logo.png"
-                  alt="Prana Market Logo"
+                  alt="Prana Logo"
                   fill
                   className="object-contain"
                   priority
                 />
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
-                Prana <span className="text-pink-600">Market</span>
+              <span className="text-2xl font-black text-stone-900 dark:text-white tracking-tight">
+                Prana <span className="text-brand-primary">Market</span>
               </span>
             </Link>
 
@@ -88,8 +89,8 @@ export default function Navbar() {
                   className={cn(
                     "px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2",
                     pathname === link.href
-                      ? "bg-pink-50 text-pink-700"
-                      : "text-gray-600 hover:bg-pink-50 hover:text-gray-900"
+                      ? "bg-brand-secondary text-brand-primary"
+                      : "text-stone-600 hover:bg-brand-secondary/30 hover:text-stone-900"
                   )}
                 >
                   <link.icon className="w-4 h-4" />
@@ -97,15 +98,15 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              <div className="h-6 w-px bg-gray-200 mx-2" />
+              <div className="h-6 w-px bg-stone-200 mx-2" />
 
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 text-gray-600 hover:text-pink-600 hover:bg-pink-50 rounded-xl transition-all group"
+                className="relative p-2 text-stone-600 hover:text-brand-primary hover:bg-brand-secondary/30 rounded-xl transition-all group"
               >
                 <ShoppingBag className="w-6 h-6" />
                 {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform group-hover:scale-110">
+                  <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform group-hover:scale-110">
                     {cartItemsCount}
                   </span>
                 )}
@@ -113,15 +114,15 @@ export default function Navbar() {
 
               {authState.user ? (
                 <div className="flex items-center ml-2 space-x-1">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
-                    <div className="w-6 h-6 bg-pink-100 text-pink-700 rounded-full flex items-center justify-center text-xs font-bold">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-brand-background rounded-full border border-stone-100">
+                    <div className="w-6 h-6 bg-brand-secondary text-brand-primary rounded-full flex items-center justify-center text-xs font-bold">
                       {authState.user.username[0].toUpperCase()}
                     </div>
-                    <span className="text-sm font-semibold text-gray-700">{authState.user.username}</span>
+                    <span className="text-sm font-semibold text-stone-700">{authState.user.username}</span>
                   </div>
                   <button
                     onClick={logout}
-                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all tooltip"
+                    className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all tooltip"
                     title="Cerrar Sesión"
                   >
                     <LogOut className="w-5 h-5" />
@@ -131,15 +132,14 @@ export default function Navbar() {
                 <div className="flex items-center space-x-2 ml-2">
                   <Link
                     href="/login"
-                    className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+                    className="px-4 py-2 text-sm font-semibold text-stone-600 hover:text-brand-primary transition-colors"
                   >
                     Iniciar Sesión
                   </Link>
-                  <Link
-                    href="/register"
-                    className="px-4 py-2 text-sm font-bold text-white bg-black hover:bg-gray-900 rounded-xl transition-all shadow-md shadow-pink-100 active:scale-95"
-                  >
-                    Registro
+                  <Link href="/register">
+                    <Button size="sm" className="rounded-xl shadow-brand-primary/20">
+                      Registro
+                    </Button>
                   </Link>
                 </div>
               )}

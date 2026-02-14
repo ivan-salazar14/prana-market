@@ -3,7 +3,10 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { MessageCircle, CheckCircle2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { MessageCircle, CheckCircle2, ShoppingBag, ArrowRight, Package, Clock, Truck } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { cn } from '@/utils/cn';
 
 interface OrderItem {
   name: string;
@@ -90,126 +93,145 @@ function PaymentSuccessContent() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
   return (
-    <div className="min-h-screen bg-[#fff5f7] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl shadow-pink-100 p-8 md:p-10 text-center border border-pink-50">
-        <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-          <CheckCircle2 className="w-10 h-10 text-pink-600" />
+    <div className="min-h-screen bg-brand-background dark:bg-zinc-950 flex items-center justify-center p-6 md:p-12">
+      <Card className="max-w-2xl w-full p-8 md:p-16 text-center border-none shadow-2xl shadow-stone-200/50 dark:shadow-none rounded-[3.5rem] bg-white dark:bg-zinc-900 overflow-hidden relative">
+        {/* Background Decoration */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-secondary/5 rounded-full -ml-32 -mb-32 blur-3xl" />
+
+        <div className="relative mb-12 inline-block">
+          <div className="absolute inset-0 bg-brand-primary/20 blur-3xl rounded-full scale-150" />
+          <div className="relative bg-brand-primary text-white w-24 h-24 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-brand-primary/40 transform rotate-3">
+            <CheckCircle2 className="w-12 h-12" />
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 mb-2">
-          <h1 className="text-2xl font-bold text-gray-900">¡Pago Exitoso!</h1>
+        <div className="relative">
+          <h1 className="text-4xl md:text-5xl font-black text-stone-900 dark:text-white mb-6 tracking-tight">
+            {orderDetails?.paymentMethod === 'efectivo' ? '¡Pedido Confirmado!' : '¡Pago Exitoso!'}
+          </h1>
+
           {isMock && (
-            <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+            <div className="inline-block bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-6 border border-amber-200">
               Modo de Prueba
-            </span>
+            </div>
           )}
-        </div>
-        <p className="text-gray-700 mb-6">
-          {isMock
-            ? 'Tu pago de prueba ha sido procesado correctamente. En producción, esto sería un pago real.'
-            : orderDetails?.paymentMethod === 'efectivo'
-              ? '✅ Tu pedido ha sido confirmado. El pago se realizará al momento de la entrega o recogida. Te contactaremos pronto para coordinar la entrega.'
-              : (orderDetails?.paymentMethod === 'nequi' || orderDetails?.paymentMethod === 'nequi_manual')
-                ? '✅ Tu pedido ha sido registrado. Si realizaste una transferencia, procesaremos tu pedido una vez verifiquemos el comprobante.'
-                : '✅ Tu pago ha sido procesado correctamente. Recibirás un correo de confirmación pronto.'
-          }
-        </p>
 
-        {(transactionId || orderDetails?.transactionId) && (
-          <p className="text-sm text-gray-500 mb-6">
-            ID de transacción: {transactionId || orderDetails?.transactionId}
+          <p className="text-stone-500 text-lg font-medium leading-relaxed mb-12 max-w-lg mx-auto">
+            {isMock
+              ? 'Tu pago de prueba ha sido procesado correctamente. En producción, esto sería un pago real.'
+              : orderDetails?.paymentMethod === 'efectivo'
+                ? 'Hemos recibido tu pedido correctamente. El pago se realizará al momento de la entrega o recogida.'
+                : 'Tu transacción ha sido completada con éxito. Ya estamos preparando todo para enviar tus productos.'
+            }
           </p>
-        )}
 
-        {orderDetails?.paymentMethod && (
-          <div className="mb-6 p-4 bg-pink-50/50 rounded-2xl border border-pink-100">
-            <p className="text-sm text-gray-700">
-              <span className="font-semibold">Método de pago:</span>{' '}
-              {(orderDetails.paymentMethod === 'nequi' || orderDetails.paymentMethod === 'nequi_manual') ? (
-                <span className="text-pink-700 font-bold">📱 Nequi</span>
-              ) : orderDetails.paymentMethod === 'efectivo' ? (
-                <span className="text-gray-900 font-bold">💵 Efectivo (Contraentrega)</span>
-              ) : (
-                <span className="font-bold">{orderDetails.paymentMethod}</span>
-              )}
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <div className="bg-stone-50 dark:bg-zinc-800/50 p-6 rounded-[2rem] border border-stone-100 dark:border-white/5 flex flex-col items-center text-center">
+              <div className="w-10 h-10 bg-white dark:bg-zinc-700 rounded-xl flex items-center justify-center shadow-sm mb-4 border border-stone-100 dark:border-white/10">
+                <Package className="w-5 h-5 text-brand-primary" />
+              </div>
+              <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Método de Pago</span>
+              <span className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-tight">
+                {orderDetails?.paymentMethod === 'nequi' || orderDetails?.paymentMethod === 'nequi_manual'
+                  ? 'Nequi / Bancolombia'
+                  : orderDetails?.paymentMethod === 'efectivo'
+                    ? 'Efectivo (Contraentrega)'
+                    : 'Tarjeta / Online'}
+              </span>
+            </div>
+            <div className="bg-stone-50 dark:bg-zinc-800/50 p-6 rounded-[2rem] border border-stone-100 dark:border-white/5 flex flex-col items-center text-center">
+              <div className="w-10 h-10 bg-white dark:bg-zinc-700 rounded-xl flex items-center justify-center shadow-sm mb-4 border border-stone-100 dark:border-white/10">
+                <Truck className="w-5 h-5 text-brand-secondary" />
+              </div>
+              <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Tipo de Entrega</span>
+              <span className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-tight">
+                {orderDetails?.deliveryMethod.name || 'Envío estándar'}
+              </span>
+            </div>
           </div>
-        )}
 
-        {/* Order Summary */}
-        {orderDetails && (
-          <div className="bg-gray-50/50 rounded-[2rem] p-6 mb-8 border border-gray-100">
-            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Resumen del pedido</h3>
+          {/* Order Snapshot */}
+          {orderDetails && (
+            <div className="bg-brand-primary/[0.02] dark:bg-brand-primary/[0.05] rounded-[2.5rem] p-8 md:p-10 mb-12 border border-brand-primary/10 text-left">
+              <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] mb-8">Resumen de tu Compra</h3>
 
-            <div className="space-y-3 mb-6">
-              {orderDetails.items.map((item: OrderItem, index: number) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <span className="text-gray-600 font-medium">{item.name} <span className="text-gray-400 text-xs">x{item.quantity}</span></span>
-                  <span className="font-bold text-gray-900">COP {(item.price * item.quantity).toLocaleString('es-CO')}</span>
+              <div className="space-y-4 mb-8">
+                {orderDetails.items.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-tight line-clamp-1 max-w-[180px]">{item.name}</span>
+                      <span className="text-[10px] font-black text-stone-400 bg-stone-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md">×{item.quantity}</span>
+                    </div>
+                    <span className="font-extrabold text-stone-900 dark:text-white">{formatCurrency(item.price * item.quantity)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3 pt-6 border-t border-brand-primary/10">
+                <div className="flex justify-between text-xs">
+                  <span className="text-stone-400 font-bold uppercase tracking-widest">Subtotal:</span>
+                  <span className="text-stone-900 dark:text-white font-black">{formatCurrency(orderDetails.subtotal)}</span>
                 </div>
-              ))}
-            </div>
-
-            <div className="space-y-2 mb-6 border-t border-dashed border-gray-200 pt-4">
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-500">Subtotal:</span>
-                <span className="text-gray-900 font-medium">COP {orderDetails.subtotal.toLocaleString('es-CO')}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-500">Envío ({orderDetails.deliveryMethod.name}):</span>
-                <span className="text-pink-600 font-bold">{orderDetails.deliveryCost === 0 ? 'Gratis' : `COP ${orderDetails.deliveryCost.toLocaleString('es-CO')}`}</span>
-              </div>
-              <div className="flex justify-between text-lg font-black border-t border-gray-100 pt-3 mt-3">
-                <span className="text-gray-900">Total:</span>
-                <span className="text-pink-600">COP {orderDetails.total.toLocaleString('es-CO')}</span>
+                <div className="flex justify-between text-xs">
+                  <span className="text-stone-400 font-bold uppercase tracking-widest">Envío:</span>
+                  <span className="text-emerald-500 font-black">{orderDetails.deliveryCost === 0 ? 'GRATIS' : formatCurrency(orderDetails.deliveryCost)}</span>
+                </div>
+                <div className="flex justify-between items-center pt-4 mt-2 border-t border-brand-primary/10">
+                  <span className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-[0.2em]">Total</span>
+                  <span className="text-3xl font-black text-brand-primary">{formatCurrency(orderDetails.total)}</span>
+                </div>
               </div>
             </div>
-
-            <div className="text-[10px] text-gray-500 bg-white p-3 rounded-xl border border-gray-50">
-              <p><strong>Entrega:</strong> {orderDetails.deliveryMethod.name}</p>
-              <p className="mt-0.5">{orderDetails.deliveryMethod.description}</p>
-            </div>
-          </div>
-        )}
-
-        <div className="space-y-3">
-          {orderDetails?.paymentMethod === 'nequi_manual' && (
-            <button
-              onClick={() => {
-                const message = `¡Hola Prana Market! Acabo de realizar una transferencia Nequi por mi pedido #${orderDetails.orderId || ''}. El total es COP ${orderDetails.total.toLocaleString('es-CO')}. Adjunto el comprobante.`;
-                const whatsappUrl = `https://wa.me/573182026212?text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank');
-              }}
-              className="flex items-center justify-center w-full bg-[#25D366] text-white py-4 px-6 rounded-2xl font-bold hover:opacity-90 transition-all shadow-lg shadow-emerald-100/50 mb-6"
-            >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              Enviar comprobante por WhatsApp
-            </button>
           )}
 
-          <Link
-            href="/"
-            className="flex items-center justify-center w-full bg-black text-white py-4 px-6 rounded-2xl font-black text-sm hover:bg-gray-900 transition-all shadow-xl shadow-pink-100/50"
-          >
-            Continuar comprando
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Link>
-          <Link
-            href="/orders"
-            className="block w-full bg-white text-gray-500 py-3 px-4 rounded-xl font-bold hover:text-gray-900 transition-all text-center text-xs"
-          >
-            Ver mis pedidos
-          </Link>
+          <div className="space-y-4 max-w-sm mx-auto">
+            {orderDetails?.paymentMethod === 'nequi_manual' && (
+              <Button
+                onClick={() => {
+                  const message = `¡Hola Prana Make up! Acabo de realizar una transferencia Nequi por mi pedido. El total es ${formatCurrency(orderDetails.total)}. Adjunto el comprobante.`;
+                  const whatsappUrl = `https://wa.me/573182026212?text=${encodeURIComponent(message)}`;
+                  window.open(whatsappUrl, '_blank');
+                }}
+                className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white border-none py-7 rounded-2xl shadow-xl shadow-emerald-500/20"
+              >
+                <MessageCircle className="w-5 h-5 mr-3" />
+                <span className="uppercase tracking-widest font-black text-xs">Enviar por WhatsApp</span>
+              </Button>
+            )}
+
+            <Link href="/" className="block">
+              <Button className="w-full py-7 rounded-2xl shadow-xl shadow-brand-primary/20">
+                <span className="uppercase tracking-widest font-black text-xs">Aceptar y Salir</span>
+              </Button>
+            </Link>
+
+            <Link href="/orders" className="block text-[10px] font-black text-stone-400 hover:text-brand-primary uppercase tracking-[0.3em] transition-colors py-4">
+              Ir a mis pedidos
+            </Link>
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
 
 export default function PaymentSuccess() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-brand-background">
+        <div className="w-16 h-16 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
       <PaymentSuccessContent />
     </Suspense>
   );

@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { Plus, X, Package } from 'lucide-react';
 import CategorySlider from '@/components/CategorySlider';
 import PromoSlider from '@/components/PromoSlider';
 import StructuredData from '@/components/StructuredData';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { useCart } from '@/context/CartContext';
 import { getStrapiMedia } from '@/utils/strapi';
 import { cn } from '@/utils/cn';
@@ -135,23 +138,23 @@ export default function Home() {
         ]}
       />
 
-      <div className="min-h-screen bg-[#fff5f7] dark:bg-zinc-950">
-        <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="min-h-screen bg-brand-background dark:bg-zinc-950">
+        <div className="container mx-auto px-4 py-8 md:py-16">
 
           {/* Promotional Slider */}
           {homeData?.Slider && homeData.Slider.length > 0 && (
-            <div className="mb-12">
+            <div className="mb-16">
               <PromoSlider items={homeData.Slider} />
             </div>
           )}
 
           {/* hierarchy Section: Top Level Categories Slider */}
           {topCategories.length > 0 ? (
-            <div className="mb-8">
+            <div className="mb-10">
               <CategorySlider
                 categories={topCategories}
                 selectedCategory={selectedTopCategory}
-                onSelectCategory={(id) => {
+                onSelectCategory={(id: any) => {
                   const category = topCategories.find(c => c.id === id || c.documentId === id);
                   setSelectedTopCategory(category?.documentId || null);
                   setSelectedCategory(null);
@@ -160,11 +163,11 @@ export default function Home() {
             </div>
           ) : (
             /* Fallback: if no top-level categories yet, show product categories in the slider like before */
-            <div className="mb-8">
+            <div className="mb-10">
               <CategorySlider
                 categories={categories}
                 selectedCategory={selectedCategory as any}
-                onSelectCategory={(id) => setSelectedCategory(id as any)}
+                onSelectCategory={(id: any) => setSelectedCategory(id as any)}
               />
             </div>
           )}
@@ -174,52 +177,54 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-12"
+              className="mb-16"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent" />
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest px-4">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-200 dark:via-zinc-800 to-transparent" />
+                <h3 className="text-xs font-black text-stone-400 uppercase tracking-[0.2em] px-4">
                   {selectedTopCategory ? 'Subcategorías' : 'Todas las Subcategorías'}
                 </h3>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-200 dark:via-zinc-800 to-transparent" />
               </div>
 
               <div className="flex flex-wrap gap-3 justify-center">
-                <button
+                <Button
+                  variant={!selectedCategory ? 'primary' : 'outline'}
+                  size="md"
                   onClick={() => setSelectedCategory(null)}
                   className={cn(
-                    "px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border-2",
-                    !selectedCategory
-                      ? "bg-black border-black text-white shadow-lg shadow-pink-200 dark:shadow-pink-900/20"
-                      : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-pink-200 dark:hover:border-pink-900/30"
+                    "rounded-2xl border-none shadow-none",
+                    !selectedCategory ? "bg-stone-900 text-white" : "bg-white text-stone-500 hover:text-brand-primary"
                   )}
                 >
                   Todas
-                </button>
+                </Button>
                 {filteredCategories.map((subcat: ProductCategory) => (
-                  <button
+                  <Button
                     key={subcat.id}
+                    variant={selectedCategory === subcat.documentId || selectedCategory === subcat.id.toString() ? 'primary' : 'outline'}
+                    size="md"
                     onClick={() => setSelectedCategory(subcat.documentId)}
                     className={cn(
-                      "px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border-2",
+                      "rounded-2xl border-none shadow-none",
                       selectedCategory === subcat.documentId || selectedCategory === subcat.id.toString()
-                        ? "bg-pink-600 border-pink-600 text-white shadow-lg shadow-pink-200 dark:shadow-pink-900/20 text-pink-50"
-                        : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-white/5 text-gray-500 hover:border-pink-200 dark:hover:border-pink-900/30"
+                        ? ""
+                        : "bg-white text-stone-500 hover:text-brand-primary"
                     )}
                   >
                     {subcat.Name}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </motion.div>
           )}
 
           {/* Products Section */}
-          <div className="space-y-10">
+          <div className="space-y-12">
             <div>
-              <div className="flex items-center justify-between mb-8">
-                <div className="space-y-1">
-                  <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+              <div className="flex items-center justify-between mb-10">
+                <div className="space-y-2">
+                  <h2 className="text-4xl font-extrabold text-stone-900 dark:text-white tracking-tight">
                     {selectedCategory
                       ? `Productos en ${categories.find(c => c.documentId === selectedCategory || c.id === (selectedCategory as any))?.Name}`
                       : selectedTopCategory
@@ -227,120 +232,115 @@ export default function Home() {
                         : "Explora Nuestra Colección"
                     }
                   </h2>
-                  <p className="text-gray-500 font-medium">Belleza, salud y bienestar en cada detalle</p>
+                  <p className="text-stone-500 font-medium text-lg">Belleza, salud y bienestar en cada detalle</p>
                 </div>
               </div>
 
               {products.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500 text-lg">No products available</p>
+                <div className="text-center py-20 bg-white rounded-[2.5rem] border border-stone-100">
+                  <Package className="w-16 h-16 text-stone-200 mx-auto mb-4" />
+                  <p className="text-stone-500 text-xl font-medium">No hay productos disponibles por ahora</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
                   {filteredProducts.map((product, index) => (
                     <motion.div
                       key={product.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="group bg-white dark:bg-zinc-900 rounded-[2rem] shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden hover:shadow-xl hover:shadow-pink-900/5 transition-all duration-500"
                     >
-                      {product.images?.[0] && (
-                        <div className="h-64 overflow-hidden relative">
-                          <Link href={`/product/${product.documentId}`}>
-                            <Image
-                              fill
-                              src={getStrapiMedia(product.images[0].url) || ''}
-                              alt={product.images[0].alternativeText || product.name}
-                              className="object-cover transition-transform duration-700 group-hover:scale-110"
-                            />
-                          </Link>
-                          {product.product_category && (
-                            <div className="absolute top-4 left-4 flex flex-col gap-1">
+                      <Card className="group h-full flex flex-col hover:shadow-2xl hover:shadow-brand-primary/10 hover:-translate-y-2 duration-500 border-none rounded-[2.5rem]">
+                        {product.images?.[0] && (
+                          <div className="h-72 overflow-hidden relative">
+                            <Link href={`/product/${product.documentId}`}>
+                              <Image
+                                fill
+                                src={getStrapiMedia(product.images[0].url) || ''}
+                                alt={product.images[0].alternativeText || product.name}
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                            </Link>
+                            <div className="absolute top-5 left-5 flex flex-col gap-2">
                               {/* Top Category Badge */}
                               {(product.product_category as any).category && (
-                                <span className="bg-black/90 backdrop-blur px-3 py-0.5 rounded-full text-[9px] font-black text-white shadow-sm uppercase tracking-widest w-fit">
+                                <span className="bg-stone-900/90 backdrop-blur px-3 py-1 rounded-xl text-[10px] font-black text-white shadow-sm uppercase tracking-widest w-fit">
                                   {(product.product_category as any).category.Name}
                                 </span>
                               )}
                               {/* Subcategory Badge */}
-                              <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-pink-700 dark:text-pink-400 border border-pink-100 dark:border-pink-900/50 shadow-sm uppercase tracking-wider w-fit">
+                              <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1.5 rounded-xl text-[10px] font-extrabold text-brand-primary border border-brand-secondary/30 shadow-sm uppercase tracking-wider w-fit">
                                 {product.product_category?.Name}
                               </span>
                             </div>
-                          )}
 
-                          {/* Discount Badge */}
-                          {product.discount_percentage && product.discount_percentage > 0 && (
-                            <div className="absolute top-4 right-4">
-                              <span className="bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-black shadow-lg shadow-pink-200 animate-pulse">
-                                -{product.discount_percentage}%
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      <div className="p-8">
-                        <div className="flex flex-col mb-4">
-                          <Link href={`/product/${product.documentId}`}>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-pink-600 transition-colors mb-2 line-clamp-1">
-                              {product.name}
-                            </h3>
-                          </Link>
-                          <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed h-10">
-                            {product.description}
-                          </p>
-                        </div>
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                          <div className="flex flex-col">
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-black text-pink-600">
-                                {new Intl.NumberFormat('es-CO', {
-                                  style: 'currency',
-                                  currency: 'COP',
-                                  maximumFractionDigits: 0,
-                                }).format(product.price)}
-                              </span>
-                              {product.original_price && product.original_price > product.price && (
-                                <span className="text-sm text-gray-400 line-through">
+                            {/* Discount Badge */}
+                            {product.discount_percentage && product.discount_percentage > 0 && (
+                              <div className="absolute top-5 right-5">
+                                <span className="bg-brand-primary text-white px-4 py-1.5 rounded-xl text-xs font-black shadow-xl shadow-brand-primary/20 animate-pulse">
+                                  -{product.discount_percentage}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        <div className="p-8 flex-1 flex flex-col">
+                          <div className="flex flex-col mb-6">
+                            <Link href={`/product/${product.documentId}`}>
+                              <h3 className="text-2xl font-bold text-stone-900 dark:text-white group-hover:text-brand-primary transition-colors mb-3 line-clamp-1 leading-tight">
+                                {product.name}
+                              </h3>
+                            </Link>
+                            <p className="text-stone-500 text-sm line-clamp-2 leading-relaxed h-10">
+                              {product.description}
+                            </p>
+                          </div>
+
+                          <div className="mt-auto pt-6 border-t border-stone-50 flex items-center justify-between">
+                            <div className="flex flex-col">
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-2xl font-black text-brand-primary">
                                   {new Intl.NumberFormat('es-CO', {
                                     style: 'currency',
                                     currency: 'COP',
                                     maximumFractionDigits: 0,
-                                  }).format(product.original_price)}
+                                  }).format(product.price)}
                                 </span>
-                              )}
+                                {product.original_price && product.original_price > product.price && (
+                                  <span className="text-sm text-stone-400 line-through">
+                                    {new Intl.NumberFormat('es-CO', {
+                                      style: 'currency',
+                                      currency: 'COP',
+                                      maximumFractionDigits: 0,
+                                    }).format(product.original_price)}
+                                  </span>
+                                )}
+                              </div>
+                              <span className={cn(
+                                "text-[10px] font-bold uppercase tracking-[0.1em] mt-1",
+                                product.stock > 10 ? "text-emerald-500" : product.stock > 0 ? "text-amber-500" : "text-red-500"
+                              )}>
+                                {product.stock > 0 ? `${product.stock} disponibles` : "Agotado"}
+                              </span>
                             </div>
-                            <span className={cn(
-                              "text-[10px] font-bold uppercase tracking-tight mt-0.5",
-                              product.stock > 10 ? "text-emerald-500" : product.stock > 0 ? "text-amber-500" : "text-red-500"
-                            )}>
-                              {product.stock > 0 ? `${product.stock} disponibles` : "Agotado"}
-                            </span>
+
+                            <Button
+                              variant={product.stock > 0 ? 'primary' : 'danger'}
+                              size="icon"
+                              onClick={() => addToCart(product)}
+                              disabled={product.stock <= 0}
+                              className="w-12 h-12 rounded-2xl shadow-brand-primary/20"
+                              title={product.stock > 0 ? "Añadir al carrito" : "Producto agotado"}
+                            >
+                              {product.stock > 0 ? (
+                                <Plus className="w-6 h-6" />
+                              ) : (
+                                <X className="w-6 h-6" />
+                              )}
+                            </Button>
                           </div>
-                          <button
-                            onClick={() => addToCart(product)}
-                            disabled={product.stock <= 0}
-                            className={cn(
-                              "p-3 rounded-2xl transition-all shadow-lg active:scale-95",
-                              product.stock <= 0
-                                ? "bg-gray-100 text-gray-300 shadow-none cursor-not-allowed"
-                                : "bg-black text-white hover:bg-gray-900 shadow-pink-100"
-                            )}
-                            title={product.stock > 0 ? "Añadir al carrito" : "Producto agotado"}
-                          >
-                            {product.stock > 0 ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                              </svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            )}
-                          </button>
                         </div>
-                      </div>
+                      </Card>
                     </motion.div>
                   ))}
                 </div>

@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { useCart } from '@/context/CartContext';
 import { getStrapiMedia } from '@/utils/strapi';
 import { cn } from '@/utils/cn';
@@ -183,35 +184,35 @@ export default function ProductPage() {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 pt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+      <main className="container mx-auto px-4 py-12 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
 
           {/* Left Column: Image Gallery */}
-          <div className="space-y-6">
-            <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-50 dark:bg-zinc-900 group border border-gray-100 dark:border-white/10 shadow-sm">
+          <div className="space-y-8">
+            <div className="relative aspect-square rounded-[3rem] overflow-hidden bg-white dark:bg-zinc-900 group border border-stone-100 dark:border-white/10 shadow-2xl shadow-stone-200/50">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedImage}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   className="w-full h-full"
                 >
                   <Image
                     fill
                     src={getStrapiMedia(product.images?.[selectedImage]?.url || null) || '/placeholder.png'}
                     alt={product.images?.[selectedImage]?.alternativeText || product.name}
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
                     priority
                   />
                 </motion.div>
               </AnimatePresence>
 
               {/* Product Badges */}
-              <div className="absolute top-4 left-4">
+              <div className="absolute top-6 left-6">
                 {product.product_category && (
-                  <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-emerald-700 border border-emerald-100 shadow-sm uppercase tracking-wider">
+                  <span className="bg-white/90 backdrop-blur px-4 py-1.5 rounded-2xl text-[10px] font-black text-brand-primary border border-brand-secondary/30 shadow-sm uppercase tracking-widest">
                     {product.product_category.Name}
                   </span>
                 )}
@@ -219,8 +220,8 @@ export default function ProductPage() {
 
               {/* Discount Badge */}
               {product.discount_percentage && product.discount_percentage > 0 && (
-                <div className="absolute top-4 right-4">
-                  <span className="bg-pink-600 text-white px-4 py-1.5 rounded-full text-sm font-black shadow-xl shadow-pink-200 animate-pulse">
+                <div className="absolute top-6 right-6">
+                  <span className="bg-brand-primary text-white px-5 py-2 rounded-2xl text-xs font-black shadow-xl shadow-brand-primary/20 animate-pulse">
                     -{product.discount_percentage}% OFF
                   </span>
                 </div>
@@ -229,23 +230,23 @@ export default function ProductPage() {
 
             {/* Thumbnails */}
             {product.images && product.images.length > 1 && (
-              <div className="flex flex-wrap gap-4 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex flex-wrap gap-4 overflow-x-auto pb-4 scrollbar-hide py-2 px-1">
                 {product.images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={cn(
-                      "relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 border-2 transition-all",
+                      "relative w-28 h-28 rounded-[1.5rem] overflow-hidden flex-shrink-0 border-2 transition-all duration-300",
                       selectedImage === index
-                        ? "border-emerald-600 ring-2 ring-emerald-100 ring-offset-2"
-                        : "border-transparent hover:border-gray-300"
+                        ? "border-brand-primary shadow-lg shadow-brand-primary/10 scale-105"
+                        : "border-stone-100 dark:border-white/10 hover:border-brand-secondary"
                     )}
                   >
                     <Image
                       fill
                       src={getStrapiMedia(image.url) || ''}
                       alt={image.alternativeText || `Imagen ${index + 1}`}
-                      className="object-cover"
+                      className="object-cover p-2"
                     />
                   </button>
                 ))}
@@ -254,23 +255,23 @@ export default function ProductPage() {
           </div>
 
           {/* Right Column: Product Info */}
-          <div className="flex flex-col">
-            <div className="flex items-center space-x-1 mb-4">
+          <div className="flex flex-col py-4">
+            <div className="flex items-center space-x-1.5 mb-6">
               {[1, 2, 3, 4, 5].map((s) => (
                 <Star key={s} className="w-4 h-4 fill-amber-400 text-amber-400" />
               ))}
-              <span className="ml-2 text-sm text-gray-500">(4.8 / 5)</span>
+              <span className="ml-3 text-xs font-bold text-stone-400 uppercase tracking-widest">(4.8 / 5)</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-4">
+            <h1 className="text-4xl md:text-6xl font-black text-stone-900 dark:text-white leading-[1.1] mb-8">
               {product.name}
             </h1>
 
-            <div className="flex flex-col mb-8">
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-black text-emerald-600">{formattedPrice}</span>
+            <div className="flex flex-col mb-10 p-6 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5">
+              <div className="flex items-baseline gap-4">
+                <span className="text-5xl font-black text-brand-primary">{formattedPrice}</span>
                 {product.original_price && product.original_price > product.price && (
-                  <span className="text-xl text-gray-400 line-through font-medium">
+                  <span className="text-2xl text-stone-400 line-through font-medium">
                     {new Intl.NumberFormat('es-CO', {
                       style: 'currency',
                       currency: 'COP',
@@ -279,76 +280,81 @@ export default function ProductPage() {
                   </span>
                 )}
               </div>
-              <span className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">IVA Incluido</span>
-
-              {product.original_price && product.original_price > product.price && (
-                <div className="mt-2 inline-flex items-center text-xs font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded-lg w-fit">
-                  Ahorras: {new Intl.NumberFormat('es-CO', {
-                    style: 'currency',
-                    currency: 'COP',
-                    maximumFractionDigits: 0,
-                  }).format(product.original_price - product.price)}
-                </div>
-              )}
+              <div className="flex items-center gap-3 mt-4">
+                <span className="text-[10px] text-stone-400 uppercase tracking-widest font-black">IVA Incluido</span>
+                {product.original_price && product.original_price > product.price && (
+                  <div className="inline-flex items-center text-[10px] font-black text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full uppercase tracking-wider">
+                    Ahorras: {new Intl.NumberFormat('es-CO', {
+                      style: 'currency',
+                      currency: 'COP',
+                      maximumFractionDigits: 0,
+                    }).format(product.original_price - product.price)}
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="prose prose-sm text-gray-600 dark:text-gray-300 mb-10">
-              <p className="text-lg leading-relaxed">
+            <div className="prose prose-stone text-stone-600 dark:text-gray-300 mb-12">
+              <p className="text-xl leading-[1.7] font-medium">
                 {product.description}
               </p>
             </div>
 
-            <div className="space-y-8 border-t border-gray-100 pt-8">
+            <div className="space-y-12 pt-10 border-t border-stone-100 dark:border-white/10">
               {/* Quantity Selector */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
-                  Cantidad
-                </label>
-                <div className="flex items-center space-x-4">
-                  <div className="inline-flex items-center bg-gray-50 border border-gray-200 rounded-2xl p-1 shadow-inner">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-10">
+                <div>
+                  <label className="block text-xs font-black text-stone-900 dark:text-white uppercase tracking-[0.2em] mb-4">
+                    Cantidad
+                  </label>
+                  <div className="inline-flex items-center bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-[1.25rem] p-1.5 shadow-inner">
                     <button
                       onClick={decrementQuantity}
                       disabled={product.stock <= 0}
-                      className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 active:scale-90 disabled:opacity-30"
+                      className="w-10 h-10 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm rounded-xl transition-all text-stone-500 active:scale-90 disabled:opacity-30"
                     >
                       <Minus className="h-5 w-5" />
                     </button>
-                    <span className="w-12 text-center text-lg font-bold text-gray-900">
+                    <span className="w-14 text-center text-xl font-black text-stone-900 dark:text-white">
                       {quantity}
                     </span>
                     <button
                       onClick={incrementQuantity}
                       disabled={product.stock <= 0 || quantity >= product.stock}
-                      className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 active:scale-90 disabled:opacity-30"
+                      className="w-10 h-10 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm rounded-xl transition-all text-stone-500 active:scale-90 disabled:opacity-30"
                     >
                       <Plus className="h-5 w-5" />
                     </button>
                   </div>
-                  <div className="flex flex-col">
+                </div>
+
+                <div className="flex flex-col justify-center">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className={cn(
+                      "w-2 h-2 rounded-full",
+                      product.stock > 10 ? "bg-emerald-500" : product.stock > 0 ? "bg-amber-500" : "bg-red-500"
+                    )} />
                     <span className={cn(
-                      "text-xs font-bold uppercase tracking-wider",
-                      product.stock > 10 ? "text-emerald-600" : product.stock > 0 ? "text-amber-600" : "text-red-600"
+                      "text-xs font-black uppercase tracking-widest",
+                      product.stock > 10 ? "text-emerald-700" : product.stock > 0 ? "text-amber-700" : "text-red-700"
                     )}>
-                      {product.stock > 0 ? `En Stock: ${product.stock} unidades` : 'Agotado'}
+                      {product.stock > 0 ? `${product.stock} unidades en stock` : 'Agotado'}
                     </span>
-                    <span className="text-[10px] text-gray-400 italic">Disponibilidad en tiempo real</span>
                   </div>
+                  <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Disponibilidad en tiempo real</p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
+              <div className="flex flex-col sm:flex-row gap-6">
+                <Button
                   onClick={handleAddToCart}
                   disabled={addedToCart || product.stock <= 0}
                   className={cn(
-                    "flex-1 relative flex items-center justify-center space-x-2 px-8 py-4 rounded-2xl text-lg font-bold transition-all shadow-xl active:scale-95 disabled:opacity-50",
-                    product.stock <= 0
-                      ? "bg-gray-200 text-gray-500 cursor-not-allowed shadow-none"
-                      : addedToCart
-                        ? "bg-gray-900 text-white shadow-gray-200"
-                        : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200"
+                    "flex-1 h-20 rounded-[1.5rem] text-xl font-black shadow-2xl transition-all overflow-hidden",
+                    addedToCart ? "bg-stone-900" : ""
                   )}
+                  variant={product.stock <= 0 ? 'secondary' : 'primary'}
                 >
                   <AnimatePresence mode="wait">
                     {product.stock <= 0 ? (
@@ -358,7 +364,7 @@ export default function ProductPage() {
                         animate={{ opacity: 1 }}
                         className="flex items-center"
                       >
-                        <AlertCircle className="h-5 w-5 mr-2" />
+                        <AlertCircle className="h-6 w-6 mr-3" />
                         Producto Agotado
                       </motion.div>
                     ) : addedToCart ? (
@@ -366,46 +372,44 @@ export default function ProductPage() {
                         key="added"
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -20, opacity: 0 }}
                         className="flex items-center"
                       >
-                        <CheckCircle2 className="h-5 w-5 mr-2" />
-                        ¡Añadido!
+                        <CheckCircle2 className="h-6 w-6 mr-3 text-emerald-400" />
+                        ¡Agregado con éxito!
                       </motion.div>
                     ) : (
                       <motion.div
                         key="add"
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -20, opacity: 0 }}
                         className="flex items-center"
                       >
-                        <ShoppingBag className="h-5 w-5 mr-2" />
-                        Añadir al carrito
+                        <ShoppingBag className="h-6 w-6 mr-3" />
+                        Agregar al Carrito
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </button>
+                </Button>
               </div>
 
               {/* Product Benefits */}
-              <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className="flex items-center p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                  <div className="bg-white p-2 rounded-xl border border-gray-100 mr-3">
-                    <Truck className="h-5 w-5 text-emerald-600" />
+              <div className="grid grid-cols-2 gap-6 pt-6">
+                <div className="flex items-center p-5 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5 group hover:border-brand-secondary/30 transition-colors">
+                  <div className="bg-white dark:bg-zinc-800 p-3 rounded-2xl border border-stone-100 dark:border-white/10 mr-4 shadow-sm group-hover:scale-110 transition-transform">
+                    <Truck className="h-6 w-6 text-brand-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-900">Envío Rápido</p>
-                    <p className="text-[10px] text-gray-500">Todo el país</p>
+                    <p className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-wider">Envío Rápido</p>
+                    <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest mt-0.5">Todo el país</p>
                   </div>
                 </div>
-                <div className="flex items-center p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                  <div className="bg-white p-2 rounded-xl border border-gray-100 mr-3">
-                    <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                <div className="flex items-center p-5 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5 group hover:border-brand-secondary/30 transition-colors">
+                  <div className="bg-white dark:bg-zinc-800 p-3 rounded-2xl border border-stone-100 dark:border-white/10 mr-4 shadow-sm group-hover:scale-110 transition-transform">
+                    <ShieldCheck className="h-6 w-6 text-brand-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-900">Pago Seguro</p>
-                    <p className="text-[10px] text-gray-500">100% Protegido</p>
+                    <p className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-wider">Pago Seguro</p>
+                    <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest mt-0.5">100% Protegido</p>
                   </div>
                 </div>
               </div>
