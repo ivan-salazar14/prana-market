@@ -8,6 +8,7 @@ export function getStrapiMedia(url: string | null) {
         return url;
     }
 
-    // Otherwise prepend the URL from the Strapi API
-    return `${process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337'}${url}`;
+    // Use the backend URL for uploads (supports both local and production)
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+    return `${backendUrl}${url}`;
 }
