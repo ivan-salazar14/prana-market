@@ -263,9 +263,9 @@ export default function Home() {
                             </Link>
                             <div className="absolute top-5 left-5 flex flex-col gap-2">
                               {/* Top Category Badge */}
-                              {(product.product_category as any).category && (
+                              {product.product_category?.category && (
                                 <span className="bg-stone-900/90 backdrop-blur px-3 py-1 rounded-xl text-[10px] font-black text-white shadow-sm uppercase tracking-widest w-fit">
-                                  {(product.product_category as any).category.Name}
+                                  {product.product_category.category.Name}
                                 </span>
                               )}
                               {/* Subcategory Badge */}
