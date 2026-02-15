@@ -110,11 +110,14 @@ export async function POST(request: NextRequest) {
 // Get user's orders
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const queryUserId = searchParams.get('userId');
+
     const authHeader = request.headers.get('authorization');
 
-    // Extract userId from JWT token if available
-    let userId: string | null = null;
-    if (authHeader) {
+    // Extract userId from JWT token if available, otherwise use query param
+    let userId: string | null = queryUserId;
+    if (authHeader && !userId) {
       try {
         // Decode JWT to get userId (simple base64 decode, no verification needed for this)
         const token = authHeader.replace('Bearer ', '');
@@ -138,10 +141,8 @@ export async function GET(request: NextRequest) {
     // Use public endpoint to allow API token access
     let url = `${BASE_STRAPI_URL}/api/orders`;
     if (userId) {
-      // Use URLSearchParams to properly encode the filter
-      const params = new URLSearchParams();
-      params.append('filters[user][id][$eq]', String(userId));
-      url += `?${params.toString()}`;
+      // Use string concatenation to properly pass filters to Strapi
+      url += `?filters[user][id][$eq]=${userId}`;
     }
 
     const response = await fetch(url, {

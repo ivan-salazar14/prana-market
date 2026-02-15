@@ -15,8 +15,17 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
         userId = ctx.state.user.id;
       } else {
         // If using API token, extract userId from query filters
-        const filters = ctx.query.filters as any;
+        const filters = ctx.query?.filters as any;
         console.log('Query filters:', JSON.stringify(filters, null, 2));
+
+        if (!filters) {
+          // No filters provided, return all orders (public access)
+          const { results, pagination } = await strapi.service('api::order.order').find({
+            ...ctx.query,
+          });
+          const sanitizedResults = await (this as any).sanitizeOutput(results, ctx);
+          return (this as any).transformResponse(sanitizedResults, { pagination });
+        }
 
         // Try different formats for the user filter
         let userIdFromQuery = filters?.user?.id?.$eq ||
@@ -33,8 +42,12 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
         if (userIdFromQuery) {
           userId = parseInt(userIdFromQuery);
         } else {
-          // If no user filter and no authenticated user, return unauthorized
-          return ctx.unauthorized('Authentication required or user filter must be provided');
+          // If no user filter and no authenticated user, return all orders
+          const { results, pagination } = await strapi.service('api::order.order').find({
+            ...ctx.query,
+          });
+          const sanitizedResults = await (this as any).sanitizeOutput(results, ctx);
+          return (this as any).transformResponse(sanitizedResults, { pagination });
         }
       }
 
