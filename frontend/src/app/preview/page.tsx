@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { getStrapiMedia } from '@/utils/strapi';
 
 interface PreviewPageProps {
   searchParams: Promise<{
@@ -115,7 +116,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
               <div className="mt-6 relative w-full h-64">
                 <Image
                   fill
-                  src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${homeData.data.Cover.url}`}
+                  src={getStrapiMedia(homeData.data.Cover.url) || ''}
                   alt={homeData.data.Cover.alternativeText || 'Cover image'}
                   className="object-cover rounded-lg"
                 />
@@ -134,12 +135,12 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
                        <div className="relative w-full h-32 mb-4">
                          <Image
                            fill
-                           src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${category.Image.url}`}
+                           src={getStrapiMedia(category.Image.url) || ''}
                            alt={category.Image.alternativeText || category.Name}
-                          className="object-cover rounded"
-                        />
-                      </div>
-                    )}
+                           className="object-cover rounded"
+                         />
+                       </div>
+                     )}
                     <h3 className="text-lg font-semibold text-gray-900">{category.Name}</h3>
                     <p className="text-gray-600 mt-2">{category.Description}</p>
                   </div>
@@ -159,12 +160,12 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
                        <div className="relative w-full h-48 mb-4">
                          <Image
                            fill
-                           src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${product.image.url}`}
+                           src={getStrapiMedia(product.image.url) || ''}
                            alt={product.image.alternativeText || product.name}
-                          className="object-cover rounded"
-                        />
-                      </div>
-                    )}
+                           className="object-cover rounded"
+                         />
+                       </div>
+                     )}
                     <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
                     <p className="text-gray-600 mt-2">{product.description}</p>
                     <p className="text-lg font-bold text-green-600 mt-2">${product.price}</p>

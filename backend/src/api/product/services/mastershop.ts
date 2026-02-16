@@ -82,7 +82,7 @@ export default ({ strapi }) => ({
             const discountPercentage = 10;
             const discountedPrice = Math.round(remotePrice * (1 - (discountPercentage / 100)));
 
-            // 2. Image Synchro logic (Manual Bypass Strategy)
+            // 2. Image Sync logic (Using Strapi Upload Service - supports Cloudinary)
             const remoteImageUrl = productData.urlImageProduct;
             let uploadedFileId = null;
 
@@ -94,48 +94,44 @@ export default ({ strapi }) => ({
                     if (imgRes.ok) {
                         const buffer = await imgRes.arrayBuffer();
                         const fileName = `${product.mastershop_id}-${Date.now()}.jpg`;
-
-                        // MANUAL UPLOAD BYPASS (Works for Local Provider)
-                        // 1. Save to public/uploads
-                        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-                        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-                        const targetPath = path.join(uploadDir, fileName);
-                        fs.writeFileSync(targetPath, Buffer.from(buffer));
-
-                        strapi.log.info(`   - Saved to disk: ${targetPath}`);
-
-                        // 2. Create DB Entry directly
-                        const fileEntry = await strapi.db.query('plugin::upload.file').create({
+                        
+                        // Get mime type from response or default to jpeg
+                        const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
+                        
+                        // Write temp file for upload service
+                        const tempPath = path.join(os.tmpdir(), fileName);
+                        fs.writeFileSync(tempPath, Buffer.from(buffer));
+                        
+                        // Upload through Strapi (goes to Cloudinary if configured)
+                        const [fileEntry] = await strapi.plugins.upload.services.upload.upload({
                             data: {
                                 name: fileName,
                                 alternativeText: product.name,
                                 caption: product.name,
-                                width: 0,
-                                height: 0,
-                                formats: null,
-                                hash: path.basename(fileName, '.jpg'),
-                                ext: '.jpg',
-                                mime: 'image/jpeg',
-                                size: buffer.byteLength / 1024, // KB
-                                url: `/uploads/${fileName}`,
-                                previewUrl: null,
-                                provider: 'local',
-                                provider_metadata: null,
-                                folderPath: '/',
-                                createdAt: new Date(),
-                                updatedAt: new Date(),
+                            },
+                            files: {
+                                path: tempPath,
+                                name: fileName,
+                                type: contentType,
+                                size: buffer.byteLength,
                             }
                         });
+                        
+                        // Cleanup temp file
+                        if (fs.existsSync(tempPath)) {
+                            fs.unlinkSync(tempPath);
+                        }
 
                         if (fileEntry && fileEntry.id) {
                             uploadedFileId = fileEntry.id;
-                            strapi.log.info(`✅ Image manually registered in DB (ID: ${fileEntry.id})`);
+                            strapi.log.info(`✅ Image uploaded via Strapi service (ID: ${fileEntry.id}, URL: ${fileEntry.url})`);
                         }
 
+                    } else {
+                        strapi.log.warn(`⚠️ Could not fetch image from ${remoteImageUrl}: ${imgRes.status}`);
                     }
                 } catch (imgErr) {
-                    strapi.log.error(`❌ Manual upload failed: ${(imgErr as Error).message}`);
+                    strapi.log.error(`❌ Image upload failed: ${(imgErr as Error).message}`);
                 }
             }
 
