@@ -29,7 +29,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
 
     // Fetch content from Strapi
     const homeResponse = await fetch(
-      `${process.env.STRAPI_API_URL}/api/home?locale=${locale}&status=${status}&populate=Cover`,
+      `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/home?locale=${locale}&status=${status}&populate=Cover`,
       {
         headers,
         cache: 'no-store',
@@ -52,7 +52,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
 
     // Fetch products
     const productsResponse = await fetch(
-      `${process.env.STRAPI_API_URL}/api/products?locale=${locale}&status=${status}&populate[category][populate]=Image&populate=image`,
+      `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/products?locale=${locale}&status=${status}&populate[category][populate]=Image&populate=image`,
       {
         headers,
         cache: 'no-store',
@@ -63,7 +63,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
 
     // Fetch categories
     const categoriesResponse = await fetch(
-      `${process.env.STRAPI_API_URL}/api/product-categories?locale=${locale}&status=${status}&populate=Image`,
+      `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/product-categories?locale=${locale}&status=${status}&populate=Image`,
       {
         headers,
         cache: 'no-store',
@@ -115,7 +115,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
               <div className="mt-6 relative w-full h-64">
                 <Image
                   fill
-                  src={`${process.env.STRAPI_API_URL}${homeData.data.Cover.url}`}
+                  src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${homeData.data.Cover.url}`}
                   alt={homeData.data.Cover.alternativeText || 'Cover image'}
                   className="object-cover rounded-lg"
                 />
@@ -131,11 +131,11 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
                 {categoriesData.data.map((category: { id: number; Image?: { url: string; alternativeText?: string }; Name: string; Description: string }) => (
                   <div key={category.id} className="border rounded-lg p-4">
                     {category.Image && (
-                      <div className="relative w-full h-32 mb-4">
-                        <Image
-                          fill
-                          src={`${process.env.STRAPI_API_URL}${category.Image.url}`}
-                          alt={category.Image.alternativeText || category.Name}
+                       <div className="relative w-full h-32 mb-4">
+                         <Image
+                           fill
+                           src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${category.Image.url}`}
+                           alt={category.Image.alternativeText || category.Name}
                           className="object-cover rounded"
                         />
                       </div>
@@ -156,11 +156,11 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
                 {productsData.data.map((product: { id: number; image?: { url: string; alternativeText?: string }; name: string; description: string; price: number }) => (
                   <div key={product.id} className="border rounded-lg p-4">
                     {product.image && (
-                      <div className="relative w-full h-48 mb-4">
-                        <Image
-                          fill
-                          src={`${process.env.STRAPI_API_URL}${product.image.url}`}
-                          alt={product.image.alternativeText || product.name}
+                       <div className="relative w-full h-48 mb-4">
+                         <Image
+                           fill
+                           src={`${process.env.NEXT_PUBLIC_STRAPI_API_URL}${product.image.url}`}
+                           alt={product.image.alternativeText || product.name}
                           className="object-cover rounded"
                         />
                       </div>
