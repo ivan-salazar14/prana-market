@@ -93,10 +93,20 @@ export default ({ strapi }) => ({
 
                     if (imgRes.ok) {
                         const buffer = await imgRes.arrayBuffer();
-                        const fileName = `${product.mastershop_id}-${Date.now()}.jpg`;
                         
-                        // Get mime type from response or default to jpeg
+                        // Get mime type from response headers
                         const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
+                        
+                        // Determine file extension based on mime type
+                        const mimeToExt: Record<string, string> = {
+                            'image/jpeg': 'jpg',
+                            'image/jpg': 'jpg',
+                            'image/png': 'png',
+                            'image/webp': 'webp',
+                            'image/gif': 'gif',
+                        };
+                        const extension = mimeToExt[contentType] || 'jpg';
+                        const fileName = `${product.mastershop_id}-${Date.now()}.${extension}`;
                         
                         // Write temp file for upload service
                         const tempPath = path.join(os.tmpdir(), fileName);
