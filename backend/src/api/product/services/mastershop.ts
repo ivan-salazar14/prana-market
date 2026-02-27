@@ -83,7 +83,7 @@ export default ({ strapi }) => ({
             const discountPercentage = 10;
             const discountedPrice = Math.round(remotePrice * (1 - (discountPercentage / 100)));
 
-            // 2. Image Sync logic (Using Cloudinary directly for reliable uploads)
+            // 2. Image Sync logic (Using Cloudinary SDK directly)
             const remoteImageUrl = productData.urlImageProduct;
             let uploadedFileId = null;
 
@@ -128,14 +128,13 @@ export default ({ strapi }) => ({
                         const tempPath = path.join(os.tmpdir(), fileName);
                         fs.writeFileSync(tempPath, Buffer.from(buffer));
                         
-                        // Configure Cloudinary
+                        // Configure and upload directly to Cloudinary
                         cloudinary.config({
                             cloud_name: process.env.CLOUDINARY_NAME,
                             api_key: process.env.CLOUDINARY_KEY,
                             api_secret: process.env.CLOUDINARY_SECRET,
                         });
                         
-                        // Upload directly to Cloudinary
                         const uploadResult = await cloudinary.uploader.upload(tempPath, {
                             folder: 'prana-market',
                             public_id: `${product.mastershop_id}-${Date.now()}`,
@@ -150,28 +149,68 @@ export default ({ strapi }) => ({
                         strapi.log.info(`☁️ Cloudinary upload result: ${JSON.stringify(uploadResult)}`);
                         
                         if (uploadResult && uploadResult.secure_url) {
-                            // Create file entry manually with Cloudinary URL
-                            const fileEntryCreated = await strapi.plugins.upload.services.upload.create({
-                                name: fileName,
-                                alternativeText: product.name,
-                                caption: product.name,
-                                url: uploadResult.secure_url,
-                                provider: 'cloudinary',
-                                provider_metadata: {
-                                    public_id: uploadResult.public_id,
-                                    version: uploadResult.version,
-                                    version_id: uploadResult.version_id,
-                                },
-                                size: buffer.byteLength,
-                                mimeType: contentType,
-                                ext: extension,
-                            });
-                            
-                            if (fileEntryCreated && fileEntryCreated.id) {
-                                uploadedFileId = fileEntryCreated.id;
-                                strapi.log.info(`✅ Image created with Cloudinary URL (ID: ${fileEntryCreated.id}, URL: ${uploadResult.secure_url})`);
-                            } else {
-                                strapi.log.warn(`⚠️ Could not create file entry in Strapi, but image is in Cloudinary: ${uploadResult.secure_url}`);
+                            // Try to use Strapi upload service first
+                            try {
+                                const tempPath2 = path.join(os.tmpdir(), `strapi-${Date.now()}.${extension}`);
+                                fs.writeFileSync(tempPath2, Buffer.from(buffer));
+                                
+                                const [fileEntry] = await strapi.plugins.upload.services.upload.upload({
+                                    data: {
+                                        name: fileName,
+                                        alternativeText: product.name,
+                                        caption: product.name,
+                                    },
+                                    files: {
+                                        path: tempPath2,
+                                        name: fileName,
+                                        type: contentType,
+                                        size: buffer.byteLength,
+                                    }
+                                });
+                                
+                                if (fs.existsSync(tempPath2)) {
+                                    fs.unlinkSync(tempPath2);
+                                }
+                                
+                                if (fileEntry && fileEntry.id) {
+                                    uploadedFileId = fileEntry.id;
+                                    strapi.log.info(`✅ Image uploaded via Strapi (ID: ${fileEntry.id}, URL: ${fileEntry.url})`);
+                                }
+                            } catch (strapiErr) {
+                                strapi.log.warn(`⚠️ Strapi upload failed: ${(strapiErr as Error).message}`);
+                                // Fallback: create file entry using database query
+                                try {
+                                    const fileRecord = await strapi.db.query('plugin::upload.file').create({
+                                        data: {
+                                            name: fileName,
+                                            alternativeText: product.name,
+                                            caption: product.name,
+                                            url: uploadResult.secure_url,
+                                            provider: 'cloudinary',
+                                            provider_metadata: {
+                                                public_id: uploadResult.public_id,
+                                                version: uploadResult.version,
+                                                version_id: uploadResult.version_id,
+                                            },
+                                            size: buffer.byteLength,
+                                            mimeType: contentType,
+                                            ext: extension,
+                                            formats: JSON.stringify(uploadResult.colors ? {
+                                                thumbnail: { url: uploadResult.secure_url },
+                                                large: { url: uploadResult.secure_url },
+                                                medium: { url: uploadResult.secure_url },
+                                                small: { url: uploadResult.secure_url },
+                                            } : null),
+                                        }
+                                    });
+                                    
+                                    if (fileRecord) {
+                                        uploadedFileId = fileRecord.id;
+                                        strapi.log.info(`✅ Image created in DB (ID: ${fileRecord.id}, Cloudinary URL: ${uploadResult.secure_url})`);
+                                    }
+                                } catch (dbErr) {
+                                    strapi.log.error(`❌ DB create failed: ${(dbErr as Error).message}`);
+                                }
                             }
                         }
 
