@@ -1,0 +1,72 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 09-24-2026 21:20
+last_updated: 09-24-2026 21:25
+project: prana-market
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+development_status:
+  epic-1: in-progress
+  1-1-design-tokens-responsive-shell-category-taxonomy: in-progress
+  1-2-product-card-catalog-grid-with-origin-badging: backlog
+  1-3-interactive-product-detail-page-pdp-with-swatches-mobile-sti: backlog
+  1-4-typeahead-search-multi-attribute-cosmetic-filters: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-persistent-slide-over-cart-drawer-with-hybrid-sourcing-group: backlog
+  2-2-dynamic-free-shipping-progress-bar: backlog
+  2-3-one-click-quantity-variant-adjustment-with-optimistic-ui: backlog
+  2-4-coupon-promo-code-validation-engine: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-dane-colombian-address-hierarchy-tiered-shipping-selection: backlog
+  3-2-native-nequi-direct-push-dynamic-qr-checkout: backlog
+  3-3-comprehensive-wompi-gateway-pse-cards-bancolombia-cash-netwo: backlog
+  3-4-international-card-checkout-via-stripe-backup-gateway: backlog
+  3-5-cryptographic-webhook-reconciliation-idempotent-payment-sett: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-mastershop-catalog-ingestion-schema-mapping-client: backlog
+  4-2-automated-background-stock-dynamic-price-synchronization: backlog
+  4-3-automated-post-payment-dropship-order-forwarding-fault-isola: backlog
+  4-4-carrier-guide-ingestion-automated-customer-shipment-notifica: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-public-customer-order-tracking-portal-rastreo: backlog
+  5-2-centralized-strapi-order-lifecycle-dashboard: backlog
+  5-3-mastershop-dropshipping-sync-monitor-manual-override: backlog
+  5-4-whatsapp-customer-service-integration-support-shortcuts: backlog
+  epic-5-retrospective: optional

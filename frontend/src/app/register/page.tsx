@@ -60,7 +60,7 @@ export default function RegisterPage() {
               </div>
             </div>
             <p className="text-sm text-brand-secondary">
-              "La mejor plataforma para encontrar mis productos favoritos. El proceso de registro fue súper sencillo."
+              &ldquo;La mejor plataforma para encontrar mis productos favoritos. El proceso de registro fue súper sencillo.&rdquo;
             </p>
             <p className="text-xs font-bold mt-2">— Maria Garcia</p>
           </div>

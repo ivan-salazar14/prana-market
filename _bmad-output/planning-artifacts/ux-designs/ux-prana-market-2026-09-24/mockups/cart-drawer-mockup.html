@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prana Market — Mockup Carrito Híbrido</title>
+  <style>
+    :root {
+      --primary: #D45B7A;
+      --secondary: #C89D66;
+      --surface-base: #FDF9F7;
+      --surface-card: #FFFFFF;
+      --text-main: #2D1B22;
+      --text-muted: #7A666D;
+      --border-subtle: #F2E3E7;
+      --nequi-brand: #20002C;
+      --nequi-accent: #FF2A82;
+      --badge-local-bg: #FCE7ED;
+      --badge-local-text: #B33959;
+      --badge-dropship-bg: #EAF2EC;
+      --badge-dropship-text: #2C6E49;
+      --font-heading: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1e293b;
+      font-family: var(--font-sans);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: var(--text-main);
+    }
+    .mobile-frame {
+      width: 100%;
+      max-width: 400px;
+      background: #00000088;
+      border-radius: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      border: 8px solid #334155;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 840px;
+      position: relative;
+    }
+    .drawer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: 40px;
+      background: var(--surface-card);
+      border-radius: 24px 24px 0 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.25);
+    }
+    .drawer-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .drawer-title {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .free-shipping-container {
+      background: var(--surface-base);
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .shipping-msg {
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+    .progress-track {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #C89D66, #10B981);
+      border-radius: 9999px;
+    }
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .delivery-group {
+      background: var(--surface-base);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      padding: 0.85rem;
+    }
+    .group-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+    }
+    .item-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .item-thumb {
+      width: 54px;
+      height: 54px;
+      border-radius: 8px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      border: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .item-meta {
+      flex: 1;
+    }
+    .item-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .item-variant {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    .item-price {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .drawer-footer {
+      padding: 1.25rem;
+      background: var(--surface-card);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+    .btn-checkout {
+      height: 48px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-nequi-cart {
+      height: 44px;
+      background: var(--nequi-brand);
+      color: var(--nequi-accent);
+      border: none;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-frame">
+    <div class="drawer">
+      
+      <!-- Drawer Header -->
+      <div class="drawer-header">
+        <div class="drawer-title">Tu Carrito (2 productos)</div>
+        <span style="font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">✕</span>
+      </div>
+
+      <!-- Free Shipping Dynamic Bar -->
+      <div class="free-shipping-container">
+        <div class="shipping-msg">
+          <span style="color: #10B981;">🎉 ¡Felicidades! Tienes Envío Gratis</span>
+          <span>100%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Cart Items with Hybrid Groups -->
+      <div class="cart-items">
+        
+        <!-- Group 1: Local Stock -->
+        <div class="delivery-group">
+          <span class="group-tag" style="background: var(--badge-local-bg); color: var(--badge-local-text);">
+            📦 Envío 1: Almacén Local (Llega en 1-2 días)
+          </span>
+          <div class="item-row">
+            <div class="item-thumb">💄</div>
+            <div class="item-meta">
+              <div class="item-name">Maybelline Vinyl Ink</div>
+              <div class="item-variant">Tono 35 Cheeky</div>
+              <div class="item-price">$48.900 COP</div>
+            </div>
+            <div class="qty-control">
+              <span style="cursor:pointer;">-</span>
+              <span>1</span>
+              <span style="cursor:pointer;">+</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Group 2: Mastershop Dropship -->
+        <div class="delivery-group">
+          <span class="group-tag" style="background: var(--badge-dropship-bg); color: var(--badge-dropship-text);">
+            🌿 Envío 2: Dropshipping Nacional (Llega en 3-5 días)
+          </span>
+          <div class="item-row">
+            <div class="item-thumb">✨</div>
+            <div class="item-meta">
+              <div class="item-name">The Ordinary Serum Niacinamida</div>
+              <div class="item-variant">Frasco 30ml</div>
+              <div class="item-price">$54.000 COP</div>
+            </div>
+            <div class="qty-control">
+              <span style="cursor:pointer;">-</span>
+              <span>1</span>
+              <span style="cursor:pointer;">+</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Totals & Checkout -->
+      <div class="drawer-footer">
+        <div class="total-row">
+          <span style="font-size: 0.95rem; font-weight:600; color:var(--text-muted);">Total a Pagar:</span>
+          <span style="color: var(--primary);">$102.900 COP</span>
+        </div>
+
+        <button class="btn-checkout">
+          <span>Continuar al Pago</span>
+          <span>→</span>
+        </button>
+
+        <button class="btn-nequi-cart">
+          <span>⚡ Pagar Directo con Nequi</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

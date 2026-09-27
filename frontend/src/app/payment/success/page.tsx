@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MessageCircle, CheckCircle2, ShoppingBag, ArrowRight, Package, Clock, Truck } from 'lucide-react';
@@ -36,26 +36,7 @@ function PaymentSuccessContent() {
   const transactionId = searchParams.get('transaction_id');
   const isMock = searchParams.get('mock') === 'true';
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
-
-  useEffect(() => {
-    // Load order details from localStorage (set before payment)
-    const savedOrder = localStorage.getItem('lastOrder');
-    if (savedOrder) {
-      setOrderDetails(JSON.parse(savedOrder));
-      localStorage.removeItem('lastOrder'); // Clean up
-    }
-
-    // Create order in backend after successful payment
-    if (savedOrder && transactionId) {
-      createOrder(JSON.parse(savedOrder), transactionId);
-    }
-
-    if (isMock) {
-      console.log('🧪 Mock payment completed successfully');
-    }
-  }, [transactionId, isMock]);
-
-  const createOrder = async (orderData: OrderDetails, transactionId: string) => {
+  const createOrder = useCallback(async (orderData: OrderDetails, txId: string) => {
     try {
       const userString = localStorage.getItem('user');
       if (!userString) {
@@ -70,7 +51,7 @@ function PaymentSuccessContent() {
         subtotal: orderData.subtotal,
         deliveryCost: orderData.deliveryCost,
         total: orderData.total,
-        transactionId,
+        transactionId: txId,
         paymentMethod: orderData.paymentMethod || 'nequi',
         userId: user.id
       };
@@ -91,7 +72,33 @@ function PaymentSuccessContent() {
     } catch (error) {
       console.error('Error creating order:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Load order details from localStorage (set before payment)
+    const savedOrder = typeof window !== 'undefined' ? localStorage.getItem('lastOrder') : null;
+    if (savedOrder) {
+      try {
+        const parsed = JSON.parse(savedOrder);
+        localStorage.removeItem('lastOrder'); // Clean up
+
+        queueMicrotask(() => {
+          setOrderDetails(parsed);
+        });
+
+        // Create order in backend after successful payment
+        if (transactionId) {
+          createOrder(parsed, transactionId);
+        }
+      } catch (err) {
+        console.error('Failed to parse saved order:', err);
+      }
+    }
+
+    if (isMock) {
+      console.log('🧪 Mock payment completed successfully');
+    }
+  }, [transactionId, isMock, createOrder]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-CO', {

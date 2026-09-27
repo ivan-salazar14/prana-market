@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prana Market — Explorador de Temas de Color y Direcciones Visuales</title>
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 2.5rem 1.5rem;
+      line-height: 1.5;
+    }
+    .header {
+      max-width: 1200px;
+      margin: 0 auto 2.5rem auto;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #f472b6, #fb923c, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header p {
+      color: #94a3b8;
+      font-size: 1.05rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .theme-card {
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      position: relative;
+    }
+    .theme-card:hover {
+      transform: translateY(-4px);
+    }
+    .theme-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .theme-tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      font-weight: 700;
+    }
+    .theme-desc {
+      font-size: 0.88rem;
+      opacity: 0.85;
+      min-height: 2.6em;
+    }
+    .palette-row {
+      display: flex;
+      gap: 0.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+      padding: 0.25rem;
+      background: rgba(0,0,0,0.15);
+    }
+    .swatch {
+      flex: 1;
+      height: 48px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #000;
+      text-shadow: 0 0 2px rgba(255,255,255,0.8);
+    }
+    .preview-box {
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      width: fit-content;
+    }
+    .product-preview {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .mock-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .product-info {
+      flex: 1;
+    }
+    .product-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .product-brand {
+      font-size: 0.75rem;
+      opacity: 0.75;
+      margin-bottom: 0.25rem;
+    }
+    .product-price {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+    .free-shipping-bar {
+      background: rgba(0,0,0,0.08);
+      border-radius: 9999px;
+      height: 6px;
+      overflow: hidden;
+      margin-top: 0.25rem;
+    }
+    .free-shipping-progress {
+      height: 100%;
+      border-radius: 9999px;
+      width: 70%;
+    }
+    .shipping-text {
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+    }
+    .btn-action {
+      border: none;
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: filter 0.15s;
+    }
+    .btn-action:hover { filter: brightness(1.08); }
+    .nequi-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: #20002c;
+      color: #ff2a82;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* THEME 1: Rose & Champagne Luxury */
+    /*
+      primary: #D45B7A (Dusty Rose Accent)
+      secondary: #C89D66 (Warm Champagne Gold)
+      surface: #FDF9F7 (Silk Off-White)
+      surface-card: #FFFFFF
+      text-main: #2D1B22 (Deep Espresso Plum)
+      text-muted: #7A666D
+      accent: #E8839B
+    */
+    .theme-1 {
+      background-color: #FDF9F7;
+      color: #2D1B22;
+      border: 2px solid #E8839B;
+    }
+    .theme-1 .theme-tag { background: #FCE7ED; color: #D45B7A; }
+    .theme-1 .preview-box { background: #FFFFFF; border: 1px solid #F2E3E7; }
+    .theme-1 .badge-origin { background: #FCE7ED; color: #B33959; }
+    .theme-1 .mock-img { background: #FBF0F3; color: #D45B7A; }
+    .theme-1 .product-price { color: #D45B7A; }
+    .theme-1 .free-shipping-progress { background: linear-gradient(90deg, #C89D66, #D45B7A); }
+    .theme-1 .btn-action { background: #D45B7A; color: #FFFFFF; }
+
+    /* THEME 2: Botanical & Radiant Glow */
+    /*
+      primary: #2C6E49 (Botanical Sage Green)
+      secondary: #E07A5F (Peach Terracotta)
+      surface: #F7F9F6 (Organic Pale White)
+      surface-card: #FFFFFF
+      text-main: #1D2D24 (Deep Forest Mineral)
+      text-muted: #627267
+      accent: #F2CC8F (Radiant Glow)
+    */
+    .theme-2 {
+      background-color: #F7F9F6;
+      color: #1D2D24;
+      border: 2px solid #A3C9A8;
+    }
+    .theme-2 .theme-tag { background: #E2ECE5; color: #2C6E49; }
+    .theme-2 .preview-box { background: #FFFFFF; border: 1px solid #E1EBE4; }
+    .theme-2 .badge-origin { background: #E2ECE5; color: #2C6E49; }
+    .theme-2 .mock-img { background: #EAF2EC; color: #2C6E49; }
+    .theme-2 .product-price { color: #E07A5F; }
+    .theme-2 .free-shipping-progress { background: linear-gradient(90deg, #F2CC8F, #2C6E49); }
+    .theme-2 .btn-action { background: #2C6E49; color: #FFFFFF; }
+
+    /* THEME 3: High Fashion & Midnight Glam */
+    /*
+      primary: #EC4899 (Electric Glam Fuchsia)
+      secondary: #06B6D4 (Cyan Electric Edge)
+      surface: #121216 (Midnight Onyx)
+      surface-card: #1E1E24
+      text-main: #F9FAFB (Crisp Pure White)
+      text-muted: #9CA3AF
+      accent: #F43F5E
+    */
+    .theme-3 {
+      background-color: #121216;
+      color: #F9FAFB;
+      border: 2px solid #EC4899;
+    }
+    .theme-3 .theme-tag { background: #341829; color: #F472B6; }
+    .theme-3 .preview-box { background: #1E1E24; border: 1px solid #2D2D38; }
+    .theme-3 .badge-origin { background: #281622; color: #F472B6; }
+    .theme-3 .mock-img { background: #272732; color: #EC4899; }
+    .theme-3 .product-price { color: #F472B6; }
+    .theme-3 .free-shipping-progress { background: linear-gradient(90deg, #EC4899, #06B6D4); }
+    .theme-3 .btn-action { background: #EC4899; color: #FFFFFF; }
+
+    /* THEME 4: Terracotta Warmth & Sand */
+    /*
+      primary: #C15C3D (Warm Colombian Terracotta)
+      secondary: #D4A373 (Warm Sand)
+      surface: #FAF7F2 (Linen Natural)
+      surface-card: #FFFFFF
+      text-main: #332621 (Warm Espresso)
+      text-muted: #7D6B63
+      accent: #E76F51
+    */
+    .theme-4 {
+      background-color: #FAF7F2;
+      color: #332621;
+      border: 2px solid #E8B49B;
+    }
+    .theme-4 .theme-tag { background: #FCECE4; color: #C15C3D; }
+    .theme-4 .preview-box { background: #FFFFFF; border: 1px solid #F0E3D8; }
+    .theme-4 .badge-origin { background: #FCECE4; color: #C15C3D; }
+    .theme-4 .mock-img { background: #F7EDE2; color: #C15C3D; }
+    .theme-4 .product-price { color: #C15C3D; }
+    .theme-4 .free-shipping-progress { background: linear-gradient(90deg, #D4A373, #C15C3D); }
+    .theme-4 .btn-action { background: #C15C3D; color: #FFFFFF; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Prana Market — Direcciones de Identidad Visual</h1>
+    <p>Explora 4 propuestas de personalidad visual y paletas cromáticas diseñadas para el mercado colombiano de cosméticos y belleza.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- THEME 1 -->
+    <div class="theme-card theme-1">
+      <div class="theme-title">
+        <span>1. Rose & Champagne</span>
+        <span class="theme-tag">Romántica & Chic</span>
+      </div>
+      <p class="theme-desc">Elegancia refinada con tonos rosa empolvado, detalles en oro champaña y fondos seda. Sensación prémium accesible.</p>
+      
+      <div class="palette-row">
+        <div class="swatch" style="background:#D45B7A; color:#fff;">#D45B7A</div>
+        <div class="swatch" style="background:#C89D66; color:#fff;">#C89D66</div>
+        <div class="swatch" style="background:#E8839B; color:#000;">#E8839B</div>
+        <div class="swatch" style="background:#FCE7ED; color:#000;">#FCE7ED</div>
+        <div class="swatch" style="background:#2D1B22; color:#fff;">#2D1B22</div>
+      </div>
+
+      <div class="preview-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="badge badge-origin">📦 Envío Exprés Local</span>
+          <span class="nequi-pill">⚡ Paga con Nequi</span>
+        </div>
+
+        <div class="product-preview">
+          <div class="mock-img">💄</div>
+          <div class="product-info">
+            <div class="product-brand">MAYBELLINE · LABIAL VINYL INK</div>
+            <div class="product-name">Tono 35 Cheeky (Acabado Brillante)</div>
+            <div class="product-price">$48.900 COP</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="shipping-text">
+            <span>¡Faltan $36.100 para Envío Gratis!</span>
+            <span>57%</span>
+          </div>
+          <div class="free-shipping-bar">
+            <div class="free-shipping-progress"></div>
+          </div>
+        </div>
+
+        <button class="btn-action">
+          <span>Añadir al Carrito</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- THEME 2 -->
+    <div class="theme-card theme-2">
+      <div class="theme-title">
+        <span>2. Botanical & Glow</span>
+        <span class="theme-tag">Orgánico & Fresco</span>
+      </div>
+      <p class="theme-desc">Enfoque en salud de la piel, botánica limpia y bienestar. Tonos salvia natural, melocotón y fondos orgánicos frescos.</p>
+      
+      <div class="palette-row">
+        <div class="swatch" style="background:#2C6E49; color:#fff;">#2C6E49</div>
+        <div class="swatch" style="background:#E07A5F; color:#fff;">#E07A5F</div>
+        <div class="swatch" style="background:#F2CC8F; color:#000;">#F2CC8F</div>
+        <div class="swatch" style="background:#E2ECE5; color:#000;">#E2ECE5</div>
+        <div class="swatch" style="background:#1D2D24; color:#fff;">#1D2D24</div>
+      </div>
+
+      <div class="preview-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="badge badge-origin">🌿 Dropshipping Nacional</span>
+          <span class="nequi-pill">⚡ Paga con Nequi</span>
+        </div>
+
+        <div class="product-preview">
+          <div class="mock-img">✨</div>
+          <div class="product-info">
+            <div class="product-brand">THE ORDINARY · SERUM FACIAL</div>
+            <div class="product-name">Niacinamida 10% + Zinc 1% (30ml)</div>
+            <div class="product-price">$54.000 COP</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="shipping-text">
+            <span>¡Faltan $31.000 para Envío Gratis!</span>
+            <span>63%</span>
+          </div>
+          <div class="free-shipping-bar">
+            <div class="free-shipping-progress"></div>
+          </div>
+        </div>
+
+        <button class="btn-action">
+          <span>Añadir al Carrito</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- THEME 3 -->
+    <div class="theme-card theme-3">
+      <div class="theme-title">
+        <span>3. High Glam & Neon</span>
+        <span class="theme-tag">Cosmopolita & Bold</span>
+      </div>
+      <p class="theme-desc">Estética nocturna de alto contraste, fucsia eléctrico y cian vibrante sobre ónix profundo. Ideal para Gen Z y TikTok trends.</p>
+      
+      <div class="palette-row">
+        <div class="swatch" style="background:#EC4899; color:#fff;">#EC4899</div>
+        <div class="swatch" style="background:#06B6D4; color:#000;">#06B6D4</div>
+        <div class="swatch" style="background:#F43F5E; color:#fff;">#F43F5E</div>
+        <div class="swatch" style="background:#281622; color:#fff;">#281622</div>
+        <div class="swatch" style="background:#121216; color:#fff;">#121216</div>
+      </div>
+
+      <div class="preview-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="badge badge-origin">🔥 Trending TikTok</span>
+          <span class="nequi-pill">⚡ Paga con Nequi</span>
+        </div>
+
+        <div class="product-preview">
+          <div class="mock-img">👁️</div>
+          <div class="product-info">
+            <div class="product-brand">BEAUTY CREATIONS · SOMBRAS</div>
+            <div class="product-name">Paleta Color Pro Eyeshadow 18 Shimmers</div>
+            <div class="product-price">$62.500 COP</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="shipping-text">
+            <span>¡Faltan $22.500 para Envío Gratis!</span>
+            <span>73%</span>
+          </div>
+          <div class="free-shipping-bar">
+            <div class="free-shipping-progress"></div>
+          </div>
+        </div>
+
+        <button class="btn-action">
+          <span>Añadir al Carrito</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- THEME 4 -->
+    <div class="theme-card theme-4">
+      <div class="theme-title">
+        <span>4. Terracotta & Warmth</span>
+        <span class="theme-tag">Cálido & Colombiano</span>
+      </div>
+      <p class="theme-desc">Tonos terracota colombiano, arena cálida y lino. Transmite cercanía, autenticidad y belleza natural cálida.</p>
+      
+      <div class="palette-row">
+        <div class="swatch" style="background:#C15C3D; color:#fff;">#C15C3D</div>
+        <div class="swatch" style="background:#D4A373; color:#000;">#D4A373</div>
+        <div class="swatch" style="background:#E76F51; color:#fff;">#E76F51</div>
+        <div class="swatch" style="background:#FCECE4; color:#000;">#FCECE4</div>
+        <div class="swatch" style="background:#332621; color:#fff;">#332621</div>
+      </div>
+
+      <div class="preview-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="badge badge-origin">📦 Envío Exprés Local</span>
+          <span class="nequi-pill">⚡ Paga con Nequi</span>
+        </div>
+
+        <div class="product-preview">
+          <div class="mock-img">🌸</div>
+          <div class="product-info">
+            <div class="product-brand">ATENEA · RUBOR LÍQUIDO</div>
+            <div class="product-name">Velvet Touch Blush (Tono Sunset Rose)</div>
+            <div class="product-price">$36.000 COP</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="shipping-text">
+            <span>¡Faltan $49.000 para Envío Gratis!</span>
+            <span>42%</span>
+          </div>
+          <div class="free-shipping-bar">
+            <div class="free-shipping-progress"></div>
+          </div>
+        </div>
+
+        <button class="btn-action">
+          <span>Añadir al Carrito</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

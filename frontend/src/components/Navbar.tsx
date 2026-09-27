@@ -1,27 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   ShoppingBag,
   Menu,
   X,
+  Search,
   User,
   LogOut,
   Package,
-  Home
-} from 'lucide-react';
-import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from './ui/Button';
-import { cn } from '@/utils/cn';
-import Cart from './Cart';
+  Home,
+  Sparkles,
+} from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/utils/cn";
+import Cart from "./Cart";
+import CategoryNav from "./CategoryNav";
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -33,211 +34,180 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 15);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close menu when route changes
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
 
-  const navLinks = [
-    { name: 'Inicio', href: '/', icon: Home },
-    { name: 'Mis Pedidos', href: '/orders', icon: Package },
-  ];
 
   return (
     <>
-      <div className="bg-black text-white py-2.5 text-center text-[10px] md:text-xs font-black tracking-[0.2em] px-4 uppercase relative z-[60]">
-        ✨ Envíos a todo Colombia | Belleza, Salud y Bienestar ✨
+      {/* ========================================================================= */}
+      {/* TOP LUXURY ANNOUNCEMENT STRIP                                             */}
+      {/* ========================================================================= */}
+      <div className="bg-[var(--text-main)] text-[var(--text-inverse)] py-2 text-center text-xs font-medium tracking-wide px-4 relative z-50 flex items-center justify-center gap-2 border-b border-[var(--border-strong)]/20">
+        <Sparkles className="w-3.5 h-3.5 text-[var(--secondary)] animate-pulse" />
+        <span>
+          <strong className="text-[var(--secondary)]">Envío Gratis</strong> en compras superiores a $120.000 COP • 100% Original
+        </span>
       </div>
-      <nav
+
+      {/* ========================================================================= */}
+      {/* MAIN TOP NAVIGATION BAR                                                   */}
+      {/* ========================================================================= */}
+      <header
         className={cn(
-          "sticky top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+          "sticky top-0 left-0 right-0 z-40 transition-all duration-200 border-b",
           isScrolled
-            ? "bg-white/90 backdrop-blur-md border-gray-100 py-2 shadow-sm dark:bg-zinc-950/90 dark:border-white/10"
-            : "bg-white border-transparent py-4 dark:bg-zinc-950"
+            ? "bg-white/95 backdrop-blur-md border-[var(--border-subtle)] shadow-sm py-2"
+            : "bg-white border-[var(--border-subtle)] py-3"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-12">
-            {/* Logo */}
+            {/* Mobile Left: Menu Toggle Button (>= 48px touch target) */}
+            <div className="flex items-center lg:hidden">
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(true)}
+                aria-label="Abrir menú de navegación"
+                className="touch-target p-2 rounded-xl text-[var(--text-main)] hover:bg-[var(--surface-muted)] transition-colors"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Brand Logo & Editorial Wordmark */}
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="relative w-10 h-10 group-hover:scale-110 transition-transform duration-300">
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/logo.png"
-                  alt="Prana Logo"
+                  alt="Prana Market"
                   fill
                   className="object-contain"
                   priority
                 />
               </div>
-              <span className="text-2xl font-black text-stone-900 dark:text-white tracking-tight">
-                Prana <span className="text-brand-primary">Market</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-main)] leading-none">
+                  Prana <span className="text-[var(--primary)] font-serif italic">Market</span>
+                </span>
+                <span className="text-[9px] uppercase tracking-[0.25em] text-[var(--secondary)] font-semibold mt-0.5">
+                  Cosméticos & Belleza
+                </span>
+              </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2",
-                    pathname === link.href
-                      ? "bg-brand-secondary text-brand-primary"
-                      : "text-stone-600 hover:bg-brand-secondary/30 hover:text-stone-900"
-                  )}
-                >
-                  <link.icon className="w-4 h-4" />
-                  {link.name}
-                </Link>
-              ))}
-
-              <div className="h-6 w-px bg-stone-200 mx-2" />
-
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-2 text-stone-600 hover:text-brand-primary hover:bg-brand-secondary/30 rounded-xl transition-all group"
+            {/* Desktop Center/Right Quick Links */}
+            <nav className="hidden lg:flex items-center space-x-2">
+              <Link
+                href="/"
+                className={cn(
+                  "touch-target px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5",
+                  pathname === "/"
+                    ? "text-[var(--primary)] font-semibold bg-[var(--surface-muted)]"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--surface-muted)]"
+                )}
               >
-                <ShoppingBag className="w-6 h-6" />
+                <Home className="w-4 h-4" />
+                <span>Inicio</span>
+              </Link>
+              <Link
+                href="/orders"
+                className={cn(
+                  "touch-target px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5",
+                  pathname === "/orders"
+                    ? "text-[var(--primary)] font-semibold bg-[var(--surface-muted)]"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--surface-muted)]"
+                )}
+              >
+                <Package className="w-4 h-4" />
+                <span>Mis Pedidos</span>
+              </Link>
+            </nav>
+
+            {/* Action Icons: Search, User, Cart */}
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              {/* Search Trigger */}
+              <Link
+                href="/catalog"
+                aria-label="Buscar productos"
+                className="touch-target p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--surface-muted)] transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </Link>
+
+              {/* Cart Drawer Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsCartOpen(true)}
+                aria-label="Bolsa de compras"
+                className="touch-target relative p-2 text-[var(--text-main)] hover:text-[var(--primary)] hover:bg-[var(--surface-muted)] rounded-xl transition-all group"
+              >
+                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-main)] group-hover:text-[var(--primary)] transition-colors" />
                 {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-transform group-hover:scale-110">
+                  <span className="absolute 1 top-1 right-1 bg-[var(--primary)] text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center shadow-xs ring-2 ring-white transition-transform group-hover:scale-110">
                     {cartItemsCount}
                   </span>
                 )}
               </button>
 
-              {authState.user ? (
-                <div className="flex items-center ml-2 space-x-1">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-brand-background rounded-full border border-stone-100">
-                    <div className="w-6 h-6 bg-brand-secondary text-brand-primary rounded-full flex items-center justify-center text-xs font-bold">
-                      {authState.user.username[0].toUpperCase()}
-                    </div>
-                    <span className="text-sm font-semibold text-stone-700">{authState.user.username}</span>
-                  </div>
-                  <button
-                    onClick={logout}
-                    className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all tooltip"
-                    title="Cerrar Sesión"
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2 ml-2">
-                  <Link
-                    href="/login"
-                    className="px-4 py-2 text-sm font-semibold text-stone-600 hover:text-brand-primary transition-colors"
-                  >
-                    Iniciar Sesión
-                  </Link>
-                  <Link href="/register">
-                    <Button size="sm" className="rounded-xl shadow-brand-primary/20">
-                      Registro
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Actions */}
-            <div className="md:hidden flex items-center space-x-3">
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-2 text-gray-600 bg-gray-50 rounded-xl"
-              >
-                <ShoppingBag className="w-6 h-6" />
-                {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-pink-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">
-                    {cartItemsCount}
-                  </span>
-                )}
-              </button>
-
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-              >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white dark:bg-zinc-950 border-t border-gray-100 dark:border-white/10 overflow-hidden"
-            >
-              <div className="px-4 pt-2 pb-6 space-y-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors",
-                      pathname === link.href
-                        ? "bg-pink-50 text-pink-700"
-                        : "text-gray-600 hover:bg-gray-50"
-                    )}
-                  >
-                    <link.icon className="w-5 h-5" />
-                    {link.name}
-                  </Link>
-                ))}
-
-                <div className="my-4 h-px bg-gray-100" />
-
+              {/* User Account / Auth Section */}
+              <div className="hidden sm:flex items-center pl-1">
                 {authState.user ? (
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3 px-4 py-3 text-gray-700">
-                      <div className="w-8 h-8 bg-pink-100 text-pink-700 rounded-full flex items-center justify-center font-bold">
+                  <div className="flex items-center space-x-1">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--surface-muted)] rounded-full border border-[var(--border-subtle)]">
+                      <div className="w-6 h-6 bg-[var(--accent-tint)] text-[var(--primary)] rounded-full flex items-center justify-center text-xs font-bold">
                         {authState.user.username[0].toUpperCase()}
                       </div>
-                      <div>
-                        <p className="text-sm font-bold">{authState.user.username}</p>
-                        <p className="text-xs text-gray-500">{authState.user.email}</p>
-                      </div>
+                      <span className="text-xs font-semibold text-[var(--text-main)] max-w-[90px] truncate">
+                        {authState.user.username}
+                      </span>
                     </div>
                     <button
+                      type="button"
                       onClick={logout}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
+                      aria-label="Cerrar sesión"
+                      className="touch-target p-2 text-[var(--text-muted)] hover:text-[var(--status-error)] hover:bg-[var(--status-error-bg)] rounded-xl transition-colors"
+                      title="Cerrar Sesión"
                     >
-                      <LogOut className="w-5 h-5" />
-                      Cerrar Sesión
+                      <LogOut className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-3 p-2">
+                  <div className="flex items-center space-x-1">
                     <Link
                       href="/login"
-                      className="flex items-center justify-center px-4 py-3 rounded-xl text-sm font-bold text-gray-600 bg-gray-50 hover:bg-gray-100"
+                      className="touch-target px-3 py-2 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors"
                     >
-                      Login
+                      Ingresar
                     </Link>
                     <Link
                       href="/register"
-                      className="flex items-center justify-center px-4 py-3 rounded-xl text-sm font-bold text-white bg-black hover:bg-gray-900"
+                      className="touch-target px-3.5 py-2 text-xs font-semibold bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary-hover)] shadow-xs transition-colors"
                     >
                       Registro
                     </Link>
                   </div>
                 )}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+            </div>
+          </div>
+        </div>
 
+        {/* Desktop Category Navigation Sub-bar */}
+        <CategoryNav />
+      </header>
+
+      {/* Mobile Category & Navigation Slide-Out Drawer */}
+      <CategoryNav
+        mobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
+      />
+
+      {/* Slide-Over Cart Drawer */}
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );

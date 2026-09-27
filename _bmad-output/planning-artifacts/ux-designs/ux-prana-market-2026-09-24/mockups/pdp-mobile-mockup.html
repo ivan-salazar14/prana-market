@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prana Market — Mockup PDP Mobile</title>
+  <style>
+    :root {
+      --primary: #D45B7A;
+      --primary-hover: #B84361;
+      --secondary: #C89D66;
+      --surface-base: #FDF9F7;
+      --surface-card: #FFFFFF;
+      --text-main: #2D1B22;
+      --text-muted: #7A666D;
+      --border-subtle: #F2E3E7;
+      --nequi-brand: #20002C;
+      --nequi-accent: #FF2A82;
+      --badge-local-bg: #FCE7ED;
+      --badge-local-text: #B33959;
+      --font-heading: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1e293b;
+      font-family: var(--font-sans);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: var(--text-main);
+    }
+    .mobile-frame {
+      width: 100%;
+      max-width: 400px;
+      background: var(--surface-base);
+      border-radius: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      border: 8px solid #334155;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 840px;
+      position: relative;
+    }
+    .status-bar {
+      height: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface-card);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .logo {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 90px;
+    }
+    .pdp-gallery {
+      height: 280px;
+      background: #fbf0f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .gallery-emoji {
+      font-size: 6rem;
+    }
+    .badge-pill {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--badge-local-bg);
+      color: var(--badge-local-text);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.3rem 0.65rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .pdp-details {
+      padding: 1.25rem;
+      background: var(--surface-card);
+      border-radius: 20px 20px 0 0;
+      margin-top: -15px;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
+    }
+    .brand-tag {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .product-title {
+      font-family: var(--font-heading);
+      font-size: 1.45rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin: 0.25rem 0 0.5rem 0;
+    }
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .current-price {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .original-price {
+      font-size: 0.95rem;
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+    .discount-badge {
+      background: #fce7ed;
+      color: var(--primary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+    .section-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .swatches-grid {
+      display: flex;
+      gap: 0.65rem;
+      margin-bottom: 1.25rem;
+    }
+    .swatch-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, border-color 0.15s;
+      padding: 2px;
+    }
+    .swatch-btn.active {
+      border-color: var(--primary);
+      transform: scale(1.08);
+    }
+    .swatch-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+    .delivery-box {
+      background: var(--surface-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .delivery-icon {
+      font-size: 1.4rem;
+    }
+    .delivery-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .delivery-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .sticky-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 0.65rem;
+      padding: 0.75rem 1rem;
+      align-items: center;
+      box-shadow: 0 -5px 20px rgba(0,0,0,0.06);
+    }
+    .btn-cart {
+      flex: 1;
+      height: 48px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .btn-nequi-direct {
+      flex: 1;
+      height: 48px;
+      background: var(--nequi-brand);
+      color: var(--nequi-accent);
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-frame">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>📶 5G 🔋 100%</span>
+    </div>
+
+    <!-- App Header -->
+    <div class="app-header">
+      <span style="font-size: 1.2rem; cursor: pointer;">←</span>
+      <span class="logo">Prana Market</span>
+      <span style="font-size: 1.2rem; cursor: pointer;">🛍️</span>
+    </div>
+
+    <!-- Scrollable PDP Area -->
+    <div class="content-scroll">
+      <!-- Image Hero -->
+      <div class="pdp-gallery">
+        <div class="badge-pill">📦 Envío Exprés Local</div>
+        <div class="gallery-emoji">💄</div>
+      </div>
+
+      <!-- Details -->
+      <div class="pdp-details">
+        <div class="brand-tag">MAYBELLINE NEW YORK</div>
+        <h1 class="product-title">SuperStay Vinyl Ink Liquid Lipstick</h1>
+
+        <div class="price-row">
+          <span class="current-price">$48.900 COP</span>
+          <span class="original-price">$62.000 COP</span>
+          <span class="discount-badge">-21% OFF</span>
+        </div>
+
+        <div class="section-label">
+          <span>Selecciona tu Tono:</span>
+          <span style="color: var(--primary); font-weight:700;">35 Cheeky (Rosa Nude)</span>
+        </div>
+
+        <div class="swatches-grid">
+          <div class="swatch-btn active">
+            <div class="swatch-inner" style="background: #c86377;"></div>
+          </div>
+          <div class="swatch-btn">
+            <div class="swatch-inner" style="background: #9d3148;"></div>
+          </div>
+          <div class="swatch-btn">
+            <div class="swatch-inner" style="background: #e27d8e;"></div>
+          </div>
+          <div class="swatch-btn">
+            <div class="swatch-inner" style="background: #6e212f;"></div>
+          </div>
+        </div>
+
+        <!-- Colombian Shipping Estimate Box -->
+        <div class="delivery-box">
+          <div class="delivery-icon">🚚</div>
+          <div>
+            <div class="delivery-title">Entrega Exprés en Bogotá / Medellín</div>
+            <div class="delivery-desc">Llega entre mañana y pasado mañana (1-2 días hábiles).</div>
+          </div>
+        </div>
+
+        <!-- Trust Guarantee -->
+        <div class="delivery-box" style="background: #faf5f7;">
+          <div class="delivery-icon">🛡️</div>
+          <div>
+            <div class="delivery-title">100% Original Garantizado</div>
+            <div class="delivery-desc">Distribuido con factura y registro Invima.</div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.85rem; line-height: 1.6; color: #475569; margin-top: 1rem;">
+          <strong>Descripción:</strong> Acabado vinilo brillante de larga duración que no transfiere. Fórmula enriquecida con vitamina E y aloe para labios hidratados y radiantes todo el día.
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky Bottom Bar -->
+    <div class="sticky-bar">
+      <button class="btn-cart">
+        <span>Añadir</span>
+        <span>🛒</span>
+      </button>
+      <button class="btn-nequi-direct">
+        <span>⚡ Nequi</span>
+        <span>$48.900</span>
+      </button>
+    </div>
+  </div>
+
+</body>
+</html>

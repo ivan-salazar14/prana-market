@@ -190,7 +190,7 @@ export default function ManualNequiCheckout({
                     </div>
                     <div className="flex items-center space-x-3">
                         <span className="w-5 h-5 rounded-full bg-white border border-gray-200 flex items-center justify-center text-[10px] font-black text-gray-400">2</span>
-                        <p className="text-xs text-gray-600">Presiona el botón <strong>"Confirmar Pedido"</strong> abajo</p>
+                        <p className="text-xs text-gray-600">Presiona el botón <strong>&quot;Confirmar Pedido&quot;</strong> abajo</p>
                     </div>
                     <div className="flex items-center space-x-3">
                         <span className="w-5 h-5 rounded-full bg-white border border-gray-200 flex items-center justify-center text-[10px] font-black text-gray-400">3</span>

@@ -1,30 +1,111 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fff5f7;
-  --foreground: #1c1917;
-  --primary: #db2777; /* Pink 600 - Matches logo vibrant pink */
-  --primary-foreground: #ffffff;
-  --secondary: #fbcfe8; /* Pink 200 - Matches logo background circle */
-  --accent: #f472b6;    /* Pink 400 */
+  /* Brand Palette - Rose & Champagne Luxury */
+  --primary: #D45B7A;
+  --primary-hover: #B84361;
+  --primary-active: #9B334F;
+  --secondary: #C89D66;
+  --secondary-hover: #B0854E;
+  --secondary-active: #956D3B;
+  --accent: #E8839B;
+  --accent-tint: #FCE7ED;
+
+  /* Neutral & Surface Palette */
+  --surface-base: #FDF9F7;
+  --surface-card: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface-muted: #F7EEF1;
+
+  /* Text & Typography Tokens */
+  --text-main: #2D1B22;
+  --text-muted: #7A666D;
+  --text-subtle: #A69299;
+  --text-inverse: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border-subtle: #F2E3E7;
+  --border-strong: #D9BAC3;
+
+  /* Status Colors */
+  --status-success: #10B981;
+  --status-success-bg: #ECFDF5;
+  --status-warning: #F59E0B;
+  --status-warning-bg: #FFFBEB;
+  --status-error: #EF4444;
+  --status-error-bg: #FEF2F2;
+  --status-info: #3B82F6;
+  --status-info-bg: #EFF6FF;
+
+  /* Badges & Logistics */
+  --badge-local-bg: #FCE7ED;
+  --badge-local-text: #B33959;
+  --badge-dropship-bg: #EAF2EC;
+  --badge-dropship-text: #2C6E49;
+
+  /* Third-party Payments */
+  --nequi-brand: #20002C;
+  --nequi-accent: #FF2A82;
+  --wompi-brand: #2D3282;
+
+  /* Compatibility variables */
+  --background: var(--surface-base);
+  --foreground: var(--text-main);
 }
 
 @theme inline {
-  --color-brand-primary: var(--primary);
-  --color-brand-secondary: var(--secondary);
-  --color-brand-accent: var(--accent);
-  --color-brand-background: var(--background);
-}
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-active: var(--secondary-active);
+  --color-accent: var(--accent);
+  --color-accent-tint: var(--accent-tint);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1c1917;
-    --foreground: #fff5f7;
-  }
+  --color-surface-base: var(--surface-base);
+  --color-surface-card: var(--surface-card);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-muted: var(--surface-muted);
+
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  --color-badge-local-bg: var(--badge-local-bg);
+  --color-badge-local-text: var(--badge-local-text);
+  --color-badge-dropship-bg: var(--badge-dropship-bg);
+  --color-badge-dropship-text: var(--badge-dropship-text);
+
+  --color-nequi-brand: var(--nequi-brand);
+  --color-nequi-accent: var(--nequi-accent);
+  --color-wompi-brand: var(--wompi-brand);
+
+  --font-heading: var(--font-playfair), Georgia, serif;
+  --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Outfit', sans-serif, Arial;
+  background-color: var(--surface-base);
+  color: var(--text-main);
+  font-family: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+/* Touch targets >= 48px standard for mobile ergonomics */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
