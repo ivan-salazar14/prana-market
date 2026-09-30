@@ -138,7 +138,7 @@ export default function Home() {
         ]}
       />
 
-      <div className="min-h-screen bg-brand-background dark:bg-zinc-950">
+      <div className="min-h-screen bg-[var(--surface-base)]">
         <div className="container mx-auto px-4 py-8 md:py-16">
 
           {/* Promotional Slider */}
@@ -180,11 +180,11 @@ export default function Home() {
               className="mb-16"
             >
               <div className="flex items-center gap-4 mb-8">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-200 dark:via-zinc-800 to-transparent" />
-                <h3 className="text-xs font-black text-stone-400 uppercase tracking-[0.2em] px-4">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--border-subtle)] to-transparent" />
+                <h3 className="text-xs font-black text-[var(--text-subtle)] uppercase tracking-[0.2em] px-4">
                   {selectedTopCategory ? 'Subcategorías' : 'Todas las Subcategorías'}
                 </h3>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-stone-200 dark:via-zinc-800 to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--border-subtle)] to-transparent" />
               </div>
 
               <div className="flex flex-wrap gap-3 justify-center">
@@ -194,7 +194,7 @@ export default function Home() {
                   onClick={() => setSelectedCategory(null)}
                   className={cn(
                     "rounded-2xl border-none shadow-none",
-                    !selectedCategory ? "bg-stone-900 text-white" : "bg-white text-stone-500 hover:text-brand-primary"
+                    !selectedCategory ? "bg-[var(--text-main)] text-white" : "bg-[var(--surface-card)] text-[var(--text-muted)] hover:text-[var(--primary)]"
                   )}
                 >
                   Todas
@@ -209,7 +209,7 @@ export default function Home() {
                       "rounded-2xl border-none shadow-none",
                       selectedCategory === subcat.documentId || selectedCategory === subcat.id.toString()
                         ? ""
-                        : "bg-white text-stone-500 hover:text-brand-primary"
+                        : "bg-[var(--surface-card)] text-[var(--text-muted)] hover:text-[var(--primary)]"
                     )}
                   >
                     {subcat.Name}
@@ -224,7 +224,7 @@ export default function Home() {
             <div>
               <div className="flex items-center justify-between mb-10">
                 <div className="space-y-2">
-                  <h2 className="text-4xl font-extrabold text-stone-900 dark:text-white tracking-tight">
+                  <h2 className="text-4xl font-extrabold text-[var(--text-main)] tracking-tight">
                     {selectedCategory
                       ? `Productos en ${categories.find(c => c.documentId === selectedCategory || c.id === (selectedCategory as any))?.Name}`
                       : selectedTopCategory
@@ -232,14 +232,14 @@ export default function Home() {
                         : "Explora Nuestra Colección"
                     }
                   </h2>
-                  <p className="text-stone-500 font-medium text-lg">Belleza, salud y bienestar en cada detalle</p>
+                  <p className="text-[var(--text-muted)] font-medium text-lg">Belleza, salud y bienestar en cada detalle</p>
                 </div>
               </div>
 
               {products.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-[2.5rem] border border-stone-100">
-                  <Package className="w-16 h-16 text-stone-200 mx-auto mb-4" />
-                  <p className="text-stone-500 text-xl font-medium">No hay productos disponibles por ahora</p>
+                <div className="text-center py-20 bg-[var(--surface-card)] rounded-[2.5rem] border border-[var(--border-subtle)]">
+                  <Package className="w-16 h-16 text-[var(--text-subtle)] mx-auto mb-4" />
+                  <p className="text-[var(--text-muted)] text-xl font-medium">No hay productos disponibles por ahora</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
@@ -264,12 +264,12 @@ export default function Home() {
                             <div className="absolute top-5 left-5 flex flex-col gap-2">
                               {/* Top Category Badge */}
                               {product.product_category?.category && (
-                                <span className="bg-stone-900/90 backdrop-blur px-3 py-1 rounded-xl text-[10px] font-black text-white shadow-sm uppercase tracking-widest w-fit">
+                                <span className="bg-[var(--text-main)]/90 backdrop-blur px-3 py-1 rounded-xl text-[10px] font-black text-white shadow-sm uppercase tracking-widest w-fit">
                                   {product.product_category.category.Name}
                                 </span>
                               )}
                               {/* Subcategory Badge */}
-                              <span className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-3 py-1.5 rounded-xl text-[10px] font-extrabold text-brand-primary border border-brand-secondary/30 shadow-sm uppercase tracking-wider w-fit">
+                              <span className="bg-[var(--surface-card)]/90 backdrop-blur px-3 py-1.5 rounded-xl text-[10px] font-extrabold text-[var(--primary)] border border-[var(--secondary)]/30 shadow-sm uppercase tracking-wider w-fit">
                                 {product.product_category?.Name}
                               </span>
                             </div>
@@ -277,7 +277,7 @@ export default function Home() {
                             {/* Discount Badge */}
                             {product.discount_percentage && product.discount_percentage > 0 && (
                               <div className="absolute top-5 right-5">
-                                <span className="bg-brand-primary text-white px-4 py-1.5 rounded-xl text-xs font-black shadow-xl shadow-brand-primary/20 animate-pulse">
+                                <span className="bg-[var(--primary)] text-white px-4 py-1.5 rounded-xl text-xs font-black shadow-xl shadow-[var(--primary)]/20 animate-pulse">
                                   -{product.discount_percentage}%
                                 </span>
                               </div>
@@ -287,19 +287,19 @@ export default function Home() {
                         <div className="p-8 flex-1 flex flex-col">
                           <div className="flex flex-col mb-6">
                             <Link href={`/product/${product.documentId}`}>
-                              <h3 className="text-2xl font-bold text-stone-900 dark:text-white group-hover:text-brand-primary transition-colors mb-3 line-clamp-1 leading-tight">
+                              <h3 className="text-2xl font-bold text-[var(--text-main)] group-hover:text-[var(--primary)] transition-colors mb-3 line-clamp-1 leading-tight">
                                 {product.name}
                               </h3>
                             </Link>
-                            <p className="text-stone-500 text-sm line-clamp-2 leading-relaxed h-10">
+                            <p className="text-[var(--text-muted)] text-sm line-clamp-2 leading-relaxed h-10">
                               {product.description}
                             </p>
                           </div>
 
-                          <div className="mt-auto pt-6 border-t border-stone-50 flex items-center justify-between">
+                          <div className="mt-auto pt-6 border-t border-[var(--border-subtle)] flex items-center justify-between">
                             <div className="flex flex-col">
                               <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-black text-brand-primary">
+                                <span className="text-2xl font-black text-[var(--primary)]">
                                   {new Intl.NumberFormat('es-CO', {
                                     style: 'currency',
                                     currency: 'COP',
@@ -307,7 +307,7 @@ export default function Home() {
                                   }).format(product.price)}
                                 </span>
                                 {product.original_price && product.original_price > product.price && (
-                                  <span className="text-sm text-stone-400 line-through">
+                                  <span className="text-sm text-[var(--text-subtle)] line-through">
                                     {new Intl.NumberFormat('es-CO', {
                                       style: 'currency',
                                       currency: 'COP',

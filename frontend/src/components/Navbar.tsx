@@ -11,9 +11,6 @@ import {
   Search,
   User,
   LogOut,
-  Package,
-  Home,
-  Sparkles,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -44,16 +41,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ========================================================================= */}
-      {/* TOP LUXURY ANNOUNCEMENT STRIP                                             */}
-      {/* ========================================================================= */}
-      <div className="bg-[var(--text-main)] text-[var(--text-inverse)] py-2 text-center text-xs font-medium tracking-wide px-4 relative z-50 flex items-center justify-center gap-2 border-b border-[var(--border-strong)]/20">
-        <Sparkles className="w-3.5 h-3.5 text-[var(--secondary)] animate-pulse" />
-        <span>
-          <strong className="text-[var(--secondary)]">Envío Gratis</strong> en compras superiores a $120.000 COP • 100% Original
-        </span>
-      </div>
-
       {/* ========================================================================= */}
       {/* MAIN TOP NAVIGATION BAR                                                   */}
       {/* ========================================================================= */}
@@ -100,34 +87,6 @@ export default function Navbar() {
               </div>
             </Link>
 
-            {/* Desktop Center/Right Quick Links */}
-            <nav className="hidden lg:flex items-center space-x-2">
-              <Link
-                href="/"
-                className={cn(
-                  "touch-target px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5",
-                  pathname === "/"
-                    ? "text-[var(--primary)] font-semibold bg-[var(--surface-muted)]"
-                    : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--surface-muted)]"
-                )}
-              >
-                <Home className="w-4 h-4" />
-                <span>Inicio</span>
-              </Link>
-              <Link
-                href="/orders"
-                className={cn(
-                  "touch-target px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5",
-                  pathname === "/orders"
-                    ? "text-[var(--primary)] font-semibold bg-[var(--surface-muted)]"
-                    : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--surface-muted)]"
-                )}
-              >
-                <Package className="w-4 h-4" />
-                <span>Mis Pedidos</span>
-              </Link>
-            </nav>
-
             {/* Action Icons: Search, User, Cart */}
             <div className="flex items-center space-x-1 sm:space-x-2">
               {/* Search Trigger */}
@@ -148,7 +107,7 @@ export default function Navbar() {
               >
                 <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-main)] group-hover:text-[var(--primary)] transition-colors" />
                 {cartItemsCount > 0 && (
-                  <span className="absolute 1 top-1 right-1 bg-[var(--primary)] text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center shadow-xs ring-2 ring-white transition-transform group-hover:scale-110">
+                  <span className="absolute top-1 right-1 bg-[var(--primary)] text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center shadow-xs ring-2 ring-white transition-transform group-hover:scale-110">
                     {cartItemsCount}
                   </span>
                 )}

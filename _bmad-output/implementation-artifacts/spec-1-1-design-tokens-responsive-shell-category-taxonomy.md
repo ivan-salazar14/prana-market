@@ -2,7 +2,7 @@
 title: 'Story 1.1: Design Tokens, Responsive Shell & Category Taxonomy'
 type: 'feature'
 created: '2026-09-24'
-status: 'in-progress'
+status: 'done'
 baseline_commit: 'c1a0aeccd9c48c37c3f53d7ba9f2d34b0a8b0ce5'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -73,6 +73,10 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+- **frontend/src/components/Navbar.tsx:110** — Typo extra space in className — Removed extra space before "top-1" in cart badge className. Verdict: low, patch applied.
+- **Verification gap** — No unit/integration tests for touch targets, responsive navigation, or design tokens — Tests would catch regressions in 48px touch targets, navigation drawer behavior, and token application. Current verification relies only on lint/build which don't test runtime behavior. Verdict: medium, deferred (tests out of scope for this story).
+- **CMS fallback** — Static taxonomy used without CMS fetch attempt — Spec suggests graceful fallback when CMS is offline, but implementation uses only static taxonomy without attempting CMS fetch first. Static taxonomy serves as valid fallback but doesn't implement the "attempt fetch then fallback" pattern. Verdict: low, deferred (future enhancement).
 
 ## Verification
 
