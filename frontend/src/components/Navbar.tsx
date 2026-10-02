@@ -17,6 +17,7 @@ import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/utils/cn";
 import Cart from "./Cart";
 import CategoryNav from "./CategoryNav";
+import SearchBar from "./SearchBar";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -89,11 +90,15 @@ export default function Navbar() {
 
             {/* Action Icons: Search, User, Cart */}
             <div className="flex items-center space-x-1 sm:space-x-2">
-              {/* Search Trigger */}
+              {/* Search Bar */}
+              <div className="hidden md:block">
+                <SearchBar />
+              </div>
+              {/* Mobile Search Trigger */}
               <Link
                 href="/catalog"
                 aria-label="Buscar productos"
-                className="touch-target p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--surface-muted)] transition-colors"
+                className="md:hidden touch-target p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--surface-muted)] transition-colors"
               >
                 <Search className="w-5 h-5" />
               </Link>

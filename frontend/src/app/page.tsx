@@ -4,16 +4,19 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Plus, X, Package } from 'lucide-react';
+import { Plus, X, Package, SlidersHorizontal } from 'lucide-react';
 import CategorySlider from '@/components/CategorySlider';
 import PromoSlider from '@/components/PromoSlider';
 import StructuredData from '@/components/StructuredData';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import FilterDrawer from '@/components/FilterDrawer';
+import SearchBar from '@/components/SearchBar';
 import { useCart } from '@/context/CartContext';
 import { getStrapiMedia } from '@/utils/strapi';
 import { cn } from '@/utils/cn';
 import { generateOrganizationJsonLd, generateWebsiteJsonLd } from '@/utils/structured-data';
+import { FilterState, INITIAL_FILTER_STATE, SkinType, Finish } from '@/types/filter';
 
 
 interface ProductCategory {
@@ -39,10 +42,12 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  priceCOP?: number;
   original_price?: number;
   discount_percentage?: number;
   stock: number;
   documentId: string;
+  brand?: string;
   images?: Array<{
     url: string;
     alternativeText?: string;
@@ -57,6 +62,8 @@ export default function Home() {
   const [homeData, setHomeData] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTopCategory, setSelectedTopCategory] = useState<string | null>(null);
+  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const { dispatch, state } = useCart();
 
   useEffect(() => {
@@ -96,14 +103,60 @@ export default function Home() {
     ? selectedTopCategoryObj?.product_categories || []
     : categories;
 
-  const filteredProducts = selectedCategory
-    ? products.filter(product => product.product_category?.documentId === selectedCategory || product.product_category?.id === (selectedCategory as any))
-    : selectedTopCategory
-      ? products.filter(product => {
-        const productSubcatId = product.product_category?.documentId;
-        return subcategoryIds.includes(productSubcatId);
-      })
-      : products;
+  // Extract available filter options from products
+  const availableBrands: string[] = Array.from(new Set(products.map(p => p.brand).filter((b): b is string => Boolean(b))));
+  const availableSkinTypes: SkinType[] = ['normal', 'dry', 'oily', 'combination', 'sensitive'];
+  const availableFinishes: Finish[] = ['matte', 'glow', 'satin', 'natural', 'shimmer'];
+
+  // Apply filters to products
+  const filteredProducts = products.filter(product => {
+    // Category filter
+    if (selectedCategory) {
+      const productSubcatId = product.product_category?.documentId;
+      const productSubcatIdNum = product.product_category?.id;
+      if (productSubcatId !== selectedCategory && productSubcatIdNum !== (selectedCategory as any)) {
+        return false;
+      }
+    }
+
+    // Top category filter
+    if (selectedTopCategory && subcategoryIds.length > 0) {
+      const productSubcatId = product.product_category?.documentId;
+      if (!subcategoryIds.includes(productSubcatId)) {
+        return false;
+      }
+    }
+
+    // Search query filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      const productName = product.name.toLowerCase();
+      const productBrand = (product.brand || '').toLowerCase();
+      if (!productName.includes(query) && !productBrand.includes(query)) {
+        return false;
+      }
+    }
+
+    // Brand filter
+    if (filters.brands.length > 0) {
+      if (!filters.brands.includes(product.brand || '')) {
+        return false;
+      }
+    }
+
+    // Price range filter
+    const productPrice = product.price || product.priceCOP || 0;
+    if (productPrice < filters.priceRange.min || productPrice > filters.priceRange.max) {
+      return false;
+    }
+
+    // In stock filter
+    if (filters.inStockOnly && product.stock <= 0) {
+      return false;
+    }
+
+    return true;
+  });
 
   const addToCart = (product: Product) => {
     if (product.stock <= 0) {
@@ -222,7 +275,7 @@ export default function Home() {
           {/* Products Section */}
           <div className="space-y-12">
             <div>
-              <div className="flex items-center justify-between mb-10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
                 <div className="space-y-2">
                   <h2 className="text-4xl font-extrabold text-[var(--text-main)] tracking-tight">
                     {selectedCategory
@@ -233,6 +286,20 @@ export default function Home() {
                     }
                   </h2>
                   <p className="text-[var(--text-muted)] font-medium text-lg">Belleza, salud y bienestar en cada detalle</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {/* Mobile Search */}
+                  <div className="md:hidden w-full">
+                    <SearchBar onSearch={(query) => setFilters({ ...filters, searchQuery: query })} />
+                  </div>
+                  {/* Filter Trigger */}
+                  <button
+                    onClick={() => setIsFilterDrawerOpen(true)}
+                    className="touch-target flex items-center gap-2 px-4 py-2.5 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-lg hover:border-[var(--primary)] transition-colors"
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span className="text-sm font-medium">Filtros</span>
+                  </button>
                 </div>
               </div>
 
@@ -349,6 +416,17 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Filter Drawer */}
+      <FilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        filters={filters}
+        onFiltersChange={setFilters}
+        availableBrands={availableBrands}
+        availableSkinTypes={availableSkinTypes}
+        availableFinishes={availableFinishes}
+      />
     </>
   );
 }

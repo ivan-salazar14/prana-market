@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { SourcingType } from '@/types/product';
 
 interface Product {
   id: number;
@@ -10,6 +11,7 @@ interface Product {
   discount_percentage?: number;
   image?: string;
   stock: number;
+  sourcingType?: SourcingType;
 }
 
 interface CartItem extends Product {
@@ -33,12 +35,21 @@ export interface ShippingAddress {
   email?: string;
 }
 
+export interface AppliedCoupon {
+  code: string;
+  type: 'percentage' | 'fixed' | 'free_shipping';
+  value: number;
+  description: string;
+}
+
 interface CartState {
   items: CartItem[];
   total: number;
   deliveryMethod: DeliveryMethod | null;
   subtotal: number;
   deliveryCost: number;
+  discountAmount: number;
+  coupon: AppliedCoupon | null;
   shippingAddress: ShippingAddress | null;
 }
 
@@ -48,21 +59,42 @@ type CartAction =
   | { type: 'UPDATE_QUANTITY'; payload: { id: number; quantity: number } }
   | { type: 'SET_DELIVERY_METHOD'; payload: DeliveryMethod }
   | { type: 'SET_SHIPPING_ADDRESS'; payload: ShippingAddress | null }
-  | { type: 'CLEAR_CART' };
+  | { type: 'APPLY_COUPON'; payload: AppliedCoupon }
+  | { type: 'REMOVE_COUPON' }
+  | { type: 'CLEAR_CART' }
+  | { type: 'RESTORE_CART'; payload: CartState };
 
 const FREE_SHIPPING_THRESHOLD = Number(process.env.NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD) || 50000;
 
-const calculateTotals = (items: CartItem[], deliveryMethod: DeliveryMethod | null) => {
+const calculateTotals = (
+  items: CartItem[],
+  deliveryMethod: DeliveryMethod | null,
+  coupon: AppliedCoupon | null = null
+) => {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  let deliveryCost = deliveryMethod?.cost || 0;
 
-  // Apply free shipping if subtotal is greater than or equal to threshold
-  if (subtotal >= FREE_SHIPPING_THRESHOLD && deliveryMethod?.id !== 'pickup') {
+  let discountAmount = 0;
+  if (coupon) {
+    if (coupon.type === 'percentage') {
+      discountAmount = Math.round(subtotal * (coupon.value / 100));
+    } else if (coupon.type === 'fixed') {
+      discountAmount = Math.min(coupon.value, subtotal);
+    } else if (coupon.type === 'free_shipping') {
+      discountAmount = 0;
+    }
+  }
+
+  let deliveryCost = deliveryMethod?.cost || 0;
+  const isFreeShipping =
+    (subtotal >= FREE_SHIPPING_THRESHOLD || coupon?.type === 'free_shipping') &&
+    deliveryMethod?.id !== 'pickup';
+
+  if (isFreeShipping) {
     deliveryCost = 0;
   }
 
-  const total = subtotal + deliveryCost;
-  return { subtotal, deliveryCost, total };
+  const total = Math.max(0, subtotal - discountAmount + deliveryCost);
+  return { subtotal, deliveryCost, discountAmount, total };
 };
 
 
@@ -86,23 +118,33 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         updatedItems = [...state.items, newItem];
       }
 
-      const { subtotal, deliveryCost, total } = calculateTotals(updatedItems, state.deliveryMethod);
+      const { subtotal, deliveryCost, discountAmount, total } = calculateTotals(
+        updatedItems,
+        state.deliveryMethod,
+        state.coupon
+      );
       return {
         ...state,
         items: updatedItems,
         subtotal,
         deliveryCost,
+        discountAmount,
         total,
       };
     }
     case 'REMOVE_ITEM': {
       const updatedItems = state.items.filter(item => item.id !== action.payload);
-      const { subtotal, deliveryCost, total } = calculateTotals(updatedItems, state.deliveryMethod);
+      const { subtotal, deliveryCost, discountAmount, total } = calculateTotals(
+        updatedItems,
+        state.deliveryMethod,
+        state.coupon
+      );
       return {
         ...state,
         items: updatedItems,
         subtotal,
         deliveryCost,
+        discountAmount,
         total,
       };
     }
@@ -115,22 +157,32 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         return item;
       }).filter(item => item.quantity > 0);
 
-      const { subtotal, deliveryCost, total } = calculateTotals(updatedItems, state.deliveryMethod);
+      const { subtotal, deliveryCost, discountAmount, total } = calculateTotals(
+        updatedItems,
+        state.deliveryMethod,
+        state.coupon
+      );
       return {
         ...state,
         items: updatedItems,
         subtotal,
         deliveryCost,
+        discountAmount,
         total,
       };
     }
     case 'SET_DELIVERY_METHOD': {
-      const { subtotal, deliveryCost, total } = calculateTotals(state.items, action.payload);
+      const { subtotal, deliveryCost, discountAmount, total } = calculateTotals(
+        state.items,
+        action.payload,
+        state.coupon
+      );
       return {
         ...state,
         deliveryMethod: action.payload,
         subtotal,
         deliveryCost,
+        discountAmount,
         total,
       };
     }
@@ -140,15 +192,49 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         shippingAddress: action.payload,
       };
     }
+    case 'APPLY_COUPON': {
+      const { subtotal, deliveryCost, discountAmount, total } = calculateTotals(
+        state.items,
+        state.deliveryMethod,
+        action.payload
+      );
+      return {
+        ...state,
+        coupon: action.payload,
+        subtotal,
+        deliveryCost,
+        discountAmount,
+        total,
+      };
+    }
+    case 'REMOVE_COUPON': {
+      const { subtotal, deliveryCost, discountAmount, total } = calculateTotals(
+        state.items,
+        state.deliveryMethod,
+        null
+      );
+      return {
+        ...state,
+        coupon: null,
+        subtotal,
+        deliveryCost,
+        discountAmount,
+        total,
+      };
+    }
     case 'CLEAR_CART':
       return {
         items: [],
         deliveryMethod: null,
         subtotal: 0,
         deliveryCost: 0,
+        discountAmount: 0,
+        coupon: null,
         total: 0,
         shippingAddress: null,
       };
+    case 'RESTORE_CART':
+      return action.payload;
     default:
       return state;
   }
@@ -160,14 +246,35 @@ const CartContext = createContext<{
 } | null>(null);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Initialize state from localStorage
   const [state, dispatch] = useReducer(cartReducer, {
     items: [],
     deliveryMethod: null,
     subtotal: 0,
     deliveryCost: 0,
+    discountAmount: 0,
+    coupon: null,
     total: 0,
     shippingAddress: null,
   });
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem('prana-cart');
+    if (savedCart) {
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        dispatch({ type: 'RESTORE_CART', payload: parsedCart });
+      } catch (error) {
+        console.error('Failed to parse saved cart:', error);
+      }
+    }
+  }, []);
+
+  // Save cart to localStorage on state change
+  useEffect(() => {
+    localStorage.setItem('prana-cart', JSON.stringify(state));
+  }, [state]);
 
   return (
     <CartContext.Provider value={{ state, dispatch }}>

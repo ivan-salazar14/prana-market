@@ -14,11 +14,14 @@ import {
   Truck,
   Store,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  RotateCcw
 } from 'lucide-react';
 import NequiCheckout from './NequiCheckout';
 import ManualNequiCheckout from './ManualNequiCheckout';
 import ShippingForm from './ShippingForm';
+import FreeShippingProgress from './FreeShippingProgress';
+import CouponInput from './CouponInput';
 import { cn } from '@/utils/cn';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
@@ -267,6 +270,28 @@ const DELIVERY_METHODS: DeliveryMethod[] = [
 export default function Cart({ isOpen, onClose }: CartProps) {
   const { state, dispatch } = useCart();
   const [paymentMethod, setPaymentMethod] = useState<'nequi' | 'efectivo'>('efectivo');
+  const [removedItem, setRemovedItem] = useState<any | null>(null);
+  const [showUndoToast, setShowUndoToast] = useState(false);
+
+  const handleRemoveItem = (item: any) => {
+    setRemovedItem(item);
+    dispatch({ type: 'REMOVE_ITEM', payload: item.id });
+    setShowUndoToast(true);
+
+    // Auto-hide toast after 5 seconds
+    setTimeout(() => {
+      setShowUndoToast(false);
+      setRemovedItem(null);
+    }, 5000);
+  };
+
+  const handleUndoRemove = () => {
+    if (removedItem) {
+      dispatch({ type: 'ADD_ITEM', payload: { ...removedItem, quantity: 1 } });
+      setShowUndoToast(false);
+      setRemovedItem(null);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -338,73 +363,168 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                 </div>
               ) : (
                 <>
-                  {/* Items List */}
+                  {/* Items List - Grouped by Sourcing Type */}
                   <div className="space-y-6">
-                    <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1">Productos en tu bolsa</h4>
-                    <div className="space-y-4">
-                      {state.items.map((item) => (
-                        <motion.div
-                          layout
-                          key={item.id}
-                          className="flex items-center p-4 bg-white dark:bg-zinc-900 rounded-[2rem] border border-stone-50 dark:border-white/5 group transition-all hover:shadow-xl hover:shadow-stone-200/40 dark:hover:shadow-none"
-                        >
-                          {/* Image */}
-                          <div className="w-20 h-20 bg-stone-50 dark:bg-zinc-800 rounded-2xl overflow-hidden border border-stone-100 dark:border-white/5 flex-shrink-0 relative">
-                            {item.image ? (
-                              <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-stone-200">
-                                <ShoppingBag className="w-8 h-8" />
+                    {/* Local Express Items */}
+                    {state.items.filter(item => item.sourcingType === 'local').length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 px-1">
+                          <span className="text-lg">📦</span>
+                          <h4 className="text-xs font-bold text-badge-local-text uppercase tracking-wider">
+                            Envío Exprés Local (1-2 días)
+                          </h4>
+                        </div>
+                        <div className="space-y-3 pl-7">
+                          {state.items.filter(item => item.sourcingType === 'local').map((item) => (
+                            <motion.div
+                              layout
+                              key={item.id}
+                              className="flex items-center p-4 bg-white dark:bg-zinc-900 rounded-[2rem] border border-stone-50 dark:border-white/5 group transition-all hover:shadow-xl hover:shadow-stone-200/40 dark:hover:shadow-none"
+                            >
+                              {/* Image */}
+                              <div className="w-20 h-20 bg-stone-50 dark:bg-zinc-800 rounded-2xl overflow-hidden border border-stone-100 dark:border-white/5 flex-shrink-0 relative">
+                                {item.image ? (
+                                  <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-stone-200">
+                                    <ShoppingBag className="w-8 h-8" />
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
 
-                          <div className="ml-5 flex-1 pr-2">
-                            <h3 className="text-sm font-black text-stone-900 dark:text-white line-clamp-1 truncate uppercase tracking-tight">{item.name}</h3>
-                            <div className="flex items-baseline gap-2 mt-1">
-                              <p className="text-base font-black text-brand-primary">
-                                COP {item.price.toLocaleString('es-CO')}
-                              </p>
-                              {item.original_price && item.original_price > item.price && (
-                                <p className="text-[10px] text-stone-400 line-through font-bold">
-                                  COP {item.original_price.toLocaleString('es-CO')}
-                                </p>
-                              )}
-                            </div>
+                              <div className="ml-5 flex-1 pr-2">
+                                <h3 className="text-sm font-black text-stone-900 dark:text-white line-clamp-1 truncate uppercase tracking-tight">{item.name}</h3>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                  <p className="text-base font-black text-brand-primary">
+                                    COP {item.price.toLocaleString('es-CO')}
+                                  </p>
+                                  {item.original_price && item.original_price > item.price && (
+                                    <p className="text-[10px] text-stone-400 line-through font-bold">
+                                      COP {item.original_price.toLocaleString('es-CO')}
+                                    </p>
+                                  )}
+                                </div>
 
-                            <div className="flex items-center justify-between mt-3">
-                              <div className="flex items-center bg-stone-50 dark:bg-zinc-800 border border-stone-100 dark:border-white/10 rounded-xl p-1 gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => dispatch({ type: 'UPDATE_QUANTITY', payload: { id: item.id, quantity: item.quantity - 1 } })}
-                                  className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
-                                >
-                                  <Minus className="w-3 h-3" />
-                                </Button>
-                                <span className="mx-1 text-xs font-black w-6 text-center text-stone-900 dark:text-white">{item.quantity}</span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
-                                  className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
-                                >
-                                  <Plus className="w-3 h-3" />
-                                </Button>
+                                <div className="flex items-center justify-between mt-3">
+                                  <div className="flex items-center bg-stone-50 dark:bg-zinc-800 border border-stone-100 dark:border-white/10 rounded-xl p-1 gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => dispatch({ type: 'UPDATE_QUANTITY', payload: { id: item.id, quantity: item.quantity - 1 } })}
+                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
+                                      aria-label={`Reducir cantidad de ${item.name}`}
+                                    >
+                                      <Minus className="w-3 h-3" />
+                                    </Button>
+                                    <span className="mx-1 text-xs font-black w-6 text-center text-stone-900 dark:text-white" aria-live="polite">{item.quantity}</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
+                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
+                                      aria-label={`Aumentar cantidad de ${item.name}`}
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                    </Button>
+                                  </div>
+                                  <button
+                                    onClick={() => handleRemoveItem(item)}
+                                    className="text-[10px] font-black text-red-400 hover:text-red-600 transition-all uppercase tracking-widest flex items-center gap-1.5"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    Eliminar
+                                  </button>
+                                </div>
                               </div>
-                              <button
-                                onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.id })}
-                                className="text-[10px] font-black text-red-400 hover:text-red-600 transition-all uppercase tracking-widest flex items-center gap-1.5"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                Quitar
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dropshipping Items */}
+                    {state.items.filter(item => item.sourcingType === 'mastershop_dropship' || !item.sourcingType).length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 px-1">
+                          <span className="text-lg">🌿</span>
+                          <h4 className="text-xs font-bold text-badge-dropship-text uppercase tracking-wider">
+                            Envío Nacional Dropshipping (3-5 días)
+                          </h4>
+                        </div>
+                        <div className="space-y-3 pl-7">
+                          {state.items.filter(item => item.sourcingType === 'mastershop_dropship' || !item.sourcingType).map((item) => (
+                            <motion.div
+                              layout
+                              key={item.id}
+                              className="flex items-center p-4 bg-white dark:bg-zinc-900 rounded-[2rem] border border-stone-50 dark:border-white/5 group transition-all hover:shadow-xl hover:shadow-stone-200/40 dark:hover:shadow-none"
+                            >
+                              {/* Image */}
+                              <div className="w-20 h-20 bg-stone-50 dark:bg-zinc-800 rounded-2xl overflow-hidden border border-stone-100 dark:border-white/5 flex-shrink-0 relative">
+                                {item.image ? (
+                                  <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-stone-200">
+                                    <ShoppingBag className="w-8 h-8" />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="ml-5 flex-1 pr-2">
+                                <h3 className="text-sm font-black text-stone-900 dark:text-white line-clamp-1 truncate uppercase tracking-tight">{item.name}</h3>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                  <p className="text-base font-black text-brand-primary">
+                                    COP {item.price.toLocaleString('es-CO')}
+                                  </p>
+                                  {item.original_price && item.original_price > item.price && (
+                                    <p className="text-[10px] text-stone-400 line-through font-bold">
+                                      COP {item.original_price.toLocaleString('es-CO')}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between mt-3">
+                                  <div className="flex items-center bg-stone-50 dark:bg-zinc-800 border border-stone-100 dark:border-white/10 rounded-xl p-1 gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => dispatch({ type: 'UPDATE_QUANTITY', payload: { id: item.id, quantity: item.quantity - 1 } })}
+                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
+                                      aria-label={`Reducir cantidad de ${item.name}`}
+                                    >
+                                      <Minus className="w-3 h-3" />
+                                    </Button>
+                                    <span className="mx-1 text-xs font-black w-6 text-center text-stone-900 dark:text-white" aria-live="polite">{item.quantity}</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
+                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
+                                      aria-label={`Aumentar cantidad de ${item.name}`}
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                    </Button>
+                                  </div>
+                                  <button
+                                    onClick={() => handleRemoveItem(item)}
+                                    className="text-[10px] font-black text-red-400 hover:text-red-600 transition-all uppercase tracking-widest flex items-center gap-1.5"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    Eliminar
+                                  </button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Free Shipping Progress Bar */}
+                  <FreeShippingProgress
+                    subtotal={state.subtotal}
+                    threshold={FREE_SHIPPING_THRESHOLD}
+                  />
 
                   {/* Delivery Selection */}
                   <div className="space-y-6">
@@ -532,18 +652,39 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                     </div>
                   )}
 
+                  {/* Coupon Code Section */}
+                  <div className="pt-6 border-t border-stone-100 dark:border-white/10">
+                    <CouponInput />
+                  </div>
+
                   {/* Order Summary */}
-                  <div className="pt-10 border-t border-stone-100 dark:border-white/10 space-y-8">
+                  <div className="pt-6 border-t border-stone-100 dark:border-white/10 space-y-8">
                     <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1">Resumen de tu Orden</h4>
                     <div className="bg-stone-50 dark:bg-zinc-900/50 rounded-[2.5rem] p-8 space-y-5 border border-stone-100 dark:border-white/5">
                       <div className="flex justify-between text-sm">
                         <span className="text-stone-400 font-bold uppercase tracking-widest text-[10px]">Subtotal:</span>
                         <span className="text-stone-900 dark:text-white font-black">COP {state.subtotal.toLocaleString('es-CO')}</span>
                       </div>
+
+                      {state.discountAmount > 0 && (
+                        <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
+                          <span className="font-bold uppercase tracking-widest text-[10px]">
+                            Descuento ({state.coupon?.code}):
+                          </span>
+                          <span className="font-black">
+                            - COP {state.discountAmount.toLocaleString('es-CO')}
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex justify-between text-sm">
                         <span className="text-stone-400 font-bold uppercase tracking-widest text-[10px]">Envío:</span>
                         <span className={cn("font-black uppercase tracking-widest text-[10px]", state.deliveryCost === 0 ? "text-emerald-500" : "text-brand-primary")}>
-                          {state.deliveryCost === 0 ? '¡Gratis!' : `+ COP ${state.deliveryCost.toLocaleString('es-CO')}`}
+                          {state.deliveryCost === 0
+                            ? state.coupon?.type === 'free_shipping'
+                              ? '¡Gratis (Cupón)!'
+                              : '¡Gratis!'
+                            : `+ COP ${state.deliveryCost.toLocaleString('es-CO')}`}
                         </span>
                       </div>
                       <div className="pt-6 border-t border-stone-200 dark:border-white/10 flex justify-between items-center">
@@ -666,6 +807,40 @@ export default function Cart({ isOpen, onClose }: CartProps) {
               )}
             </div>
           </motion.div>
+
+          {/* Undo Toast */}
+          <AnimatePresence>
+            {showUndoToast && removedItem && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[10000] bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl border border-stone-100 dark:border-white/10 px-6 py-4 flex items-center gap-4"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+                    <Trash2 className="w-5 h-5 text-red-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-stone-900 dark:text-white">
+                      {removedItem.name} eliminado
+                    </p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">
+                      ¿Deseas deshacer esta acción?
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleUndoRemove}
+                  className="touch-target flex items-center gap-2 px-4 py-2 bg-stone-900 dark:bg-white text-white dark:text-stone-900 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity"
+                  aria-label="Deshacer eliminación"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Deshacer
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </AnimatePresence>

@@ -21,6 +21,10 @@ import { Button } from '@/components/ui/Button';
 import { useCart } from '@/context/CartContext';
 import { getStrapiMedia } from '@/utils/strapi';
 import { cn } from '@/utils/cn';
+import ImageGallery from '@/components/ImageGallery';
+import ShadeSelector from '@/components/ShadeSelector';
+import PdpStickyBar from '@/components/PdpStickyBar';
+import { Shade, Product as ProductType } from '@/types/product';
 
 interface ProductCategory {
   id: number;
@@ -46,6 +50,9 @@ interface Product {
     alternativeText?: string;
   }>;
   product_category?: ProductCategory;
+  ingredients?: string;
+  usageGuide?: string;
+  shades?: Shade[];
 }
 
 
@@ -59,6 +66,8 @@ export default function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [selectedShade, setSelectedShade] = useState<Shade | null>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
 
   const { dispatch, state } = useCart();
 
@@ -73,6 +82,10 @@ export default function ProductPage() {
         if (productData && productData.stock <= 0) {
           setQuantity(0);
         }
+        // Set default shade if available
+        if (productData?.shades && productData.shades.length > 0) {
+          setSelectedShade(productData.shades[0]);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -80,6 +93,20 @@ export default function ProductPage() {
         setLoading(false);
       });
   }, [id]);
+
+  // Scroll detection for sticky bar
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroSection = document.querySelector('.pdp-hero-section');
+      if (heroSection) {
+        const heroBottom = heroSection.getBoundingClientRect().bottom;
+        setShowStickyBar(heroBottom < 0);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleAddToCart = () => {
     if (!product || product.stock <= 0) return;
@@ -188,70 +215,11 @@ export default function ProductPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
 
           {/* Left Column: Image Gallery */}
-          <div className="space-y-8">
-            <div className="relative aspect-square rounded-[3rem] overflow-hidden bg-white dark:bg-zinc-900 group border border-stone-100 dark:border-white/10 shadow-2xl shadow-stone-200/50">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedImage}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.05 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="w-full h-full"
-                >
-                  <Image
-                    fill
-                    src={getStrapiMedia(product.images?.[selectedImage]?.url || null) || '/placeholder.png'}
-                    alt={product.images?.[selectedImage]?.alternativeText || product.name}
-                    className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
-                    priority
-                  />
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Product Badges */}
-              <div className="absolute top-6 left-6">
-                {product.product_category && (
-                  <span className="bg-white/90 backdrop-blur px-4 py-1.5 rounded-2xl text-[10px] font-black text-brand-primary border border-brand-secondary/30 shadow-sm uppercase tracking-widest">
-                    {product.product_category.Name}
-                  </span>
-                )}
-              </div>
-
-              {/* Discount Badge */}
-              {product.discount_percentage && product.discount_percentage > 0 && (
-                <div className="absolute top-6 right-6">
-                  <span className="bg-brand-primary text-white px-5 py-2 rounded-2xl text-xs font-black shadow-xl shadow-brand-primary/20 animate-pulse">
-                    -{product.discount_percentage}% OFF
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Thumbnails */}
-            {product.images && product.images.length > 1 && (
-              <div className="flex flex-wrap gap-4 overflow-x-auto pb-4 scrollbar-hide py-2 px-1">
-                {product.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={cn(
-                      "relative w-28 h-28 rounded-[1.5rem] overflow-hidden flex-shrink-0 border-2 transition-all duration-300",
-                      selectedImage === index
-                        ? "border-brand-primary shadow-lg shadow-brand-primary/10 scale-105"
-                        : "border-stone-100 dark:border-white/10 hover:border-brand-secondary"
-                    )}
-                  >
-                    <Image
-                      fill
-                      src={getStrapiMedia(image.url) || ''}
-                      alt={image.alternativeText || `Imagen ${index + 1}`}
-                      className="object-cover p-2"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="space-y-8 pdp-hero-section">
+            <ImageGallery 
+              images={product.images?.map(img => getStrapiMedia(img.url) || '') || []}
+              selectedShade={selectedShade}
+            />
           </div>
 
           {/* Right Column: Product Info */}
@@ -294,11 +262,39 @@ export default function ProductPage() {
               </div>
             </div>
 
+            {/* Shade Selector */}
+            {product.shades && product.shades.length > 0 && (
+              <div className="mb-12">
+                <ShadeSelector
+                  shades={product.shades}
+                  selectedShade={selectedShade}
+                  onShadeSelect={setSelectedShade}
+                  disabled={product.stock <= 0}
+                />
+              </div>
+            )}
+
             <div className="prose prose-stone text-stone-600 dark:text-gray-300 mb-12">
               <p className="text-xl leading-[1.7] font-medium">
                 {product.description}
               </p>
             </div>
+
+            {/* Ingredients */}
+            {product.ingredients && (
+              <div className="mb-8 p-6 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5">
+                <h3 className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-wider mb-3">Ingredientes</h3>
+                <p className="text-sm text-stone-600 dark:text-gray-300 leading-relaxed">{product.ingredients}</p>
+              </div>
+            )}
+
+            {/* Usage Guide */}
+            {product.usageGuide && (
+              <div className="mb-8 p-6 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5">
+                <h3 className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-wider mb-3">Modo de Uso</h3>
+                <p className="text-sm text-stone-600 dark:text-gray-300 leading-relaxed">{product.usageGuide}</p>
+              </div>
+            )}
 
             <div className="space-y-12 pt-10 border-t border-stone-100 dark:border-white/10">
               {/* Quantity Selector */}
@@ -418,7 +414,17 @@ export default function ProductPage() {
         </div>
       </main>
 
-      {/* Recommended Products or Footer can go here */}
+      {/* Mobile Sticky Bar */}
+      <PdpStickyBar
+        visible={showStickyBar}
+        selectedShade={selectedShade}
+        productImage={product.images?.[0]?.url ? getStrapiMedia(product.images[0].url) || undefined : undefined}
+        productName={product.name}
+        priceCOP={product.price}
+        onAddToCart={handleAddToCart}
+        onNequiCheckout={() => {/* TODO: Implement Nequi checkout */}}
+        inStock={product.stock > 0}
+      />
     </div>
   );
 }
