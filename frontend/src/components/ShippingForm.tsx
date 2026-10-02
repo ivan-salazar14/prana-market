@@ -29,13 +29,11 @@ export default function ShippingForm() {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Partial<Record<keyof ShippingAddress, string>>>({});
 
-  // Cargar ciudades desde Strapi
+  // Cargar ciudades DANE
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const url = `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/cities`;
-        console.log('Fetching cities from:', url);
-        const response = await fetch(url);
+        const response = await fetch('/api/cities');
         const result = await response.json();
         console.log('API Response:', result);
         console.log('Total cities in response:', result.data?.length);

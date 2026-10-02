@@ -81,6 +81,18 @@
     },
     "supplier_id": {
       "type": "string"
+    },
+    "dropship_stock": {
+      "type": "integer",
+      "default": 0
+    },
+    "sourcing_type": {
+      "type": "enumeration",
+      "enum": [
+        "local",
+        "mastershop_dropship"
+      ],
+      "default": "mastershop_dropship"
     }
   }
 }

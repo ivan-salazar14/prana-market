@@ -251,19 +251,19 @@ const DELIVERY_METHODS: DeliveryMethod[] = [
     id: 'pickup',
     name: 'Recoger en tienda',
     cost: 0,
-    description: 'Recoge tu pedido en nuestra tienda física'
+    description: 'Recogida física en punto de venta - Mismo día (Gratis)'
   },
   {
     id: 'delivery_local',
-    name: 'Domicilio local',
+    name: 'Domicilio local exprés',
     cost: 5000,
     description: 'Entrega en zona urbana - 1 día hábil'
   },
   {
     id: 'delivery_regional',
-    name: 'Domicilio regional',
+    name: 'Domicilio regional / nacional',
     cost: 10000,
-    description: 'Entrega fuera de zona urbana - 2 días hábiles'
+    description: 'Entrega nacional - 2 días hábiles'
   }
 ];
 
@@ -770,19 +770,20 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                               onError={(error: string) => console.error(`Order Error: ${error}`)}
                             />
                           ) : (
-                            <ManualNequiCheckout
+                            <NequiCheckout
+                              amount={state.total}
                               items={state.items}
                               deliveryMethod={state.deliveryMethod}
                               shippingAddress={state.shippingAddress}
                               subtotal={state.subtotal}
                               deliveryCost={state.deliveryCost}
-                              total={state.total}
                               onSuccess={() => {
                                 dispatch({ type: 'CLEAR_CART' });
                                 onClose();
                                 window.location.href = '/payment/success';
                               }}
-                              onError={(error: string) => console.error(`Order Error: ${error}`)}
+                              onError={(error: string) => console.error(`Nequi Order Error: ${error}`)}
+                              onSwitchPaymentMethod={() => setPaymentMethod('efectivo')}
                             />
                           )}
                         </div>

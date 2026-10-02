@@ -49,19 +49,19 @@ development_status:
   2-4-coupon-promo-code-validation-engine: review
   epic-2-retrospective: optional
 
-  epic-3: backlog
-  3-1-dane-colombian-address-hierarchy-tiered-shipping-selection: backlog
-  3-2-native-nequi-direct-push-dynamic-qr-checkout: backlog
+  epic-3: in-progress
+  3-1-dane-colombian-address-hierarchy-tiered-shipping-selection: review
+  3-2-native-nequi-direct-push-dynamic-qr-checkout: done
   3-3-comprehensive-wompi-gateway-pse-cards-bancolombia-cash-netwo: backlog
   3-4-international-card-checkout-via-stripe-backup-gateway: backlog
   3-5-cryptographic-webhook-reconciliation-idempotent-payment-sett: backlog
   epic-3-retrospective: optional
 
-  epic-4: backlog
-  4-1-mastershop-catalog-ingestion-schema-mapping-client: backlog
-  4-2-automated-background-stock-dynamic-price-synchronization: backlog
-  4-3-automated-post-payment-dropship-order-forwarding-fault-isola: backlog
-  4-4-carrier-guide-ingestion-automated-customer-shipment-notifica: backlog
+  epic-4: done
+  4-1-mastershop-catalog-ingestion-schema-mapping-client: done
+  4-2-automated-background-stock-dynamic-price-synchronization: done
+  4-3-automated-post-payment-dropship-order-forwarding-fault-isola: done
+  4-4-carrier-guide-ingestion-automated-customer-shipment-notifica: done
   epic-4-retrospective: optional
 
   epic-5: backlog
