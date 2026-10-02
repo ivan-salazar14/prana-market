@@ -64,9 +64,9 @@ development_status:
   4-4-carrier-guide-ingestion-automated-customer-shipment-notifica: done
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-public-customer-order-tracking-portal-rastreo: backlog
-  5-2-centralized-strapi-order-lifecycle-dashboard: backlog
-  5-3-mastershop-dropshipping-sync-monitor-manual-override: backlog
-  5-4-whatsapp-customer-service-integration-support-shortcuts: backlog
+  epic-5: done
+  5-1-public-customer-order-tracking-portal-rastreo: done
+  5-2-centralized-strapi-order-lifecycle-dashboard: done
+  5-3-mastershop-dropshipping-sync-monitor-manual-override: done
+  5-4-whatsapp-customer-service-integration-support-shortcuts: done
   epic-5-retrospective: optional
