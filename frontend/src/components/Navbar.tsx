@@ -160,12 +160,9 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-
-        {/* Desktop Category Navigation Sub-bar */}
-        <CategoryNav />
       </header>
 
-      {/* Mobile Category & Navigation Slide-Out Drawer */}
+      {/* Category Navigation Sub-bar & Mobile Drawer */}
       <CategoryNav
         mobileOpen={isMobileMenuOpen}
         onCloseMobile={() => setIsMobileMenuOpen(false)}

@@ -85,9 +85,14 @@
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--primary-active);
+  --color-brand-primary: var(--primary);
+  --color-brand-primary-hover: var(--primary-hover);
+
   --color-secondary: var(--secondary);
   --color-secondary-hover: var(--secondary-hover);
   --color-secondary-active: var(--secondary-active);
+  --color-brand-secondary: var(--secondary);
+
   --color-accent: var(--accent);
   --color-accent-tint: var(--accent-tint);
 
