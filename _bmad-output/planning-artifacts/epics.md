@@ -126,6 +126,11 @@ Permite a la plataforma sincronizar de forma automatizada y periódica el catál
 Permite a los compradores realizar seguimiento en tiempo real de sus pedidos multiguía e interactuar mediante WhatsApp, mientras dota a los administradores de Prana Market con un panel centralizado de gestión de pedidos y monitoreo de la sincronización de dropshipping en Strapi.
 **FRs covered:** FR-LOG-03, FR-ADM-01, FR-ADM-02, FR-ADM-03
 
+### Epic 6: High-Legibility UI & Dark Mode Contrast Standardization
+Garantiza la máxima legibilidad y cumplimiento de contraste WCAG AA (≥ 4.5:1) en el Carrito de compras (`Cart.tsx`), páneles de administración (`/admin/dropship-monitor`) y vistas públicas, eliminando fondos oscuros no deseados o legibilidad deficiente por cascadas de modo oscuro.
+**NFRs covered:** NFR-UX-02, NFR-UX-03
+
+
 ## Epic 1: Product Discovery & Beauty Catalog Storefront
 
 Permite a los usuarios descubrir y explorar el catálogo de cosméticos con una experiencia visual editorial *Rose & Champagne Luxury*, filtrar por atributos cosméticos (tono, acabado, tipo de piel, marca), consultar detalles enriquecidos (swatches, ingredientes) y conocer de forma transparente el origen del inventario (Local o Dropshipping).
@@ -412,6 +417,50 @@ So that I can get quick assistance with shade advice or order queries.
 **Given** a customer is browsing any page or viewing their order receipt
 **When** clicking the WhatsApp support button
 **Then** it opens WhatsApp with a pre-filled message including context (e.g. `"Hola Prana Market, tengo una consulta sobre mi pedido #PM-8921"`)
+
+## Epic 6: High-Legibility UI & Dark Mode Contrast Standardization
+
+Permite garantizar una experiencia visual accesible y legible (cumpliendo con estándares WCAG AA $\ge 4.5:1$ de contraste) tanto en el carrito de compras como en los páneles administrativos y vistas públicas, eliminando fondos oscuros/negros no deseados o textos blancos ilegibles causados por la cascada de modo oscuro.
+
+### Story 6.1: Slide-Over Cart Drawer (`Cart.tsx`) High-Legibility & Theme Refactor
+
+As a mobile beauty shopper,
+I want the cart drawer to display clean, high-contrast text, clear delivery options, and consistent Rose & Champagne luxury backgrounds regardless of OS dark mode settings,
+So that prices, instructions, and payment CTAs are easily legible.
+
+**Acceptance Criteria:**
+
+**Given** a customer opens the slide-over cart drawer (`Cart.tsx`)
+**When** OS dark mode is active or system theme cascades
+**Then** background elements maintain clean luxury backgrounds (`bg-brand-background` or high-contrast white `#FFFFFF` / warm nude `#FDF9F7`) without pitch-black `dark:bg-zinc-950` contrast drops
+**And** all text labels, item titles, prices, step instructions, and payment buttons achieve a contrast ratio $\ge 4.5:1$ against their backdrops.
+
+### Story 6.2: Admin & Dropship Monitoring Dashboard Legibility Clean-up
+
+As a store administrator,
+I want the admin dashboard and dropship status monitor (`/admin/dropship-monitor`, `/admin/orders`) to feature high-contrast data tables, badges, and card containers,
+So that operational metrics, Mastershop sync logs, and order statuses are perfectly legible without dark backdrop clashing.
+
+**Acceptance Criteria:**
+
+**Given** an admin accesses `/admin/dropship-monitor` or `/admin/orders`
+**When** viewing data tables, log drawers, and action cards
+**Then** text, badges, and JSON log overlays render with explicit high-contrast foreground colors (`#1A0F14` or white on high-contrast badge background)
+**And** background colors are harmonized to prevent illegible white-on-black or grey-on-dark text.
+
+### Story 6.3: Global Theme Token Alignment & WCAG AA Accessibility Floor
+
+As a platform user,
+I want all interactive elements, modal overlays, tooltips, and badges across Prana Market to adhere strictly to WCAG AA contrast rules,
+So that visual hierarchy is maintained across all screen sizes and device theme settings.
+
+**Acceptance Criteria:**
+
+**Given** any page or component across Prana Market (storefront, cart, checkout, admin)
+**When** audited for visual legibility and color contrast
+**Then** zero elements fail WCAG AA contrast standards ($\ge 4.5:1$ for body text, $\ge 3:1$ for large text/icons)
+**And** dynamic dark mode utility classes (`dark:*`) are systematically sanitized or aligned with the official *Rose & Champagne Luxury* design system.
+
 
 
 

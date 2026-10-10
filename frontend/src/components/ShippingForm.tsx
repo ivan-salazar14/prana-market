@@ -122,7 +122,7 @@ export default function ShippingForm() {
       <div className="grid grid-cols-1 gap-4">
         {/* Nombre Completo */}
         <div>
-          <label htmlFor="fullName" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+          <label htmlFor="fullName" className="block text-xs font-bold text-stone-700 uppercase tracking-widest mb-1.5 ml-1">
             Nombre Completo
           </label>
           <input
@@ -130,7 +130,7 @@ export default function ShippingForm() {
             id="fullName"
             value={formData.fullName}
             onChange={(e) => handleChange('fullName', e.target.value)}
-            className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.fullName ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
+            className={`w-full bg-white px-4 py-3 rounded-xl border transition-all text-sm font-bold text-stone-900 focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.fullName ? 'border-red-500 bg-red-50/30' : 'border-stone-200 focus:border-pink-500'
               }`}
             placeholder="Ej: Juan Pérez"
           />
@@ -140,7 +140,7 @@ export default function ShippingForm() {
         {/* Ubicación: Departamento y Ciudad */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="department" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+            <label htmlFor="department" className="block text-xs font-bold text-stone-700 uppercase tracking-widest mb-1.5 ml-1">
               Departamento
             </label>
             <div className="relative">
@@ -148,7 +148,7 @@ export default function ShippingForm() {
                 id="department"
                 value={formData.department}
                 onChange={(e) => handleChange('department', e.target.value)}
-                className={`w-full appearance-none bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.department ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
+                className={`w-full appearance-none bg-white px-4 py-3 rounded-xl border transition-all text-sm font-bold text-stone-900 focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.department ? 'border-red-500 bg-red-50/30' : 'border-stone-200 focus:border-pink-500'
                   }`}
               >
                 <option value="">Seleccionar...</option>
@@ -156,13 +156,13 @@ export default function ShippingForm() {
                   <option key={dept} value={dept}>{dept}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500 pointer-events-none" />
             </div>
             {errors.department && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.department}</p>}
           </div>
 
           <div>
-            <label htmlFor="city" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+            <label htmlFor="city" className="block text-xs font-bold text-stone-700 uppercase tracking-widest mb-1.5 ml-1">
               Ciudad
             </label>
             <div className="relative">
@@ -171,7 +171,7 @@ export default function ShippingForm() {
                 value={formData.city}
                 onChange={(e) => handleChange('city', e.target.value)}
                 disabled={!formData.department || loading}
-                className={`w-full appearance-none bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.city ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
+                className={`w-full appearance-none bg-white px-4 py-3 rounded-xl border transition-all text-sm font-bold text-stone-900 focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.city ? 'border-red-500 bg-red-50/30' : 'border-stone-200 focus:border-pink-500'
                   } ${!formData.department ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <option value="">{loading ? 'Cargando...' : 'Seleccionar...'}</option>
@@ -179,7 +179,7 @@ export default function ShippingForm() {
                   <option key={cityName} value={cityName}>{cityName}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500 pointer-events-none" />
             </div>
             {errors.city && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.city}</p>}
           </div>
@@ -187,7 +187,7 @@ export default function ShippingForm() {
 
         {/* Barrio */}
         <div>
-          <label htmlFor="neighborhood" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+          <label htmlFor="neighborhood" className="block text-xs font-bold text-stone-700 uppercase tracking-widest mb-1.5 ml-1">
             Barrio
           </label>
           <input
@@ -195,7 +195,7 @@ export default function ShippingForm() {
             id="neighborhood"
             value={formData.neighborhood || ''}
             onChange={(e) => handleChange('neighborhood', e.target.value)}
-            className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.neighborhood ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
+            className={`w-full bg-white px-4 py-3 rounded-xl border transition-all text-sm font-bold text-stone-900 focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.neighborhood ? 'border-red-500 bg-red-50/30' : 'border-stone-200 focus:border-pink-500'
               }`}
             placeholder="Ej: El Poblado"
           />
@@ -204,7 +204,7 @@ export default function ShippingForm() {
 
         {/* Teléfono */}
         <div>
-          <label htmlFor="phone" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+          <label htmlFor="phone" className="block text-xs font-bold text-stone-700 uppercase tracking-widest mb-1.5 ml-1">
             Teléfono
           </label>
           <input
@@ -212,7 +212,7 @@ export default function ShippingForm() {
             id="phone"
             value={formData.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
-            className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.phone ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
+            className={`w-full bg-white px-4 py-3 rounded-xl border transition-all text-sm font-bold text-stone-900 focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.phone ? 'border-red-500 bg-red-50/30' : 'border-stone-200 focus:border-pink-500'
               }`}
             placeholder="300 123 4567"
           />
@@ -221,7 +221,7 @@ export default function ShippingForm() {
 
         {/* Dirección */}
         <div>
-          <label htmlFor="address" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
+          <label htmlFor="address" className="block text-xs font-bold text-stone-700 uppercase tracking-widest mb-1.5 ml-1">
             Dirección de entrega
           </label>
           <div className="relative">
@@ -230,26 +230,26 @@ export default function ShippingForm() {
               id="address"
               value={formData.address}
               onChange={(e) => handleChange('address', e.target.value)}
-              className={`w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border transition-all text-sm font-medium focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.address ? 'border-red-500 bg-red-50/30' : 'border-gray-200 dark:border-white/10 focus:border-pink-500'
+              className={`w-full bg-white px-4 py-3 rounded-xl border transition-all text-sm font-bold text-stone-900 focus:ring-2 focus:ring-pink-500/20 outline-none ${errors.address ? 'border-red-500 bg-red-50/30' : 'border-stone-200 focus:border-pink-500'
                 }`}
               placeholder="Ej: Calle 123 #45-67 apto 101"
             />
-            <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
           </div>
           {errors.address && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.address}</p>}
         </div>
 
         {/* Email */}
         <div>
-          <label htmlFor="email" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
-            Email <span className="lowercase font-medium opacity-50">(opcional)</span>
+          <label htmlFor="email" className="block text-xs font-bold text-stone-700 uppercase tracking-widest mb-1.5 ml-1">
+            Email <span className="lowercase font-medium text-stone-500">(opcional)</span>
           </label>
           <input
             type="email"
             id="email"
             value={formData.email || ''}
             onChange={(e) => handleChange('email', e.target.value)}
-            className="w-full bg-gray-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-medium focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all"
+            className="w-full bg-white px-4 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-900 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all"
             placeholder="juan@ejemplo.com"
           />
         </div>
@@ -257,14 +257,14 @@ export default function ShippingForm() {
 
       <button
         onClick={handleSave}
-        className="w-full bg-pink-600 text-white py-4 px-6 rounded-2xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-pink-100 dark:shadow-none hover:bg-pink-700 mt-2"
+        className="w-full bg-pink-600 text-white py-4 px-6 rounded-2xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-pink-100 hover:bg-pink-700 mt-2"
       >
         Guardar Dirección
       </button>
 
       {state.shippingAddress && (
-        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-xl p-3 flex items-center justify-center animate-in zoom-in duration-300">
-          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center">
+        <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-center justify-center animate-in zoom-in duration-300">
+          <span className="text-xs font-bold text-emerald-700 flex items-center">
             <CheckCircle2 className="w-4 h-4 mr-2" />
             ¡Dirección guardada con éxito!
           </span>

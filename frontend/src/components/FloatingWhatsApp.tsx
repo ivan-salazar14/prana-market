@@ -24,7 +24,7 @@ export default function FloatingWhatsApp({
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-auto">
       {/* Quick Popup Card */}
       {isOpen && (
-        <div className="mb-3 w-72 rounded-2xl bg-white dark:bg-zinc-900 border border-[var(--border-subtle)] shadow-2xl p-4 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="mb-3 w-72 rounded-2xl bg-white border border-[var(--border-subtle)] shadow-2xl p-4 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-[#25D366] text-white flex items-center justify-center">

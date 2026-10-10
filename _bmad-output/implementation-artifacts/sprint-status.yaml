@@ -70,3 +70,9 @@ development_status:
   5-3-mastershop-dropshipping-sync-monitor-manual-override: done
   5-4-whatsapp-customer-service-integration-support-shortcuts: done
   epic-5-retrospective: optional
+
+  epic-6: in-progress
+  6-1-slide-over-cart-drawer-high-legibility-theme-refactor: review
+  6-2-admin-dropship-monitoring-dashboard-legibility-cleanup: review
+  6-3-global-theme-token-alignment-wcag-aa-accessibility-floor: review
+  epic-6-retrospective: optional

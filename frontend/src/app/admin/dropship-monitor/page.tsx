@@ -104,27 +104,27 @@ export default function MastershopDropshipMonitor() {
   const formatCOP = (val: number) => `$${(val || 0).toLocaleString("es-CO")} COP`;
 
   return (
-    <div className="min-h-screen bg-[var(--surface-base)] py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--surface-base)] dark:!bg-[#FDF9F7] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header Strip */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#EAF2EC] text-[#2C6E49] border border-emerald-200">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#EAF2EC] text-[#2C6E49] border border-emerald-200 dark:!border-emerald-200">
                 🌿 Mastershop Dropshipping API
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black font-heading text-[var(--text-main)] mt-2">
+            <h1 className="text-2xl sm:text-3xl font-black font-heading text-[var(--text-main)] dark:!text-[#2D1B22] mt-2">
               Monitor de Sincronización & <span className="text-[var(--primary)] italic font-serif">Manual Override</span>
             </h1>
-            <p className="text-xs text-[var(--text-muted)] mt-1">
+            <p className="text-xs text-[var(--text-muted)] dark:!text-[#7A666D] mt-1">
               Supervisión de enrutamiento post-pago, aislamiento de fallas y reintentos manuales de dispatches a Mastershop.
             </p>
           </div>
 
           <button
             onClick={fetchMonitorStatus}
-            className="py-2.5 px-4 rounded-xl bg-white dark:bg-zinc-800 border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-main)] flex items-center gap-2 hover:bg-stone-50 transition-colors shadow-sm self-start md:self-auto"
+            className="py-2.5 px-4 rounded-xl bg-white dark:!bg-white border border-[var(--border-subtle)] dark:!border-[#F2E3E7] text-xs font-bold text-[var(--text-main)] dark:!text-[#2D1B22] flex items-center gap-2 hover:bg-stone-50 dark:!hover:bg-[#F7EEF1] transition-colors shadow-sm self-start md:self-auto"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             <span>Actualizar Estado</span>
@@ -133,33 +133,33 @@ export default function MastershopDropshipMonitor() {
 
         {/* Toast Notification */}
         {toastMessage && (
-          <div className="p-4 rounded-xl bg-zinc-900 text-white font-bold text-xs shadow-xl animate-in fade-in">
+          <div className="p-4 rounded-xl bg-[#2D1B22] dark:!bg-[#2D1B22] text-white font-bold text-xs shadow-xl animate-in fade-in">
             {toastMessage}
           </div>
         )}
 
         {/* Summary Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-tint)] text-[var(--primary)] flex items-center justify-center shrink-0">
+          <div className="bg-white dark:!bg-white rounded-3xl p-6 border border-[var(--border-subtle)] dark:!border-[#F2E3E7] shadow-lg flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-tint)] dark:!bg-[#FCE7ED] text-[var(--primary)] flex items-center justify-center shrink-0">
               <Layers className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[var(--text-muted)] dark:!text-[#7A666D] uppercase tracking-wider">
                 Total Pedidos Dropship
               </span>
-              <div className="text-2xl font-black font-heading text-[var(--text-main)]">
+              <div className="text-2xl font-black font-heading text-[var(--text-main)] dark:!text-[#2D1B22]">
                 {metrics.totalDropshipOrders}
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg flex items-center gap-4">
+          <div className="bg-white dark:!bg-white rounded-3xl p-6 border border-[var(--border-subtle)] dark:!border-[#F2E3E7] shadow-lg flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[var(--text-muted)] dark:!text-[#7A666D] uppercase tracking-wider">
                 Sincronizados Exitosos
               </span>
               <div className="text-2xl font-black font-heading text-emerald-700">
@@ -168,12 +168,12 @@ export default function MastershopDropshipMonitor() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg flex items-center gap-4">
+          <div className="bg-white dark:!bg-white rounded-3xl p-6 border border-[var(--border-subtle)] dark:!border-[#F2E3E7] shadow-lg flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[var(--text-muted)] dark:!text-[#7A666D] uppercase tracking-wider">
                 Reintentos Pendientes
               </span>
               <div className="text-2xl font-black font-heading text-rose-700">
@@ -184,9 +184,9 @@ export default function MastershopDropshipMonitor() {
         </div>
 
         {/* Failed & Pending Retries Table */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-[var(--border-subtle)] shadow-xl p-6 space-y-6">
+        <div className="bg-white dark:!bg-white rounded-3xl border border-[var(--border-subtle)] dark:!border-[#F2E3E7] shadow-xl p-6 space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold font-heading text-[var(--text-main)]">
+            <h3 className="text-lg font-bold font-heading text-[var(--text-main)] dark:!text-[#2D1B22]">
               Despachos Fallidos o Pendientes de Reintento
             </h3>
             <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800">
@@ -195,11 +195,11 @@ export default function MastershopDropshipMonitor() {
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-xs text-[var(--text-muted)]">
+            <div className="p-8 text-center text-xs text-[var(--text-muted)] dark:!text-[#7A666D]">
               Cargando registros del monitor...
             </div>
           ) : failedOrders.length === 0 ? (
-            <div className="p-8 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold text-center flex flex-col items-center justify-center gap-2">
+            <div className="p-8 rounded-2xl bg-emerald-50 dark:!bg-emerald-50 border border-emerald-200 dark:!border-emerald-200 text-emerald-800 dark:!text-emerald-800 text-xs font-bold text-center flex flex-col items-center justify-center gap-2">
               <CheckCircle2 className="w-8 h-8 text-emerald-600" />
               <span>¡Excelente! No hay órdenes de dropshipping pendientes por reintentar.</span>
             </div>
@@ -208,22 +208,22 @@ export default function MastershopDropshipMonitor() {
               {failedOrders.map((ord) => (
                 <div
                   key={ord.id}
-                  className="p-5 rounded-2xl bg-[var(--surface-base)] border border-[var(--border-subtle)] hover:border-rose-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  className="p-5 rounded-2xl bg-[var(--surface-base)] dark:!bg-[#FDF9F7] border border-[var(--border-subtle)] dark:!border-[#F2E3E7] hover:border-rose-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-bold text-sm text-[var(--primary)]">
                         {ord.orderNumber}
                       </span>
-                      <span className="text-xs text-[var(--text-muted)] font-semibold">
+                      <span className="text-xs text-[var(--text-muted)] dark:!text-[#7A666D] font-semibold">
                         • {ord.customerName} ({ord.customerEmail})
                       </span>
-                      <span className="text-xs font-bold text-[var(--text-main)] font-mono ml-2">
+                      <span className="text-xs font-bold text-[var(--text-main)] dark:!text-[#2D1B22] font-mono ml-2">
                         {formatCOP(ord.total)}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-rose-700 font-semibold bg-rose-50 p-2.5 rounded-xl border border-rose-200 mt-2">
+                    <div className="flex items-center gap-1.5 text-xs text-rose-700 font-semibold bg-rose-50 dark:!bg-rose-50 p-2.5 rounded-xl border border-rose-200 dark:!border-rose-200 mt-2">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{ord.error}</span>
                     </div>

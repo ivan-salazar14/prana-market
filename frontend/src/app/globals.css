@@ -53,7 +53,35 @@
   --foreground: var(--text-main);
 }
 
+/* Rose & Champagne Luxury — Dark Mode Aligned Variables
+ * WCAG AA compliant contrasts on warm rose-tinted darks.
+ * NO pitch-black zincs. NO pure white on pure black.
+ * Activated via .dark class on <html> (Tailwind darkMode: class)
+ */
+.dark {
+  --surface-base: #1A0F14;
+  --surface-card: #2D1B22;
+  --surface-elevated: #3D242D;
+  --surface-muted: #27151C;
+
+  --text-main: #FDF9F7;
+  --text-muted: #D9BAC3;
+  --text-subtle: #B399A2;
+  --text-inverse: #1A0F14;
+
+  --border-subtle: #3D242D;
+  --border-strong: #5C3845;
+
+  --accent-tint: #3D242D;
+  --badge-local-bg: #3D242D;
+  --badge-local-text: #F5B8C7;
+  --badge-dropship-bg: #1E2E24;
+  --badge-dropship-text: #A9D5BA;
+}
+
 @theme inline {
+  --dark-mode: class;
+
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--primary-active);
@@ -67,6 +95,7 @@
   --color-surface-card: var(--surface-card);
   --color-surface-elevated: var(--surface-elevated);
   --color-surface-muted: var(--surface-muted);
+  --color-brand-background: var(--surface-base);
 
   --color-text-main: var(--text-main);
   --color-text-muted: var(--text-muted);
@@ -109,3 +138,15 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   align-items: center;
   justify-content: center;
 }
+
+/* Sanity floor: prevent browser/OS dark mode from forcing <canvas> black.
+ * Ensures <html> and body always have explicit bg + fg from our palette. */
+html,
+body {
+  background-color: var(--surface-base);
+  color: var(--text-main);
+  color-scheme: light;
+}
+
+/* Global WCAG AA contrast floor for dynamic components.
+ * Any @apply or inline class missing explicit dark:* falls back to inherited palette vars above. */

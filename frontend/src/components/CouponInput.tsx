@@ -83,7 +83,7 @@ export default function CouponInput() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-wider">
+                <span className="text-xs font-black text-stone-900 uppercase tracking-wider">
                   {state.coupon.code}
                 </span>
                 <span className="text-[10px] font-extrabold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
@@ -117,7 +117,7 @@ export default function CouponInput() {
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               placeholder="Ingresa tu código (ej. BIENVENIDA10)"
               disabled={loading}
-              className="flex-1 h-12 px-4 bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl text-xs font-black text-stone-900 dark:text-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 uppercase tracking-wider"
+              className="flex-1 h-12 px-4 bg-stone-50 border border-stone-200 rounded-2xl text-xs font-black text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 uppercase tracking-wider"
             />
             <button
               type="submit"

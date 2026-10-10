@@ -155,7 +155,7 @@ function TrackingPortalContent() {
         </div>
 
         {/* Search Form Card */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div className="sm:col-span-5 space-y-1.5">
               <label className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider font-heading">
@@ -215,7 +215,7 @@ function TrackingPortalContent() {
         {trackingData && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* Order Overview Header */}
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
                 <div className="flex items-center gap-3">
                   <h2 className="text-2xl font-black font-heading text-[var(--text-main)]">
@@ -250,7 +250,7 @@ function TrackingPortalContent() {
             </div>
 
             {/* Visual Milestones Bar */}
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl">
               <h3 className="text-sm font-bold font-heading text-[var(--text-main)] uppercase tracking-wider mb-6">
                 Progreso de tu Pedido
               </h3>
@@ -333,7 +333,7 @@ function TrackingPortalContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Local Express Package */}
               {trackingData.packages.local.count > 0 && (
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg space-y-4">
+                <div className="bg-white dark:bg-[#2D1B22] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#FCE7ED] text-[#B33959]">
                       {trackingData.packages.local.badge}
@@ -356,7 +356,7 @@ function TrackingPortalContent() {
 
               {/* Mastershop Dropshipping Package */}
               {trackingData.packages.dropship.count > 0 && (
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg space-y-4">
+                <div className="bg-white dark:bg-[#2D1B22] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#EAF2EC] text-[#2C6E49]">
                       {trackingData.packages.dropship.badge}
@@ -379,7 +379,7 @@ function TrackingPortalContent() {
             </div>
 
             {/* Address & Payment Summary Card */}
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-[#2D1B22] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider font-heading mb-2 flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-[var(--primary)]" /> Dirección de Entrega

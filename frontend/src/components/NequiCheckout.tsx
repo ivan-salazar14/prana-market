@@ -256,7 +256,7 @@ export default function NequiCheckout({
       {/* Header Tabs */}
       {status === 'idle' && (
         <div className="space-y-4">
-          <div className="flex bg-stone-100 dark:bg-zinc-900 p-1 rounded-2xl">
+          <div className="flex bg-stone-100 p-1 rounded-2xl">
             <button
               onClick={() => {
                 setActiveTab('push');
@@ -265,7 +265,7 @@ export default function NequiCheckout({
               className={`flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-2 ${
                 activeTab === 'push'
                   ? 'bg-[#FF0082] text-white shadow-lg shadow-[#FF0082]/20'
-                  : 'text-stone-500 hover:text-stone-900 dark:hover:text-white'
+                  : 'text-stone-500 hover:text-stone-900'
               }`}
             >
               <Smartphone className="w-4 h-4" />
@@ -279,7 +279,7 @@ export default function NequiCheckout({
               className={`flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-2 ${
                 activeTab === 'qr'
                   ? 'bg-[#FF0082] text-white shadow-lg shadow-[#FF0082]/20'
-                  : 'text-stone-500 hover:text-stone-900 dark:hover:text-white'
+                  : 'text-stone-500 hover:text-stone-900'
               }`}
             >
               <QrCode className="w-4 h-4" />
@@ -294,7 +294,7 @@ export default function NequiCheckout({
                   <Smartphone className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-tight">
+                  <h4 className="text-sm font-black text-stone-900 uppercase tracking-tight">
                     Aprobación Directa Nequi
                   </h4>
                   <p className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">
@@ -315,10 +315,10 @@ export default function NequiCheckout({
                     if (phoneError) setPhoneError(null);
                   }}
                   placeholder="300 123 4567"
-                  className={`w-full h-12 px-4 bg-white dark:bg-zinc-900 border rounded-2xl text-sm font-black text-stone-900 dark:text-white outline-none transition-all ${
+                  className={`w-full h-12 px-4 bg-white border rounded-2xl text-sm font-black text-stone-900 outline-none transition-all ${
                     phoneError
                       ? 'border-red-500 bg-red-50/20'
-                      : 'border-stone-200 dark:border-white/10 focus:border-[#FF0082] focus:ring-2 focus:ring-[#FF0082]/20'
+                      : 'border-stone-200 focus:border-[#FF0082] focus:ring-2 focus:ring-[#FF0082]/20'
                   }`}
                 />
                 {phoneError && (
@@ -349,9 +349,9 @@ export default function NequiCheckout({
                 </div>
               </div>
               <div>
-                <h4 className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-tight">
-                  Pago por QR Dinámico
-                </h4>
+                <h4 className="text-sm font-black text-stone-900 uppercase tracking-tight">
+                    Pago por QR Dinámico
+                  </h4>
                 <p className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">
                   Genera un código QR listo para escanear con Nequi
                 </p>
@@ -380,7 +380,7 @@ export default function NequiCheckout({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white dark:bg-zinc-900 border-2 border-[#FF0082]/20 rounded-[2.5rem] p-8 shadow-2xl space-y-6 text-center relative overflow-hidden"
+          className="bg-white border-2 border-[#FF0082]/20 rounded-[2.5rem] p-8 shadow-2xl space-y-6 text-center relative overflow-hidden"
         >
           {/* Animated Pulse Ring */}
           <div className="relative flex justify-center items-center py-4">
@@ -402,7 +402,7 @@ export default function NequiCheckout({
           </div>
 
           <div className="space-y-1">
-            <h3 className="text-xl font-black text-stone-900 dark:text-white uppercase tracking-tight">
+            <h3 className="text-xl font-black text-stone-900 uppercase tracking-tight">
               Esperando Confirmación
             </h3>
             <p className="text-xs text-stone-500 font-medium">
@@ -430,12 +430,12 @@ export default function NequiCheckout({
                   <QRCodeSVG value={qrCodeData} size={160} level="M" />
                 )}
               </div>
-              <div className="w-full bg-stone-50 dark:bg-zinc-800 p-3 rounded-xl border border-stone-200 dark:border-white/10 text-center">
+              <div className="w-full bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
                 <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-1">
                   Texto QR / Llave Nequi (Alternativa)
                 </p>
-                <div className="flex items-center justify-between gap-2 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-lg border border-stone-100 dark:border-white/5">
-                  <span className="text-xs font-mono font-bold text-stone-800 dark:text-stone-200 truncate">
+                <div className="flex items-center justify-between gap-2 bg-white px-3 py-1.5 rounded-lg border border-stone-100">
+                  <span className="text-xs font-mono font-bold text-stone-800 truncate">
                     {qrCodeData}
                   </span>
                   <button
@@ -476,7 +476,7 @@ export default function NequiCheckout({
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-emerald-50 dark:bg-emerald-950/30 border-2 border-emerald-500/30 rounded-[2.5rem] p-8 text-center space-y-6 relative overflow-hidden"
+          className="bg-emerald-50 border-2 border-emerald-500/30 rounded-[2.5rem] p-8 text-center space-y-6 relative overflow-hidden"
         >
           {/* Confetti particles */}
           {confettiParticles.map((p) => (
@@ -508,11 +508,11 @@ export default function NequiCheckout({
             </div>
 
             <div>
-              <div className="inline-flex items-center space-x-1.5 text-xs font-black text-emerald-600 bg-emerald-100 dark:bg-emerald-900/50 px-3 py-1 rounded-full uppercase tracking-widest mb-2">
+              <div className="inline-flex items-center space-x-1.5 text-xs font-black text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-widest mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>¡Pago Exitoso!</span>
               </div>
-              <h3 className="text-2xl font-black text-stone-900 dark:text-white uppercase tracking-tight">
+              <h3 className="text-2xl font-black text-stone-900 uppercase tracking-tight">
                 ¡Pago con Nequi Aprobado!
               </h3>
               <p className="text-xs text-stone-500 font-medium mt-1">
@@ -520,10 +520,10 @@ export default function NequiCheckout({
               </p>
             </div>
 
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-emerald-100 dark:border-white/10 text-left space-y-2">
+            <div className="bg-white rounded-2xl p-4 border border-emerald-100 text-left space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-stone-400 font-bold uppercase tracking-wider text-[10px]">Monto:</span>
-                <span className="font-black text-stone-900 dark:text-white">COP ${amount.toLocaleString('es-CO')}</span>
+                <span className="font-black text-stone-900">COP ${amount.toLocaleString('es-CO')}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-stone-400 font-bold uppercase tracking-wider text-[10px]">Método:</span>
@@ -543,17 +543,17 @@ export default function NequiCheckout({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-900/40 rounded-[2.5rem] p-8 space-y-6 text-center"
+          className="bg-red-50 border-2 border-red-200 rounded-[2.5rem] p-8 space-y-6 text-center"
         >
           <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto">
             <AlertCircle className="w-8 h-8" />
           </div>
 
           <div>
-            <h4 className="text-lg font-black text-red-900 dark:text-red-400 uppercase tracking-tight">
+            <h4 className="text-lg font-black text-red-900 uppercase tracking-tight">
               Solicitud Expirada o Rechazada
             </h4>
-            <p className="text-xs text-red-700 dark:text-red-300 font-medium mt-1">
+            <p className="text-xs text-red-700 font-medium mt-1">
               No recibimos la confirmación de Nequi a tiempo. Tu carrito se ha conservado intacto.
             </p>
           </div>
@@ -561,7 +561,7 @@ export default function NequiCheckout({
           <div className="flex flex-col gap-3">
             <button
               onClick={handleReset}
-              className="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-lg shadow-red-200 dark:shadow-none"
+              className="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-lg shadow-red-200"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Reintentar con Nequi</span>
@@ -570,7 +570,7 @@ export default function NequiCheckout({
             {onSwitchPaymentMethod && (
               <button
                 onClick={onSwitchPaymentMethod}
-                className="w-full h-12 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 text-stone-700 dark:text-stone-300 hover:bg-stone-50 rounded-2xl text-xs font-black uppercase tracking-wider transition-all"
+                className="w-full h-12 bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-2xl text-xs font-black uppercase tracking-wider transition-all"
               >
                 Probar otro medio de pago (PSE / Tarjeta)
               </button>

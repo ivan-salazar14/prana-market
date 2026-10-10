@@ -109,8 +109,8 @@ function PaymentSuccessContent() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-background dark:bg-zinc-950 flex items-center justify-center p-6 md:p-12">
-      <Card className="max-w-2xl w-full p-8 md:p-16 text-center border-none shadow-2xl shadow-stone-200/50 dark:shadow-none rounded-[3.5rem] bg-white dark:bg-zinc-900 overflow-hidden relative">
+    <div className="min-h-screen bg-brand-background dark:bg-[#1A0F14] flex items-center justify-center p-6 md:p-12">
+      <Card className="max-w-2xl w-full p-8 md:p-16 text-center border-none shadow-2xl shadow-stone-200/50 rounded-[3.5rem] bg-white dark:bg-[#2D1B22] overflow-hidden relative">
         {/* Background Decoration */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/5 rounded-full -mr-32 -mt-32 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-secondary/5 rounded-full -ml-32 -mb-32 blur-3xl" />
@@ -123,7 +123,7 @@ function PaymentSuccessContent() {
         </div>
 
         <div className="relative">
-          <h1 className="text-4xl md:text-5xl font-black text-stone-900 dark:text-white mb-6 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-black text-stone-900 dark:text-[#FDF9F7] mb-6 tracking-tight">
             {orderDetails?.paymentMethod === 'efectivo' ? '¡Pedido Confirmado!' : '¡Pago Exitoso!'}
           </h1>
 
@@ -143,12 +143,12 @@ function PaymentSuccessContent() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <div className="bg-stone-50 dark:bg-zinc-800/50 p-6 rounded-[2rem] border border-stone-100 dark:border-white/5 flex flex-col items-center text-center">
-              <div className="w-10 h-10 bg-white dark:bg-zinc-700 rounded-xl flex items-center justify-center shadow-sm mb-4 border border-stone-100 dark:border-white/10">
+            <div className="bg-stone-50 dark:bg-[#3D242D]/60 p-6 rounded-[2rem] border border-stone-100 dark:border-[#FCE7ED]/10 flex flex-col items-center text-center">
+              <div className="w-10 h-10 bg-white dark:bg-[#4D2E38] rounded-xl flex items-center justify-center shadow-sm mb-4 border border-stone-100 dark:border-[#FCE7ED]/15">
                 <Package className="w-5 h-5 text-brand-primary" />
               </div>
               <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Método de Pago</span>
-              <span className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-tight">
+              <span className="text-sm font-black text-stone-900 dark:text-[#FDF9F7] uppercase tracking-tight">
                 {orderDetails?.paymentMethod === 'nequi' || orderDetails?.paymentMethod === 'nequi_manual'
                   ? 'Nequi / Bancolombia'
                   : orderDetails?.paymentMethod === 'efectivo'
@@ -156,12 +156,12 @@ function PaymentSuccessContent() {
                     : 'Tarjeta / Online'}
               </span>
             </div>
-            <div className="bg-stone-50 dark:bg-zinc-800/50 p-6 rounded-[2rem] border border-stone-100 dark:border-white/5 flex flex-col items-center text-center">
-              <div className="w-10 h-10 bg-white dark:bg-zinc-700 rounded-xl flex items-center justify-center shadow-sm mb-4 border border-stone-100 dark:border-white/10">
+            <div className="bg-stone-50 dark:bg-[#3D242D]/60 p-6 rounded-[2rem] border border-stone-100 dark:border-[#FCE7ED]/10 flex flex-col items-center text-center">
+              <div className="w-10 h-10 bg-white dark:bg-[#4D2E38] rounded-xl flex items-center justify-center shadow-sm mb-4 border border-stone-100 dark:border-[#FCE7ED]/15">
                 <Truck className="w-5 h-5 text-brand-secondary" />
               </div>
               <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Tipo de Entrega</span>
-              <span className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-tight">
+              <span className="text-sm font-black text-stone-900 dark:text-[#FDF9F7] uppercase tracking-tight">
                 {orderDetails?.deliveryMethod.name || 'Envío estándar'}
               </span>
             </div>
@@ -176,10 +176,10 @@ function PaymentSuccessContent() {
                 {orderDetails.items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center text-sm">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-tight line-clamp-1 max-w-[180px]">{item.name}</span>
-                      <span className="text-[10px] font-black text-stone-400 bg-stone-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md">×{item.quantity}</span>
+                      <span className="text-xs font-black text-stone-900 dark:text-[#FDF9F7] uppercase tracking-tight line-clamp-1 max-w-[180px]">{item.name}</span>
+                      <span className="text-[10px] font-black text-stone-400 bg-stone-100 dark:bg-[#3D242D] px-2 py-0.5 rounded-md">×{item.quantity}</span>
                     </div>
-                    <span className="font-extrabold text-stone-900 dark:text-white">{formatCurrency(item.price * item.quantity)}</span>
+                    <span className="font-extrabold text-stone-900 dark:text-[#FDF9F7]">{formatCurrency(item.price * item.quantity)}</span>
                   </div>
                 ))}
               </div>
@@ -187,14 +187,14 @@ function PaymentSuccessContent() {
               <div className="space-y-3 pt-6 border-t border-brand-primary/10">
                 <div className="flex justify-between text-xs">
                   <span className="text-stone-400 font-bold uppercase tracking-widest">Subtotal:</span>
-                  <span className="text-stone-900 dark:text-white font-black">{formatCurrency(orderDetails.subtotal)}</span>
+                  <span className="text-stone-900 dark:text-[#FDF9F7] font-black">{formatCurrency(orderDetails.subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-stone-400 font-bold uppercase tracking-widest">Envío:</span>
                   <span className="text-emerald-500 font-black">{orderDetails.deliveryCost === 0 ? 'GRATIS' : formatCurrency(orderDetails.deliveryCost)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-4 mt-2 border-t border-brand-primary/10">
-                  <span className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-[0.2em]">Total</span>
+                  <span className="text-xs font-black text-stone-900 dark:text-[#FDF9F7] uppercase tracking-[0.2em]">Total</span>
                   <span className="text-3xl font-black text-brand-primary">{formatCurrency(orderDetails.total)}</span>
                 </div>
               </div>

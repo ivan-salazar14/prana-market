@@ -149,7 +149,7 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center">
           <motion.div
             animate={{ rotate: 360 }}
@@ -164,7 +164,7 @@ export default function ProductPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
             <ShoppingBag className="h-10 w-10 text-gray-400" />
@@ -189,9 +189,9 @@ export default function ProductPage() {
   }).format(product.price);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 pb-20">
+    <div className="min-h-screen bg-white pb-20">
       {/* Breadcrumbs */}
-      <div className="bg-white dark:bg-zinc-950 border-b border-gray-100 dark:border-white/10 px-4 py-4">
+      <div className="bg-white border-b border-gray-100 px-4 py-4">
         <div className="container mx-auto flex items-center justify-between">
           <button
             onClick={() => router.back()}
@@ -231,11 +231,11 @@ export default function ProductPage() {
               <span className="ml-3 text-xs font-bold text-stone-400 uppercase tracking-widest">(4.8 / 5)</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-black text-stone-900 dark:text-white leading-[1.1] mb-8">
+            <h1 className="text-4xl md:text-6xl font-black text-stone-900 leading-[1.1] mb-8">
               {product.name}
             </h1>
 
-            <div className="flex flex-col mb-10 p-6 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5">
+            <div className="flex flex-col mb-10 p-6 bg-stone-50 rounded-[2rem] border border-stone-100">
               <div className="flex items-baseline gap-4">
                 <span className="text-5xl font-black text-brand-primary">{formattedPrice}</span>
                 {product.original_price && product.original_price > product.price && (
@@ -274,7 +274,7 @@ export default function ProductPage() {
               </div>
             )}
 
-            <div className="prose prose-stone text-stone-600 dark:text-gray-300 mb-12">
+            <div className="prose prose-stone text-stone-600 mb-12">
               <p className="text-xl leading-[1.7] font-medium">
                 {product.description}
               </p>
@@ -282,42 +282,42 @@ export default function ProductPage() {
 
             {/* Ingredients */}
             {product.ingredients && (
-              <div className="mb-8 p-6 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5">
-                <h3 className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-wider mb-3">Ingredientes</h3>
-                <p className="text-sm text-stone-600 dark:text-gray-300 leading-relaxed">{product.ingredients}</p>
+              <div className="mb-8 p-6 bg-stone-50 rounded-[2rem] border border-stone-100">
+                <h3 className="text-sm font-black text-stone-900 uppercase tracking-wider mb-3">Ingredientes</h3>
+                <p className="text-sm text-stone-600 leading-relaxed">{product.ingredients}</p>
               </div>
             )}
 
             {/* Usage Guide */}
             {product.usageGuide && (
-              <div className="mb-8 p-6 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5">
-                <h3 className="text-sm font-black text-stone-900 dark:text-white uppercase tracking-wider mb-3">Modo de Uso</h3>
-                <p className="text-sm text-stone-600 dark:text-gray-300 leading-relaxed">{product.usageGuide}</p>
+              <div className="mb-8 p-6 bg-stone-50 rounded-[2rem] border border-stone-100">
+                <h3 className="text-sm font-black text-stone-900 uppercase tracking-wider mb-3">Modo de Uso</h3>
+                <p className="text-sm text-stone-600 leading-relaxed">{product.usageGuide}</p>
               </div>
             )}
 
-            <div className="space-y-12 pt-10 border-t border-stone-100 dark:border-white/10">
+            <div className="space-y-12 pt-10 border-t border-stone-100">
               {/* Quantity Selector */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-10">
                 <div>
-                  <label className="block text-xs font-black text-stone-900 dark:text-white uppercase tracking-[0.2em] mb-4">
+                  <label className="block text-xs font-black text-stone-900 uppercase tracking-[0.2em] mb-4">
                     Cantidad
                   </label>
-                  <div className="inline-flex items-center bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-[1.25rem] p-1.5 shadow-inner">
+                  <div className="inline-flex items-center bg-stone-50 border border-stone-200 rounded-[1.25rem] p-1.5 shadow-inner">
                     <button
                       onClick={decrementQuantity}
                       disabled={product.stock <= 0}
-                      className="w-10 h-10 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm rounded-xl transition-all text-stone-500 active:scale-90 disabled:opacity-30"
+                      className="w-10 h-10 flex items-center justify-center hover:bg-white hover:shadow-sm rounded-xl transition-all text-stone-500 active:scale-90 disabled:opacity-30"
                     >
                       <Minus className="h-5 w-5" />
                     </button>
-                    <span className="w-14 text-center text-xl font-black text-stone-900 dark:text-white">
+                    <span className="w-14 text-center text-xl font-black text-stone-900">
                       {quantity}
                     </span>
                     <button
                       onClick={incrementQuantity}
                       disabled={product.stock <= 0 || quantity >= product.stock}
-                      className="w-10 h-10 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm rounded-xl transition-all text-stone-500 active:scale-90 disabled:opacity-30"
+                      className="w-10 h-10 flex items-center justify-center hover:bg-white hover:shadow-sm rounded-xl transition-all text-stone-500 active:scale-90 disabled:opacity-30"
                     >
                       <Plus className="h-5 w-5" />
                     </button>
@@ -390,21 +390,21 @@ export default function ProductPage() {
 
               {/* Product Benefits */}
               <div className="grid grid-cols-2 gap-6 pt-6">
-                <div className="flex items-center p-5 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5 group hover:border-brand-secondary/30 transition-colors">
-                  <div className="bg-white dark:bg-zinc-800 p-3 rounded-2xl border border-stone-100 dark:border-white/10 mr-4 shadow-sm group-hover:scale-110 transition-transform">
+                <div className="flex items-center p-5 bg-stone-50 rounded-[2rem] border border-stone-100 group hover:border-brand-secondary/30 transition-colors">
+                  <div className="bg-white p-3 rounded-2xl border border-stone-100 mr-4 shadow-sm group-hover:scale-110 transition-transform">
                     <Truck className="h-6 w-6 text-brand-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-wider">Envío Rápido</p>
+                    <p className="text-xs font-black text-stone-900 uppercase tracking-wider">Envío Rápido</p>
                     <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest mt-0.5">Todo el país</p>
                   </div>
                 </div>
-                <div className="flex items-center p-5 bg-stone-50 dark:bg-zinc-900 rounded-[2rem] border border-stone-100 dark:border-white/5 group hover:border-brand-secondary/30 transition-colors">
-                  <div className="bg-white dark:bg-zinc-800 p-3 rounded-2xl border border-stone-100 dark:border-white/10 mr-4 shadow-sm group-hover:scale-110 transition-transform">
+                <div className="flex items-center p-5 bg-stone-50 rounded-[2rem] border border-stone-100 group hover:border-brand-secondary/30 transition-colors">
+                  <div className="bg-white p-3 rounded-2xl border border-stone-100 mr-4 shadow-sm group-hover:scale-110 transition-transform">
                     <ShieldCheck className="h-6 w-6 text-brand-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-black text-stone-900 dark:text-white uppercase tracking-wider">Pago Seguro</p>
+                    <p className="text-xs font-black text-stone-900 uppercase tracking-wider">Pago Seguro</p>
                     <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest mt-0.5">100% Protegido</p>
                   </div>
                 </div>

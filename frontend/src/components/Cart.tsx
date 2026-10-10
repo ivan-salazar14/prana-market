@@ -141,7 +141,7 @@ function EfectivoCheckout({
           )}
         </AnimatePresence>
 
-        <div className="bg-brand-primary/5 border-2 border-brand-primary/10 rounded-[2rem] p-6 mb-0">
+        <div className="bg-brand-primary/5 dark:!bg-[#FCE7ED] border-2 border-brand-primary/10 dark:!border-[#F2E3E7] rounded-[2rem] p-6 mb-0">
           <h4 className="text-lg font-black text-brand-primary mb-4 flex items-center uppercase tracking-widest">
             <CheckCircle2 className="w-5 h-5 mr-3" />
             Confirmar Pedido
@@ -185,13 +185,13 @@ function EfectivoCheckout({
     <div className="efectivo-checkout">
       <h3 className="text-xs font-black mb-6 text-stone-400 uppercase tracking-[0.2em] px-1">Pago Contraentrega (Efectivo)</h3>
 
-      <div className="bg-stone-50 dark:bg-zinc-900 border border-stone-100 dark:border-white/5 rounded-[2rem] p-6 mb-6">
+      <div className="bg-stone-50 dark:!bg-[#F7EEF1] border border-stone-100 dark:!border-[#F2E3E7] rounded-[2rem] p-6 mb-6">
         <div className="flex items-start">
-          <div className="bg-white dark:bg-zinc-800 p-3 rounded-2xl border border-stone-100 dark:border-white/10 mr-4 shadow-sm">
+          <div className="bg-white dark:!bg-white p-3 rounded-2xl border border-stone-100 dark:!border-[#F2E3E7] mr-4 shadow-sm">
             <Wallet className="h-6 w-6 text-brand-primary" />
           </div>
           <div className="flex-1">
-            <p className="text-sm text-stone-900 dark:text-white font-black uppercase tracking-wider mb-1.5">
+            <p className="text-sm text-stone-900 font-black uppercase tracking-wider mb-1.5">
               Pago al momento de la entrega
             </p>
             <p className="text-xs text-stone-500 font-medium leading-relaxed">
@@ -203,9 +203,9 @@ function EfectivoCheckout({
         </div>
       </div>
 
-      <div className="bg-stone-50 dark:bg-zinc-900 border border-stone-100 dark:border-white/5 rounded-[2rem] p-6 mb-6">
+      <div className="bg-stone-50 dark:!bg-[#F7EEF1] border border-stone-100 dark:!border-[#F2E3E7] rounded-[2rem] p-6 mb-6">
         <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-4">Instrucciones:</p>
-        <ul className="text-sm text-stone-600 dark:text-stone-400 space-y-3 font-medium">
+        <ul className="text-sm text-stone-600 space-y-3 font-medium">
           <li className="flex items-center">
             <div className="w-1.5 h-1.5 rounded-full bg-brand-primary mr-3" />
             <span>Pago al momento de la {deliveryMethod?.id === 'pickup' ? 'recogida' : 'entrega'}</span>
@@ -216,14 +216,14 @@ function EfectivoCheckout({
           </li>
           <li className="flex items-center">
             <div className="w-1.5 h-1.5 rounded-full bg-brand-primary mr-3" />
-            <span>Total a pagar: <strong className="text-stone-900 dark:text-white ml-1">COP {total.toLocaleString('es-CO')}</strong></span>
+            <span>Total a pagar: <strong className="text-stone-900 ml-1">COP {total.toLocaleString('es-CO')}</strong></span>
           </li>
         </ul>
       </div>
 
-      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 mb-8 flex items-start">
+      <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-8 flex items-start">
         <AlertCircle className="w-4 h-4 mr-3 flex-shrink-0 mt-0.5 text-amber-600" />
-        <p className="text-[10px] text-amber-800 dark:text-amber-400 font-bold leading-relaxed uppercase tracking-wider">
+        <p className="text-[10px] text-amber-800 font-bold leading-relaxed uppercase tracking-wider">
           <strong>Importante:</strong> Tu pedido será procesado de inmediato.
           {deliveryMethod?.id === 'pickup'
             ? ' Te notificaremos en cuanto esté listo para su entrega.'
@@ -303,7 +303,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-stone-900/60 backdrop-blur-md z-[9998]"
+            className="fixed inset-0 bg-stone-900/60 dark:bg-[#1A0F14]/70 backdrop-blur-md z-[9998]"
           />
 
           {/* Sidebar */}
@@ -312,16 +312,16 @@ export default function Cart({ isOpen, onClose }: CartProps) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-brand-background dark:bg-zinc-950 shadow-[-20px_0_50px_rgba(0,0,0,0.1)] z-[9999] overflow-hidden flex flex-col"
+            className="fixed right-0 top-0 h-full w-full max-w-md bg-brand-background dark:!bg-[#FDF9F7] text-[var(--text-main)] dark:!text-[var(--text-main)] shadow-[-20px_0_50px_rgba(0,0,0,0.1)] z-[9999] overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="p-8 border-b border-stone-100 dark:border-white/10 flex justify-between items-center bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl sticky top-0 z-10">
+            <div className="p-8 border-b border-stone-100 dark:!border-[#F2E3E7] flex justify-between items-center bg-white/80 dark:!bg-white/95 backdrop-blur-xl sticky top-0 z-10">
               <div className="flex items-center space-x-4">
                 <div className="bg-brand-primary p-2.5 rounded-2xl shadow-lg shadow-brand-primary/20">
                   <ShoppingBag className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black text-stone-900 dark:text-white tracking-tight">CARRITO</h2>
+                  <h2 className="text-2xl font-black text-stone-900 dark:!text-[#2D1B22] tracking-tight">CARRITO</h2>
                   {state.items.length > 0 && (
                     <p className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] mt-0.5">
                       {state.items.length} {state.items.length === 1 ? 'Producto seleccionado' : 'Productos seleccionados'}
@@ -333,9 +333,9 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="rounded-full hover:bg-stone-50"
+                className="rounded-full hover:bg-stone-100 p-2"
               >
-                <X className="w-6 h-6 text-stone-400" />
+                <X className="w-6 h-6 text-stone-800" />
               </Button>
             </div>
 
@@ -344,13 +344,13 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-8 py-20">
                   <div className="relative">
                     <div className="absolute inset-0 bg-brand-primary/10 blur-3xl rounded-full" />
-                    <div className="relative bg-white dark:bg-zinc-900 p-10 rounded-[3rem] border border-stone-100 dark:border-white/5 shadow-xl">
-                      <ShoppingBag className="w-20 h-20 text-stone-200" />
+                    <div className="relative bg-white p-10 rounded-[3rem] border border-stone-100 shadow-xl">
+                      <ShoppingBag className="w-20 h-20 text-brand-primary/40" />
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <h3 className="text-2xl font-black text-stone-900 dark:text-white uppercase tracking-tight">Tu carrito está vacío</h3>
-                    <p className="text-sm text-stone-400 font-medium max-w-[240px] mx-auto leading-relaxed">
+                    <h3 className="text-2xl font-black text-stone-900 uppercase tracking-tight">Tu carrito está vacío</h3>
+                    <p className="text-sm text-stone-700 font-semibold max-w-[240px] mx-auto leading-relaxed">
                       Parece que aún no has agregado tesoros a tu colección de belleza.
                     </p>
                   </div>
@@ -379,21 +379,21 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             <motion.div
                               layout
                               key={item.id}
-                              className="flex items-center p-4 bg-white dark:bg-zinc-900 rounded-[2rem] border border-stone-50 dark:border-white/5 group transition-all hover:shadow-xl hover:shadow-stone-200/40 dark:hover:shadow-none"
+                              className="flex items-center p-4 bg-white dark:!bg-white rounded-[2rem] border border-stone-50 dark:!border-[#F2E3E7] group transition-all hover:shadow-xl hover:shadow-stone-200/40"
                             >
                               {/* Image */}
-                              <div className="w-20 h-20 bg-stone-50 dark:bg-zinc-800 rounded-2xl overflow-hidden border border-stone-100 dark:border-white/5 flex-shrink-0 relative">
+                              <div className="w-20 h-20 bg-stone-50 dark:!bg-[#F7EEF1] rounded-2xl overflow-hidden border border-stone-100 dark:!border-[#F2E3E7] flex-shrink-0 relative">
                                 {item.image ? (
                                   <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-stone-200">
+                                  <div className="w-full h-full flex items-center justify-center text-stone-200 dark:!text-[#D9BAC3]">
                                     <ShoppingBag className="w-8 h-8" />
                                   </div>
                                 )}
                               </div>
 
                               <div className="ml-5 flex-1 pr-2">
-                                <h3 className="text-sm font-black text-stone-900 dark:text-white line-clamp-1 truncate uppercase tracking-tight">{item.name}</h3>
+                                <h3 className="text-sm font-black text-stone-900 dark:!text-[#2D1B22] line-clamp-1 truncate uppercase tracking-tight">{item.name}</h3>
                                 <div className="flex items-baseline gap-2 mt-1">
                                   <p className="text-base font-black text-brand-primary">
                                     COP {item.price.toLocaleString('es-CO')}
@@ -406,22 +406,22 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                 </div>
 
                                 <div className="flex items-center justify-between mt-3">
-                                  <div className="flex items-center bg-stone-50 dark:bg-zinc-800 border border-stone-100 dark:border-white/10 rounded-xl p-1 gap-1">
+                                  <div className="flex items-center bg-stone-50 dark:!bg-[#F7EEF1] border border-stone-100 dark:!border-[#F2E3E7] rounded-xl p-1 gap-1">
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => dispatch({ type: 'UPDATE_QUANTITY', payload: { id: item.id, quantity: item.quantity - 1 } })}
-                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
+                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 dark:!hover:text-[#2D1B22] hover:bg-white dark:!hover:bg-white"
                                       aria-label={`Reducir cantidad de ${item.name}`}
                                     >
                                       <Minus className="w-3 h-3" />
                                     </Button>
-                                    <span className="mx-1 text-xs font-black w-6 text-center text-stone-900 dark:text-white" aria-live="polite">{item.quantity}</span>
+                                    <span className="mx-1 text-xs font-black w-6 text-center text-stone-900 dark:!text-[#2D1B22]" aria-live="polite">{item.quantity}</span>
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
-                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
+                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 dark:!hover:text-[#2D1B22] hover:bg-white dark:!hover:bg-white"
                                       aria-label={`Aumentar cantidad de ${item.name}`}
                                     >
                                       <Plus className="w-3 h-3" />
@@ -456,21 +456,21 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             <motion.div
                               layout
                               key={item.id}
-                              className="flex items-center p-4 bg-white dark:bg-zinc-900 rounded-[2rem] border border-stone-50 dark:border-white/5 group transition-all hover:shadow-xl hover:shadow-stone-200/40 dark:hover:shadow-none"
+                              className="flex items-center p-4 bg-white dark:!bg-white rounded-[2rem] border border-stone-50 dark:!border-[#F2E3E7] group transition-all hover:shadow-xl hover:shadow-stone-200/40"
                             >
                               {/* Image */}
-                              <div className="w-20 h-20 bg-stone-50 dark:bg-zinc-800 rounded-2xl overflow-hidden border border-stone-100 dark:border-white/5 flex-shrink-0 relative">
+                              <div className="w-20 h-20 bg-stone-50 dark:!bg-[#F7EEF1] rounded-2xl overflow-hidden border border-stone-100 dark:!border-[#F2E3E7] flex-shrink-0 relative">
                                 {item.image ? (
                                   <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-stone-200">
+                                  <div className="w-full h-full flex items-center justify-center text-stone-200 dark:!text-[#D9BAC3]">
                                     <ShoppingBag className="w-8 h-8" />
                                   </div>
                                 )}
                               </div>
 
                               <div className="ml-5 flex-1 pr-2">
-                                <h3 className="text-sm font-black text-stone-900 dark:text-white line-clamp-1 truncate uppercase tracking-tight">{item.name}</h3>
+                                <h3 className="text-sm font-black text-stone-900 dark:!text-[#2D1B22] line-clamp-1 truncate uppercase tracking-tight">{item.name}</h3>
                                 <div className="flex items-baseline gap-2 mt-1">
                                   <p className="text-base font-black text-brand-primary">
                                     COP {item.price.toLocaleString('es-CO')}
@@ -483,22 +483,22 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                 </div>
 
                                 <div className="flex items-center justify-between mt-3">
-                                  <div className="flex items-center bg-stone-50 dark:bg-zinc-800 border border-stone-100 dark:border-white/10 rounded-xl p-1 gap-1">
+                                  <div className="flex items-center bg-stone-50 dark:!bg-[#F7EEF1] border border-stone-100 dark:!border-[#F2E3E7] rounded-xl p-1 gap-1">
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => dispatch({ type: 'UPDATE_QUANTITY', payload: { id: item.id, quantity: item.quantity - 1 } })}
-                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
+                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 dark:!hover:text-[#2D1B22] hover:bg-white dark:!hover:bg-white"
                                       aria-label={`Reducir cantidad de ${item.name}`}
                                     >
                                       <Minus className="w-3 h-3" />
                                     </Button>
-                                    <span className="mx-1 text-xs font-black w-6 text-center text-stone-900 dark:text-white" aria-live="polite">{item.quantity}</span>
+                                    <span className="mx-1 text-xs font-black w-6 text-center text-stone-900 dark:!text-[#2D1B22]" aria-live="polite">{item.quantity}</span>
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
-                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-white"
+                                      className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 dark:!hover:text-[#2D1B22] hover:bg-white dark:!hover:bg-white"
                                       aria-label={`Aumentar cantidad de ${item.name}`}
                                     >
                                       <Plus className="w-3 h-3" />
@@ -540,8 +540,8 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             className={cn(
                               "flex items-start p-5 rounded-[2rem] border-2 transition-all cursor-pointer relative overflow-hidden group",
                               isSelected
-                                ? "border-brand-primary bg-white shadow-xl shadow-brand-primary/5"
-                                : "border-stone-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-brand-secondary/50"
+                                ? "border-brand-primary bg-white dark:!bg-white shadow-xl shadow-brand-primary/5"
+                                : "border-stone-100 dark:!border-[#F2E3E7] bg-white dark:!bg-white hover:border-brand-secondary/50"
                             )}
                           >
                             <input
@@ -560,14 +560,14 @@ export default function Cart({ isOpen, onClose }: CartProps) {
 
                             <div className={cn(
                               "w-12 h-12 rounded-2xl flex items-center justify-center mr-5 transition-all shadow-sm",
-                              isSelected ? "bg-brand-primary text-white" : "bg-stone-50 dark:bg-zinc-800 text-stone-400 group-hover:text-brand-primary"
+                              isSelected ? "bg-brand-primary text-white" : "bg-stone-50 text-stone-400 group-hover:text-brand-primary"
                             )}>
                               {method.id === 'pickup' ? <Store className="w-6 h-6" /> : <Truck className="w-6 h-6" />}
                             </div>
 
                             <div className="flex-1">
                               <div className="flex justify-between items-center mb-1">
-                                <span className={cn("font-black text-sm uppercase tracking-tight", isSelected ? "text-stone-900" : "text-stone-500")}>{method.name}</span>
+                                <span className={cn("font-black text-sm uppercase tracking-tight", isSelected ? "text-stone-900 dark:!text-[#2D1B22]" : "text-stone-500 dark:!text-[#7A666D]")}>{method.name}</span>
                                 <div className="flex flex-col items-end">
                                   {isFreeShipping && method.cost > 0 && (
                                     <span className="text-[10px] text-stone-300 line-through font-bold">
@@ -601,7 +601,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="bg-brand-primary/5 dark:bg-brand-primary/10 rounded-[2rem] p-6 border border-brand-primary/10 relative overflow-hidden"
+                      className="bg-brand-primary/5 rounded-[2rem] p-6 border border-brand-primary/10 relative overflow-hidden"
                     >
                       <div className="relative z-10">
                         <div className="flex justify-between items-center mb-4">
@@ -626,15 +626,15 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                       </div>
                     </motion.div>
                   ) : (
-                    <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-[2rem] p-6 border border-emerald-100 dark:border-emerald-900/20 flex items-center animate-in zoom-in duration-500">
-                      <div className="bg-emerald-500 p-2.5 rounded-2xl shadow-lg shadow-emerald-200 dark:shadow-none mr-5">
+                    <div className="bg-emerald-50 rounded-[2rem] p-6 border border-emerald-100 flex items-center animate-in zoom-in duration-500">
+                      <div className="bg-emerald-500 p-2.5 rounded-2xl shadow-lg shadow-emerald-200 mr-5">
                         <CheckCircle2 className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-black text-emerald-900 dark:text-emerald-400 uppercase tracking-[0.2em] mb-1">
+                        <p className="text-[10px] font-black text-emerald-900 uppercase tracking-[0.2em] mb-1">
                           ¡Envío Gratis desbloqueado!
                         </p>
-                        <p className="text-[10px] text-emerald-700 dark:text-emerald-500 font-bold uppercase tracking-widest leading-relaxed">
+                        <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-widest leading-relaxed">
                           Has alcanzado el monto de cortesía.
                         </p>
                       </div>
@@ -645,29 +645,29 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                   {state.deliveryMethod && state.deliveryMethod.id !== 'pickup' && (
                     <div className="pt-4 animate-in fade-in slide-in-from-top-6 duration-500">
                       <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1 mb-6">Datos de envío del pedido</h4>
-                      <div className="bg-white dark:bg-zinc-900 border border-stone-100 dark:border-white/5 rounded-[2.5rem] p-8 shadow-xl shadow-stone-200/40 dark:shadow-none relative">
-                        <div className="absolute top-0 right-10 w-4 h-4 bg-white dark:bg-zinc-900 border-l border-t border-stone-100 dark:border-white/5 -translate-y-2 rotate-45" />
+                      <div className="bg-white dark:!bg-white border border-stone-100 dark:!border-[#F2E3E7] rounded-[2.5rem] p-8 shadow-xl shadow-stone-200/40 relative">
+                        <div className="absolute top-0 right-10 w-4 h-4 bg-white border-l border-t border-stone-100 -translate-y-2 rotate-45" />
                         <ShippingForm />
                       </div>
                     </div>
                   )}
 
                   {/* Coupon Code Section */}
-                  <div className="pt-6 border-t border-stone-100 dark:border-white/10">
+                  <div className="pt-6 border-t border-stone-100 dark:!border-[#F2E3E7]">
                     <CouponInput />
                   </div>
 
                   {/* Order Summary */}
-                  <div className="pt-6 border-t border-stone-100 dark:border-white/10 space-y-8">
+                  <div className="pt-6 border-t border-stone-100 dark:!border-[#F2E3E7] space-y-8">
                     <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1">Resumen de tu Orden</h4>
-                    <div className="bg-stone-50 dark:bg-zinc-900/50 rounded-[2.5rem] p-8 space-y-5 border border-stone-100 dark:border-white/5">
+                    <div className="bg-stone-50 dark:!bg-[#F7EEF1] rounded-[2.5rem] p-8 space-y-5 border border-stone-100 dark:!border-[#F2E3E7]">
                       <div className="flex justify-between text-sm">
-                        <span className="text-stone-400 font-bold uppercase tracking-widest text-[10px]">Subtotal:</span>
-                        <span className="text-stone-900 dark:text-white font-black">COP {state.subtotal.toLocaleString('es-CO')}</span>
+                        <span className="text-stone-400 dark:!text-[#7A666D] font-bold uppercase tracking-widest text-[10px]">Subtotal:</span>
+                        <span className="text-stone-900 dark:!text-[#2D1B22] font-black">COP {state.subtotal.toLocaleString('es-CO')}</span>
                       </div>
 
                       {state.discountAmount > 0 && (
-                        <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
+                        <div className="flex justify-between text-sm text-emerald-600">
                           <span className="font-bold uppercase tracking-widest text-[10px]">
                             Descuento ({state.coupon?.code}):
                           </span>
@@ -687,8 +687,8 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             : `+ COP ${state.deliveryCost.toLocaleString('es-CO')}`}
                         </span>
                       </div>
-                      <div className="pt-6 border-t border-stone-200 dark:border-white/10 flex justify-between items-center">
-                        <span className="text-xs font-black text-stone-400 uppercase tracking-[0.3em]">Total a Pagar</span>
+                      <div className="pt-6 border-t border-stone-200 dark:!border-[#D9BAC3] flex justify-between items-center">
+                        <span className="text-xs font-black text-stone-400 dark:!text-[#7A666D] uppercase tracking-[0.3em]">Total a Pagar</span>
                         <span className="text-3xl font-black text-brand-primary tracking-tight">
                           COP {state.total.toLocaleString('es-CO')}
                         </span>
@@ -705,18 +705,18 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             className={cn(
                               "flex items-center p-5 rounded-[2rem] border-2 transition-all group relative overflow-hidden",
                               paymentMethod === 'efectivo'
-                                ? "border-brand-primary bg-white shadow-2xl shadow-brand-primary/10"
-                                : "border-stone-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-brand-secondary/30"
+                                ? "border-brand-primary bg-white dark:!bg-white shadow-2xl shadow-brand-primary/10"
+                                : "border-stone-100 dark:!border-[#F2E3E7] bg-white dark:!bg-white hover:border-brand-secondary/30"
                             )}
                           >
                             <div className={cn(
                               "w-12 h-12 rounded-2xl flex items-center justify-center mr-5 transition-all shadow-sm",
-                              paymentMethod === 'efectivo' ? "bg-brand-primary text-white" : "bg-stone-50 dark:bg-zinc-800 text-stone-400 group-hover:text-brand-primary"
+                              paymentMethod === 'efectivo' ? "bg-brand-primary text-white" : "bg-stone-50 dark:!bg-[#F7EEF1] text-stone-400 group-hover:text-brand-primary"
                             )}>
                               <CreditCard className="w-6 h-6" />
                             </div>
                             <div className="text-left">
-                              <span className={cn("text-sm font-black uppercase tracking-tight block mb-0.5", paymentMethod === 'efectivo' ? "text-stone-900" : "text-stone-500")}>Contra Entrega / Efectivo</span>
+                              <span className={cn("text-sm font-black uppercase tracking-tight block mb-0.5", paymentMethod === 'efectivo' ? "text-stone-900 dark:!text-[#2D1B22]" : "text-stone-500 dark:!text-[#7A666D]")}>Contra Entrega / Efectivo</span>
                               <span className="text-[9px] text-stone-400 font-bold uppercase tracking-widest">Pagos seguros al recibir</span>
                             </div>
                             {paymentMethod === 'efectivo' && (
@@ -731,18 +731,18 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                             className={cn(
                               "flex items-center p-5 rounded-[2rem] border-2 transition-all group relative overflow-hidden",
                               paymentMethod === 'nequi'
-                                ? "border-[#FF0082] bg-white shadow-2xl shadow-[#FF0082]/10"
-                                : "border-stone-100 dark:border-white/5 bg-white dark:bg-zinc-900/30 hover:border-[#FF0082]/30"
+                                ? "border-[#FF0082] bg-white dark:!bg-white shadow-2xl shadow-[#FF0082]/10"
+                                : "border-stone-100 dark:!border-[#F2E3E7] bg-white dark:!bg-white hover:border-[#FF0082]/30"
                             )}
                           >
                             <div className={cn(
                               "w-12 h-12 rounded-2xl flex items-center justify-center mr-5 transition-all shadow-sm",
-                              paymentMethod === 'nequi' ? "bg-[#FF0082] text-white" : "bg-gray-50 dark:bg-zinc-800 text-gray-400 group-hover:text-[#FF0082]"
+                              paymentMethod === 'nequi' ? "bg-[#FF0082] text-white" : "bg-gray-50 dark:!bg-[#F7EEF1] text-gray-400 group-hover:text-[#FF0082]"
                             )}>
                               <Wallet className="w-6 h-6" />
                             </div>
                             <div className="text-left">
-                              <span className={cn("text-sm font-black uppercase tracking-tight block mb-0.5", paymentMethod === 'nequi' ? "text-[#FF0082]" : "text-gray-500")}>Transferencia Anticipada</span>
+                              <span className={cn("text-sm font-black uppercase tracking-tight block mb-0.5", paymentMethod === 'nequi' ? "text-[#FF0082]" : "text-gray-500 dark:!text-[#7A666D]")}>Transferencia Anticipada</span>
                               <span className="text-[9px] text-stone-400 font-bold uppercase tracking-widest">Nequi / Bancolombia instantáneo</span>
                             </div>
                             {paymentMethod === 'nequi' && (
@@ -789,13 +789,13 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-[2rem] p-8 flex items-start mb-12 animate-pulse">
+                      <div className="bg-amber-50 dark:!bg-[#FFFBEB] border border-amber-100 dark:!border-[#FDE68A] rounded-[2rem] p-8 flex items-start mb-12 animate-pulse">
                         <AlertCircle className="w-6 h-6 text-amber-600 mr-4 flex-shrink-0 mt-1" />
                         <div>
-                          <p className="text-xs font-black text-amber-900 dark:text-amber-400 uppercase tracking-widest leading-relaxed">
+                          <p className="text-xs font-black text-amber-900 uppercase tracking-widest leading-relaxed">
                             Paso requerido para continuar:
                           </p>
-                          <p className="text-xs text-amber-700 dark:text-amber-500 font-bold mt-1">
+                          <p className="text-xs text-amber-700 font-bold mt-1">
                             {!state.deliveryMethod
                               ? 'Por favor selecciona tu método de entrega preferido.'
                               : 'Debes completar y guardar tu dirección de envío.'}
@@ -816,24 +816,24 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[10000] bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl border border-stone-100 dark:border-white/10 px-6 py-4 flex items-center gap-4"
+                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[10000] bg-white dark:!bg-white shadow-2xl rounded-2xl border border-stone-100 dark:!border-[#F2E3E7] px-6 py-4 flex items-center gap-4"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
-                    <Trash2 className="w-5 h-5 text-red-500" />
+                  <div className="w-10 h-10 bg-red-100 dark:!bg-[#FCE7ED] rounded-full flex items-center justify-center">
+                    <Trash2 className="w-5 h-5 text-red-500 dark:!text-[#B33959]" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-white">
+                    <p className="text-sm font-bold text-stone-900 dark:!text-[#2D1B22]">
                       {removedItem.name} eliminado
                     </p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400">
+                    <p className="text-xs text-stone-500 dark:!text-[#7A666D]">
                       ¿Deseas deshacer esta acción?
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={handleUndoRemove}
-                  className="touch-target flex items-center gap-2 px-4 py-2 bg-stone-900 dark:bg-white text-white dark:text-stone-900 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity"
+                  className="touch-target flex items-center gap-2 px-4 py-2 bg-stone-900 dark:!bg-[#2D1B22] text-white dark:!text-white rounded-xl font-medium text-sm hover:opacity-90 transition-opacity"
                   aria-label="Deshacer eliminación"
                 >
                   <RotateCcw className="w-4 h-4" />

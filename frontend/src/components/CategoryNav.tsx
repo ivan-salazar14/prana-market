@@ -74,16 +74,16 @@ export default function CategoryNav({
                 >
                   <Link
                     href={`/category/${category.slug}`}
-                    className={`touch-target px-3 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 rounded-md ${
+                    className={`touch-target px-3 py-2 text-sm font-bold transition-all duration-200 flex items-center gap-1.5 rounded-md ${
                       isActive
-                        ? "text-[var(--primary)] font-semibold bg-[var(--surface-muted)]"
-                        : "text-[var(--text-main)] hover:text-[var(--primary)] hover:bg-[var(--surface-muted)]"
+                        ? "text-[var(--primary)] font-bold bg-[var(--surface-muted)]"
+                        : "text-[#2D1B22] hover:text-[var(--primary)] hover:bg-[var(--surface-muted)]"
                     }`}
                   >
-                    <IconComponent className="w-4 h-4 text-[var(--secondary)]" />
+                    <IconComponent className="w-4 h-4 text-[var(--primary)] shrink-0" />
                     <span>{category.name}</span>
                     {category.subcategories && (
-                      <ChevronDown className="w-3.5 h-3.5 opacity-60 transition-transform duration-200 group-hover:rotate-180" />
+                      <ChevronDown className="w-3.5 h-3.5 text-[#2D1B22] opacity-70 transition-transform duration-200 group-hover:rotate-180" />
                     )}
                   </Link>
 
@@ -99,10 +99,10 @@ export default function CategoryNav({
                       >
                         <div className="bg-white rounded-xl shadow-xl border border-[var(--border-subtle)] p-4 overflow-hidden">
                           <div className="pb-2.5 mb-2.5 border-b border-[var(--border-subtle)]">
-                            <h4 className="font-heading text-base font-bold text-[var(--text-main)]">
+                            <h4 className="font-heading text-base font-bold text-[#2D1B22]">
                               {category.name}
                             </h4>
-                            <p className="text-xs text-[var(--text-muted)] mt-0.5 line-clamp-1">
+                            <p className="text-xs text-stone-600 mt-0.5 line-clamp-1">
                               {category.description}
                             </p>
                           </div>
@@ -112,7 +112,7 @@ export default function CategoryNav({
                               <Link
                                 key={sub.id}
                                 href={`/category/${category.slug}/${sub.slug}`}
-                                className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-sm text-[var(--text-main)] hover:bg-[var(--surface-muted)] hover:text-[var(--primary)] transition-colors group"
+                                className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-sm text-[#2D1B22] font-semibold hover:bg-[var(--surface-muted)] hover:text-[var(--primary)] transition-colors group"
                               >
                                 <span>{sub.name}</span>
                                 <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[var(--primary)]" />

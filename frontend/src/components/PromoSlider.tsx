@@ -76,7 +76,7 @@ export default function PromoSlider({ items }: PromoSliderProps) {
 
     return (
         <div className="relative w-full mb-12 group">
-            <div className="relative h-[300px] md:h-[500px] w-full overflow-hidden rounded-[2.5rem] shadow-2xl bg-zinc-100 dark:bg-zinc-900 border border-gray-100 dark:border-white/5">
+            <div className="relative h-[300px] md:h-[500px] w-full overflow-hidden rounded-[2.5rem] shadow-2xl bg-zinc-100 dark:bg-[#2D1B22] border border-gray-100 dark:border-[#FCE7ED]/10">
                 <AnimatePresence initial={false} custom={direction}>
                     <motion.div
                         key={currentIndex}

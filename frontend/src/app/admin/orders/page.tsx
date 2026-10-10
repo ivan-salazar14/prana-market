@@ -123,15 +123,15 @@ export default function CentralizedOrdersDashboard() {
   const formatCOP = (val: number) => `$${(val || 0).toLocaleString("es-CO")} COP`;
 
   return (
-    <div className="min-h-screen bg-[var(--surface-base)] py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--surface-base)] dark:!bg-[#FDF9F7] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header & Title */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black font-heading text-[var(--text-main)]">
+            <h1 className="text-2xl sm:text-3xl font-black font-heading text-[var(--text-main)] dark:!text-[#2D1B22]">
               Panel Centralizado de <span className="text-[var(--primary)] italic font-serif">Gestión de Pedidos</span>
             </h1>
-            <p className="text-xs text-[var(--text-muted)] mt-1">
+            <p className="text-xs text-[var(--text-muted)] dark:!text-[#7A666D] mt-1">
               Orquestación del ciclo de vida de órdenes, asignación de guías multitransportadora y estados de entrega.
             </p>
           </div>
@@ -139,7 +139,7 @@ export default function CentralizedOrdersDashboard() {
           <div className="flex items-center gap-3">
             <button
               onClick={fetchOrders}
-              className="py-2.5 px-4 rounded-xl bg-white dark:bg-zinc-800 border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-main)] flex items-center gap-2 hover:bg-stone-50 transition-colors shadow-sm"
+              className="py-2.5 px-4 rounded-xl bg-white dark:!bg-white border border-[var(--border-subtle)] dark:!border-[#F2E3E7] text-xs font-bold text-[var(--text-main)] dark:!text-[#2D1B22] flex items-center gap-2 hover:bg-stone-50 dark:!hover:bg-[#F7EEF1] transition-colors shadow-sm"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
               <span>Actualizar</span>
@@ -148,7 +148,7 @@ export default function CentralizedOrdersDashboard() {
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-[var(--border-subtle)] shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white dark:!bg-white rounded-2xl p-4 border border-[var(--border-subtle)] dark:!border-[#F2E3E7] shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <Filter className="w-4 h-4 text-[var(--text-muted)] mr-1" />
             {[
@@ -166,7 +166,7 @@ export default function CentralizedOrdersDashboard() {
                 className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-colors ${
                   statusFilter === tab.id
                     ? "bg-[var(--primary)] text-white"
-                    : "bg-[var(--surface-base)] text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                    : "bg-[var(--surface-base)] dark:!bg-[#FDF9F7] text-[var(--text-muted)] dark:!text-[#7A666D] hover:text-[var(--text-main)] dark:!hover:text-[#2D1B22]"
                 }`}
               >
                 {tab.label}
@@ -181,24 +181,24 @@ export default function CentralizedOrdersDashboard() {
               placeholder="Buscar por ID o cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-[var(--surface-base)] border border-[var(--border-subtle)] text-xs font-semibold focus:outline-none text-[var(--text-main)]"
+              className="w-full pl-9 pr-4 py-2 rounded-xl bg-[var(--surface-base)] dark:!bg-[#FDF9F7] border border-[var(--border-subtle)] dark:!border-[#F2E3E7] text-xs font-semibold focus:outline-none text-[var(--text-main)] dark:!text-[#2D1B22]"
             />
           </div>
         </div>
 
         {/* Toast Notification */}
         {toastMessage && (
-          <div className="p-4 rounded-xl bg-zinc-900 text-white font-bold text-xs shadow-xl animate-in fade-in">
+          <div className="p-4 rounded-xl bg-[#2D1B22] dark:!bg-[#2D1B22] text-white font-bold text-xs shadow-xl animate-in fade-in">
             {toastMessage}
           </div>
         )}
 
         {/* Orders Table */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-[var(--border-subtle)] shadow-xl overflow-hidden">
+        <div className="bg-white dark:!bg-white rounded-3xl border border-[var(--border-subtle)] dark:!border-[#F2E3E7] shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[var(--surface-base)] border-b border-[var(--border-subtle)] text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider font-heading">
+                <tr className="bg-[var(--surface-base)] dark:!bg-[#FDF9F7] border-b border-[var(--border-subtle)] dark:!border-[#F2E3E7] text-[11px] font-bold text-[var(--text-muted)] dark:!text-[#7A666D] uppercase tracking-wider font-heading">
                   <th className="p-4">Pedido ID</th>
                   <th className="p-4">Cliente / Ciudad</th>
                   <th className="p-4">Estado Ciclo de Vida</th>
@@ -207,28 +207,28 @@ export default function CentralizedOrdersDashboard() {
                   <th className="p-4 text-right">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)] text-xs">
+              <tbody className="divide-y divide-[var(--border-subtle)] dark:!divide-[#F2E3E7] text-xs">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-[var(--text-muted)]">
+                    <td colSpan={6} className="p-8 text-center text-[var(--text-muted)] dark:!text-[#7A666D]">
                       Cargando órdenes...
                     </td>
                   </tr>
                 ) : filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-[var(--text-muted)]">
+                    <td colSpan={6} className="p-8 text-center text-[var(--text-muted)] dark:!text-[#7A666D]">
                       No se encontraron pedidos con el filtro seleccionado.
                     </td>
                   </tr>
                 ) : (
                   filteredOrders.map((ord) => (
-                    <tr key={ord.id} className="hover:bg-stone-50/50 transition-colors">
+                    <tr key={ord.id} className="hover:bg-stone-50/50 dark:!hover:bg-[#F7EEF1] transition-colors">
                       <td className="p-4 font-bold font-mono text-[var(--primary)]">#PM-{ord.id}</td>
                       <td className="p-4">
-                        <div className="font-bold text-[var(--text-main)]">
+                        <div className="font-bold text-[var(--text-main)] dark:!text-[#2D1B22]">
                           {ord.shippingAddress?.fullName || "Cliente Prana"}
                         </div>
-                        <div className="text-[11px] text-[var(--text-muted)]">
+                        <div className="text-[11px] text-[var(--text-muted)] dark:!text-[#7A666D]">
                           {ord.shippingAddress?.city || "Colombia"}
                         </div>
                       </td>
@@ -247,10 +247,10 @@ export default function CentralizedOrdersDashboard() {
                           {ord.status}
                         </span>
                       </td>
-                      <td className="p-4 font-bold text-[var(--text-main)]">{formatCOP(ord.total)}</td>
+                      <td className="p-4 font-bold text-[var(--text-main)] dark:!text-[#2D1B22]">{formatCOP(ord.total)}</td>
                       <td className="p-4">
                         {ord.tracking_number ? (
-                          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-[var(--text-main)]">
+                          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-[var(--text-main)] dark:!text-[#2D1B22]">
                             <Truck className="w-3.5 h-3.5 text-[var(--primary)]" />
                             <span>{ord.tracking_number}</span>
                             {ord.tracking_url && (
@@ -265,7 +265,7 @@ export default function CentralizedOrdersDashboard() {
                             )}
                           </div>
                         ) : (
-                          <span className="text-[11px] text-[var(--text-muted)] italic">Sin guía asignada</span>
+                          <span className="text-[11px] text-[var(--text-muted)] dark:!text-[#7A666D] italic">Sin guía asignada</span>
                         )}
                       </td>
                       <td className="p-4 text-right">
@@ -276,7 +276,7 @@ export default function CentralizedOrdersDashboard() {
                             setTrackingNumber(ord.tracking_number || "");
                             setTrackingUrl(ord.tracking_url || "");
                           }}
-                          className="py-1.5 px-3 rounded-xl bg-[var(--surface-base)] border border-[var(--border-subtle)] hover:bg-stone-100 font-bold text-xs flex items-center gap-1.5 inline-flex"
+                          className="py-1.5 px-3 rounded-xl bg-[var(--surface-base)] dark:!bg-[#FDF9F7] border border-[var(--border-subtle)] dark:!border-[#F2E3E7] hover:bg-stone-100 dark:!hover:bg-[#F7EEF1] font-bold text-xs flex items-center gap-1.5 inline-flex"
                         >
                           <Edit3 className="w-3.5 h-3.5 text-[var(--primary)]" />
                           <span>Gestionar</span>
@@ -293,14 +293,14 @@ export default function CentralizedOrdersDashboard() {
         {/* Modal for Order Management */}
         {selectedOrder && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-[var(--border-subtle)] shadow-2xl space-y-6">
-              <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
-                <h3 className="text-lg font-bold font-heading text-[var(--text-main)]">
+            <div className="bg-white dark:!bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-[var(--border-subtle)] dark:!border-[#F2E3E7] shadow-2xl space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)] dark:!border-[#F2E3E7]">
+                <h3 className="text-lg font-bold font-heading text-[var(--text-main)] dark:!text-[#2D1B22]">
                   Gestionar Pedido #PM-{selectedOrder.id}
                 </h3>
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="text-[var(--text-muted)] hover:text-[var(--text-main)] text-sm font-bold"
+                  className="text-[var(--text-muted)] dark:!text-[#7A666D] hover:text-[var(--text-main)] dark:!hover:text-[#2D1B22] text-sm font-bold"
                 >
                   ✕
                 </button>
@@ -308,13 +308,13 @@ export default function CentralizedOrdersDashboard() {
 
               <form onSubmit={handleUpdateStatus} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider font-heading">
+                  <label className="text-xs font-bold text-[var(--text-main)] dark:!text-[#2D1B22] uppercase tracking-wider font-heading">
                     Nuevo Estado de Orden
                   </label>
                   <select
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface-base)] border border-[var(--border-subtle)] text-xs font-semibold focus:outline-none text-[var(--text-main)]"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface-base)] dark:!bg-[#FDF9F7] border border-[var(--border-subtle)] dark:!border-[#F2E3E7] text-xs font-semibold focus:outline-none text-[var(--text-main)] dark:!text-[#2D1B22]"
                   >
                     <option value="pending">pending (Pendiente)</option>
                     <option value="paid">paid (Pago Confirmado)</option>
@@ -326,7 +326,7 @@ export default function CentralizedOrdersDashboard() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider font-heading">
+                  <label className="text-xs font-bold text-[var(--text-main)] dark:!text-[#2D1B22] uppercase tracking-wider font-heading">
                     Número de Guía (Servientrega, Coordinadora, etc.)
                   </label>
                   <input
@@ -334,12 +334,12 @@ export default function CentralizedOrdersDashboard() {
                     placeholder="ej. SER-987654321"
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface-base)] border border-[var(--border-subtle)] text-xs font-semibold focus:outline-none text-[var(--text-main)]"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface-base)] dark:!bg-[#FDF9F7] border border-[var(--border-subtle)] dark:!border-[#F2E3E7] text-xs font-semibold focus:outline-none text-[var(--text-main)] dark:!text-[#2D1B22]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider font-heading">
+                  <label className="text-xs font-bold text-[var(--text-main)] dark:!text-[#2D1B22] uppercase tracking-wider font-heading">
                     URL de Rastreo Oficial
                   </label>
                   <input
@@ -347,7 +347,7 @@ export default function CentralizedOrdersDashboard() {
                     placeholder="https://www.servientrega.com/..."
                     value={trackingUrl}
                     onChange={(e) => setTrackingUrl(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface-base)] border border-[var(--border-subtle)] text-xs font-semibold focus:outline-none text-[var(--text-main)]"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[var(--surface-base)] dark:!bg-[#FDF9F7] border border-[var(--border-subtle)] dark:!border-[#F2E3E7] text-xs font-semibold focus:outline-none text-[var(--text-main)] dark:!text-[#2D1B22]"
                   />
                 </div>
 
@@ -355,7 +355,7 @@ export default function CentralizedOrdersDashboard() {
                   <button
                     type="button"
                     onClick={() => setSelectedOrder(null)}
-                    className="py-2.5 px-4 rounded-xl bg-stone-100 text-stone-700 font-bold text-xs"
+                    className="py-2.5 px-4 rounded-xl bg-stone-100 dark:!bg-[#F7EEF1] text-stone-700 dark:!text-[#2D1B22] font-bold text-xs"
                   >
                     Cancelar
                   </button>

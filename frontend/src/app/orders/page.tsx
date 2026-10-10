@@ -123,7 +123,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-20 bg-brand-background dark:bg-zinc-950">
+    <div className="min-h-screen pt-32 pb-20 bg-brand-background dark:bg-[#1A0F14]">
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="mb-16">
           <motion.div
@@ -135,7 +135,7 @@ export default function OrdersPage() {
               <span className="text-[10px] font-black text-brand-primary uppercase tracking-[0.3em] inline-block bg-brand-primary/10 px-4 py-1.5 rounded-full">
                 Mi Perfil
               </span>
-              <h1 className="text-5xl md:text-7xl font-black text-stone-900 dark:text-white tracking-tight">Mis Pedidos</h1>
+              <h1 className="text-5xl md:text-7xl font-black text-stone-900 dark:text-[#FDF9F7] tracking-tight">Mis Pedidos</h1>
             </div>
             <p className="text-stone-400 font-medium text-lg leading-relaxed max-w-xs">
               Gestiona y rastrea el estado de tus compras en tiempo real.
@@ -147,15 +147,15 @@ export default function OrdersPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-zinc-900 rounded-[3rem] p-16 text-center shadow-2xl shadow-stone-200/50 dark:shadow-none border border-stone-100 dark:border-white/5"
+            className="bg-white dark:bg-[#2D1B22] rounded-[3rem] p-16 text-center shadow-2xl shadow-stone-200/50 dark:shadow-none border border-stone-100 dark:border-[#FCE7ED]/10"
           >
             <div className="relative inline-block mb-10">
               <div className="absolute inset-0 bg-brand-primary/10 blur-3xl rounded-full" />
-              <div className="relative bg-stone-50 dark:bg-zinc-800 p-10 rounded-[2.5rem] border border-stone-100 dark:border-white/5">
+              <div className="relative bg-stone-50 dark:bg-[#3D242D] p-10 rounded-[2.5rem] border border-stone-100 dark:border-[#FCE7ED]/10">
                 <Package className="w-16 h-16 text-stone-400" />
               </div>
             </div>
-            <h3 className="text-2xl font-black text-stone-900 dark:text-white mb-4 uppercase tracking-tight">No tienes pedidos aún</h3>
+            <h3 className="text-2xl font-black text-stone-900 dark:text-[#FDF9F7] mb-4 uppercase tracking-tight">No tienes pedidos aún</h3>
             <p className="text-stone-400 mb-10 max-w-md mx-auto font-medium text-lg leading-relaxed">
               Tu historial está vacío. ¡Es un excelente momento para encontrar algo especial!
             </p>
@@ -178,18 +178,18 @@ export default function OrdersPage() {
                   transition={{ delay: index * 0.1 }}
                   key={order.documentId}
                 >
-                  <Card className="overflow-hidden border-none shadow-xl shadow-stone-100/50 hover:shadow-2xl hover:shadow-brand-primary/5 transition-all duration-500 rounded-[2.5rem] bg-white dark:bg-zinc-900">
+                  <Card className="overflow-hidden border-none shadow-xl shadow-stone-100/50 hover:shadow-2xl hover:shadow-brand-primary/5 transition-all duration-500 rounded-[2.5rem] bg-white dark:bg-[#2D1B22]">
                     <div
                       onClick={() => toggleOrder(order.documentId)}
-                      className="p-8 md:p-10 cursor-pointer hover:bg-stone-50/50 dark:hover:bg-zinc-800/30 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-8"
+                      className="p-8 md:p-10 cursor-pointer hover:bg-stone-50/50 dark:hover:bg-[#3D242D]/40 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-8"
                     >
                       <div className="flex items-center gap-8">
-                        <div className="hidden md:flex bg-stone-50 dark:bg-zinc-800 p-5 rounded-[1.5rem] border border-stone-100 dark:border-white/5 shadow-sm">
+                        <div className="hidden md:flex bg-stone-50 dark:bg-[#3D242D] p-5 rounded-[1.5rem] border border-stone-100 dark:border-[#FCE7ED]/10 shadow-sm">
                           <Package className="w-8 h-8 text-stone-400" />
                         </div>
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
-                            <h3 className="text-xl font-black text-stone-900 dark:text-white tracking-tight">
+                            <h3 className="text-xl font-black text-stone-900 dark:text-[#FDF9F7] tracking-tight">
                               Pedido #{order.id}
                             </h3>
                             <span className={cn(
@@ -220,7 +220,7 @@ export default function OrdersPage() {
                           <p className="text-3xl font-black text-brand-primary">{formatCurrency(order.total)}</p>
                         </div>
                         <div className={cn(
-                          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-stone-50 dark:bg-zinc-800 border border-stone-100 dark:border-white/5",
+                          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-stone-50 dark:bg-[#3D242D] border border-stone-100 dark:border-[#FCE7ED]/10",
                           isExpanded ? "bg-brand-primary text-white border-brand-primary" : "text-stone-400"
                         )}>
                           <ChevronDown className={cn("w-6 h-6 transition-transform duration-500", isExpanded ? "rotate-180" : "")} />
@@ -234,17 +234,17 @@ export default function OrdersPage() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden border-t border-stone-100 dark:border-white/5"
+                          className="overflow-hidden border-t border-stone-100 dark:border-[#FCE7ED]/10"
                         >
-                          <div className="p-8 md:p-12 space-y-12 bg-stone-50/30 dark:bg-zinc-900/40">
+                          <div className="p-8 md:p-12 space-y-12 bg-stone-50/30 dark:bg-[#2D1B22]/50">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                               {/* Items List */}
                               <div className="space-y-6">
                                 <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em]">Detalle de Productos</h4>
                                 <div className="space-y-4">
                                   {order.items.map((item) => (
-                                    <div key={item.id} className="flex items-center gap-6 p-4 bg-white dark:bg-zinc-800/50 rounded-2xl border border-stone-100 dark:border-white/5 shadow-sm group">
-                                      <div className="w-16 h-16 bg-stone-50 dark:bg-zinc-700 rounded-xl overflow-hidden border border-stone-100 dark:border-white/10 flex-shrink-0 relative">
+                                    <div key={item.id} className="flex items-center gap-6 p-4 bg-white dark:bg-[#3D242D]/60 rounded-2xl border border-stone-100 dark:border-[#FCE7ED]/10 shadow-sm group">
+                                      <div className="w-16 h-16 bg-stone-50 dark:bg-[#4D2E38] rounded-xl overflow-hidden border border-stone-100 dark:border-[#FCE7ED]/15 flex-shrink-0 relative">
                                         {item.images?.[0]?.url ? (
                                           <Image
                                             src={getStrapiMedia(item.images[0].url) || '/placeholder.png'}
@@ -259,12 +259,12 @@ export default function OrdersPage() {
                                         )}
                                       </div>
                                       <div className="flex-1 min-w-0">
-                                        <h5 className="text-sm font-black text-stone-900 dark:text-white truncate uppercase tracking-tight">{item.name}</h5>
+                                        <h5 className="text-sm font-black text-stone-900 dark:text-[#FDF9F7] truncate uppercase tracking-tight">{item.name}</h5>
                                         <p className="text-xs font-bold text-stone-400 mt-1 uppercase tracking-wider">
                                           Cantidad: {item.quantity} × {formatCurrency(item.price)}
                                         </p>
                                       </div>
-                                      <p className="text-sm font-black text-stone-900 dark:text-white">
+                                      <p className="text-sm font-black text-stone-900 dark:text-[#FDF9F7]">
                                         {formatCurrency(item.price * item.quantity)}
                                       </p>
                                     </div>
@@ -279,8 +279,8 @@ export default function OrdersPage() {
                                     <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                       <MapPin className="w-3.5 h-3.5" /> Entrega
                                     </h4>
-                                    <div className="bg-white dark:bg-zinc-800/50 p-5 rounded-2xl border border-stone-100 dark:border-white/5">
-                                      <p className="text-sm font-black text-stone-900 dark:text-white mb-1 uppercase tracking-tight">{order.deliveryMethod?.name}</p>
+                                    <div className="bg-white dark:bg-[#3D242D]/60 p-5 rounded-2xl border border-stone-100 dark:border-[#FCE7ED]/10">
+                                      <p className="text-sm font-black text-stone-900 dark:text-[#FDF9F7] mb-1 uppercase tracking-tight">{order.deliveryMethod?.name}</p>
                                       {order.shippingAddress ? (
                                         <div className="text-xs text-stone-500 space-y-1 font-medium leading-relaxed">
                                           <p>{order.shippingAddress.address}</p>
@@ -295,8 +295,8 @@ export default function OrdersPage() {
                                     <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                       <Receipt className="w-3.5 h-3.5" /> Pago
                                     </h4>
-                                    <div className="bg-white dark:bg-zinc-800/50 p-5 rounded-2xl border border-stone-100 dark:border-white/5">
-                                      <p className="text-sm font-black text-stone-900 dark:text-white mb-1 uppercase tracking-tight">
+                                    <div className="bg-white dark:bg-[#3D242D]/60 p-5 rounded-2xl border border-stone-100 dark:border-[#FCE7ED]/10">
+                                      <p className="text-sm font-black text-stone-900 dark:text-[#FDF9F7] mb-1 uppercase tracking-tight">
                                         {order.paymentMethod === 'nequi' ? 'Transferencia' : order.paymentMethod === 'stripe' ? 'Tarjeta' : 'Contraentrega'}
                                       </p>
                                       <p className="text-xs text-stone-500 font-medium leading-relaxed font-bold uppercase tracking-widest text-brand-primary">
@@ -309,7 +309,7 @@ export default function OrdersPage() {
                                 <div className="bg-brand-primary/[0.03] dark:bg-brand-primary/[0.05] p-8 rounded-[2rem] border border-brand-primary/10 space-y-4 shadow-weight-sm">
                                   <div className="flex justify-between items-center text-sm">
                                     <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Subtotal:</span>
-                                    <span className="font-extrabold text-stone-900 dark:text-white">{formatCurrency(order.subtotal)}</span>
+                                    <span className="font-extrabold text-stone-900 dark:text-[#FDF9F7]">{formatCurrency(order.subtotal)}</span>
                                   </div>
                                   <div className="flex justify-between items-center text-sm">
                                     <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Costo de Envío:</span>
@@ -318,7 +318,7 @@ export default function OrdersPage() {
                                     </span>
                                   </div>
                                   <div className="pt-6 border-t border-brand-primary/10 flex justify-between items-center">
-                                    <span className="text-xs font-black text-stone-900 dark:text-stone-300 uppercase tracking-[0.3em]">Total Final</span>
+                                    <span className="text-xs font-black text-stone-900 dark:text-[#D9BAC3] uppercase tracking-[0.3em]">Total Final</span>
                                     <span className="text-4xl font-black text-brand-primary">
                                       {formatCurrency(order.total)}
                                     </span>
