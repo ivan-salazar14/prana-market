@@ -258,15 +258,34 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     shippingAddress: null,
   });
 
-  // Load cart from localStorage on mount
+  // Load cart from localStorage on mount & auto-apply Instagram welcome promo (Story 7.4)
   useEffect(() => {
     const savedCart = localStorage.getItem('prana-cart');
+    let hasRestoredCoupon = false;
+
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
         dispatch({ type: 'RESTORE_CART', payload: parsedCart });
+        if (parsedCart.coupon) hasRestoredCoupon = true;
       } catch (error) {
         console.error('Failed to parse saved cart:', error);
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const promoParam = params.get('promo') || (params.get('utm_source') === 'instagram' ? 'BIENVENIDA10' : null);
+      if (promoParam && promoParam.toUpperCase() === 'BIENVENIDA10' && !hasRestoredCoupon) {
+        dispatch({
+          type: 'APPLY_COUPON',
+          payload: {
+            code: 'BIENVENIDA10',
+            type: 'percentage',
+            value: 10,
+            description: 'Incentivo de Bienvenida Instagram 10%',
+          },
+        });
       }
     }
   }, []);

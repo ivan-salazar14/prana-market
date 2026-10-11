@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import NequiCheckout from './NequiCheckout';
 import ManualNequiCheckout from './ManualNequiCheckout';
+import WompiCheckout from './WompiCheckout';
 import ShippingForm from './ShippingForm';
 import FreeShippingProgress from './FreeShippingProgress';
 import CouponInput from './CouponInput';
@@ -269,7 +270,7 @@ const DELIVERY_METHODS: DeliveryMethod[] = [
 
 export default function Cart({ isOpen, onClose }: CartProps) {
   const { state, dispatch } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState<'nequi' | 'efectivo'>('efectivo');
+  const [paymentMethod, setPaymentMethod] = useState<'nequi' | 'efectivo' | 'wompi'>('efectivo');
   const [removedItem, setRemovedItem] = useState<any | null>(null);
   const [showUndoToast, setShowUndoToast] = useState(false);
 
@@ -751,6 +752,32 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                               </div>
                             )}
                           </button>
+
+                          <button
+                            onClick={() => setPaymentMethod('wompi')}
+                            className={cn(
+                              "flex items-center p-5 rounded-[2rem] border-2 transition-all group relative overflow-hidden",
+                              paymentMethod === 'wompi'
+                                ? "border-purple-600 bg-white dark:!bg-white shadow-2xl shadow-purple-600/10"
+                                : "border-stone-100 dark:!border-[#F2E3E7] bg-white dark:!bg-white hover:border-purple-600/30"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-12 h-12 rounded-2xl flex items-center justify-center mr-5 transition-all shadow-sm",
+                              paymentMethod === 'wompi' ? "bg-purple-600 text-white" : "bg-gray-50 dark:!bg-[#F7EEF1] text-gray-400 group-hover:text-purple-600"
+                            )}>
+                              <CreditCard className="w-6 h-6" />
+                            </div>
+                            <div className="text-left">
+                              <span className={cn("text-sm font-black uppercase tracking-tight block mb-0.5", paymentMethod === 'wompi' ? "text-purple-600" : "text-gray-500 dark:!text-[#7A666D]")}>Wompi (PSE / Tarjetas / Efecty)</span>
+                              <span className="text-[9px] text-stone-400 font-bold uppercase tracking-widest">Todos los bancos y redes de Colombia</span>
+                            </div>
+                            {paymentMethod === 'wompi' && (
+                              <div className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center bg-purple-600 text-white rounded-bl-2xl">
+                                <CheckCircle2 className="w-4 h-4" />
+                              </div>
+                            )}
+                          </button>
                         </div>
 
                         <div className="pt-6 animate-in slide-in-from-bottom-10 duration-500">
@@ -768,6 +795,22 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                 window.location.href = '/payment/success';
                               }}
                               onError={(error: string) => console.error(`Order Error: ${error}`)}
+                            />
+                          ) : paymentMethod === 'wompi' ? (
+                            <WompiCheckout
+                              amount={state.total}
+                              items={state.items}
+                              deliveryMethod={state.deliveryMethod?.id}
+                              shippingAddress={state.shippingAddress}
+                              subtotal={state.subtotal}
+                              deliveryCost={state.deliveryCost}
+                              onSuccess={() => {
+                                dispatch({ type: 'CLEAR_CART' });
+                                onClose();
+                                window.location.href = '/payment/success';
+                              }}
+                              onError={(error: string) => console.error(`Wompi Order Error: ${error}`)}
+                              onSwitchPaymentMethod={() => setPaymentMethod('efectivo')}
                             />
                           ) : (
                             <NequiCheckout

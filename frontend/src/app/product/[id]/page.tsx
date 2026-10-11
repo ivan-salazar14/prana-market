@@ -24,6 +24,7 @@ import { cn } from '@/utils/cn';
 import ImageGallery from '@/components/ImageGallery';
 import ShadeSelector from '@/components/ShadeSelector';
 import PdpStickyBar from '@/components/PdpStickyBar';
+import InstagramSocialProof from '@/components/InstagramSocialProof';
 import { Shade, Product as ProductType } from '@/types/product';
 
 interface ProductCategory {
@@ -40,6 +41,7 @@ interface ProductCategory {
 interface Product {
   id: number;
   name: string;
+  slug?: string;
   description: string;
   price: number;
   original_price?: number;
@@ -412,6 +414,9 @@ export default function ProductPage() {
             </div>
           </div>
         </div>
+
+        {/* Story 7.5: Instagram Social Proof / UGC Component */}
+        <InstagramSocialProof productSlug={product?.slug} />
       </main>
 
       {/* Mobile Sticky Bar */}

@@ -217,8 +217,93 @@ export async function sendOrderEmail(strapi: any, order: any) {
       console.warn('No se pudo determinar el email del cliente, no se enviará email de confirmación');
     }
   } catch (error) {
-    console.error('Error general al enviar emails de pedido:', error);
-    // No lanzar el error para que la creación de la orden no falle
+export async function sendOperationalAlert(
+  strapi: any,
+  alertData: {
+    orderId: string | number;
+    alertType: 'MAX_RETRIES_EXCEEDED' | 'DELIVERY_EXCEPTION' | 'SYNC_FAILURE';
+    issueSummary: string;
+    details?: any;
+  }
+) {
+  try {
+    const opsEmail = process.env.OPERATIONS_ALERT_EMAIL || process.env.COMPANY_EMAIL || process.env.SMTP_USER;
+    const defaultFrom = process.env.SMTP_FROM || process.env.SMTP_USER || 'alerts@pranamarket.com';
+
+    if (!opsEmail) {
+      strapi.log.warn('OPERATIONS_ALERT_EMAIL o COMPANY_EMAIL no configurado para alertas operativas.');
+      return;
+    }
+
+    const alertTitleMap: Record<string, string> = {
+      MAX_RETRIES_EXCEEDED: '⚠️ Alerta Crítica: Reintentos Máximos de Despacho Agotados',
+      DELIVERY_EXCEPTION: '🚚 Alerta Logística: Novedad / Devolución en Transportadora',
+      SYNC_FAILURE: '🔴 Error de Sincronización Dropshipping (Mastershop)',
+    };
+
+    const title = alertTitleMap[alertData.alertType] || '⚠️ Alerta de Operaciones - Prana Market';
+    const monitorUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin/dropship-monitor`;
+
+    const htmlTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.5; color: #2D1B22; }
+          .alert-card { max-width: 600px; margin: 20px auto; border: 2px solid #E53E3E; border-radius: 16px; overflow: hidden; }
+          .alert-header { bg-color: #E53E3E; background: #9B1C1C; color: white; padding: 20px; text-align: center; }
+          .alert-body { padding: 24px; background: #FFF5F5; }
+          .field { margin-bottom: 12px; }
+          .label { font-weight: bold; font-size: 12px; text-transform: uppercase; color: #7A666D; }
+          .value { font-size: 16px; font-weight: bold; color: #2D1B22; }
+          .cause-box { background: #FED7D7; border: 1px solid #FEB2B2; padding: 12px; border-radius: 10px; color: #9B1C1C; font-weight: 600; margin-top: 16px; }
+          .btn-action { display: inline-block; background: #9B1C1C; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 12px; margin-top: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="alert-card">
+          <div class="alert-header">
+            <h2>${title}</h2>
+          </div>
+          <div class="alert-body">
+            <div class="field">
+              <div class="label">Número de Pedido</div>
+              <div class="value">#PM-${alertData.orderId}</div>
+            </div>
+            <div class="field">
+              <div class="label">Tipo de Incidencia</div>
+              <div class="value">${alertData.alertType}</div>
+            </div>
+            <div class="field">
+              <div class="label">Fecha / Hora</div>
+              <div class="value">${new Date().toLocaleString('es-CO')}</div>
+            </div>
+
+            <div class="cause-box">
+              <strong>Detalle de la Novedad:</strong><br/>
+              ${alertData.issueSummary}
+            </div>
+
+            <div style="text-align: center;">
+              <a href="${monitorUrl}" class="btn-action">Ir al Centro de Control de Excepciones</a>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    await dispatchEmail({
+      from: defaultFrom,
+      to: opsEmail,
+      subject: `[ALERTA OPERATIVA] Pedido #${alertData.orderId}: ${alertData.issueSummary.substring(0, 60)}`,
+      html: htmlTemplate,
+    });
+
+    strapi.log.info(`[Story 5.6] Alerta operativa enviada a ${opsEmail} para Pedido #${alertData.orderId}`);
+  } catch (err: any) {
+    strapi.log.error('Error al enviar alerta operativa:', err);
   }
 }
 

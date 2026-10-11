@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "social_proofs",
+  "info": {
+    "singularName": "social-proof",
+    "pluralName": "social-proofs",
+    "displayName": "Social Proof",
+    "description": "Moderated Instagram comments and customer UGC reviews"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "author_handle": {
+      "type": "string",
+      "required": true
+    },
+    "author_avatar": {
+      "type": "string",
+      "required": false
+    },
+    "comment_text": {
+      "type": "text",
+      "required": true
+    },
+    "rating": {
+      "type": "integer",
+      "default": 5,
+      "min": 1,
+      "max": 5
+    },
+    "media_thumbnail": {
+      "type": "string",
+      "required": false
+    },
+    "instagram_post_url": {
+      "type": "string",
+      "required": true
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": true
+    },
+    "product_slug": {
+      "type": "string",
+      "required": false
+    },
+    "timestamp": {
+      "type": "string",
+      "required": false
+    }
+  }
+}

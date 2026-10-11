@@ -130,6 +130,10 @@ Permite a los compradores realizar seguimiento en tiempo real de sus pedidos mul
 Garantiza la máxima legibilidad y cumplimiento de contraste WCAG AA (≥ 4.5:1) en el Carrito de compras (`Cart.tsx`), páneles de administración (`/admin/dropship-monitor`) y vistas públicas, eliminando fondos oscuros no deseados o legibilidad deficiente por cascadas de modo oscuro.
 **NFRs covered:** NFR-UX-02, NFR-UX-03
 
+### Epic 7: Instagram Social Commerce & Lead Acquisition Engine
+Permite enlazar el catálogo de productos de Prana Market con Instagram Shopping, automatizar la captación de usuarios desde comentarios y mensajes directos (DMs) de Instagram, otorgar incentivos de primer registro y llevar un registro/log centralizado de leads de redes sociales en Strapi CMS.
+
+
 
 ## Epic 1: Product Discovery & Beauty Catalog Storefront
 
@@ -366,6 +370,58 @@ So that I can track national transit progress in real-time.
 **Then** Strapi updates `orders.tracking_number`, `orders.tracking_url`, and sets `shipping_status` to `'shipped'`
 **And** an automated shipment notification email and WhatsApp alert are dispatched to the customer with direct carrier tracking links
 
+### Story 4.5: Mastershop Robust API Client, Authentication & Healthcheck Monitor
+
+As an operations administrator,
+I want a resilient API client in Strapi for Mastershop integration with exponential backoff retries and an automated healthcheck monitor,
+So that Mastershop API outages or transient errors do not drop customer orders or cause silent catalog sync failures.
+
+**Acceptance Criteria:**
+
+**Given** the Strapi backend communicates with Mastershop API (`MASTERSHOP_API_KEY`)
+**When** Mastershop returns transient errors (`502`, `503`, `504` or connection timeout)
+**Then** the client retries up to 3 times using exponential backoff before logging an exception
+**And** a periodic healthcheck worker (every 15 min) updates system status (`ONLINE`, `DEGRADED`, `OFFLINE`) visible in Strapi admin.
+
+### Story 4.6: Bidirectional Webhook Listener & Delta Inventory Sync Engine
+
+As a catalog manager,
+I want a webhook endpoint in Strapi listening to Mastershop inventory and product change events,
+So that stock levels and pricing reflect in Prana Market instantly without polling overhead.
+
+**Acceptance Criteria:**
+
+**Given** an inventory or price change event occurs on Mastershop platform
+**When** Mastershop posts payload to `/api/webhooks/mastershop/inventory-update`
+**Then** Strapi verifies the cryptographic HMAC signature and updates only the delta attributes (`dropship_stock`, active status) for the affected SKU
+**And** responds with HTTP 200 OK under 500ms.
+
+### Story 4.7: Automated Post-Payment Order Forwarding Engine & Split-Fulfillment Handling
+
+As a platform operator,
+I want confirmed paid orders containing dropshipped products to be automatically forwarded to Mastershop API with split-shipment handling and idempotency,
+So that supplier fulfillment begins immediately post-checkout.
+
+**Acceptance Criteria:**
+
+**Given** an order transitions to `'paid'` status in Strapi
+**When** the order contains items with `sourcing_type == 'mastershop_dropship'`
+**Then** Strapi formats and posts the order to Mastershop API including standardized DANE address, customer phone, and line items, storing `mastershop_order_id` in `orders.mastershop_data`
+**And** for hybrid orders containing local items + dropship items, sub-fulfillment statuses are managed independently.
+
+### Story 4.8: Automated Real-Time Buyer Notifications (Email & WhatsApp) for Order Milestones
+
+As a beauty customer,
+I want to receive automated notifications via Email and WhatsApp at every order milestone (*Pago Confirmado, Despachado, En camino, Entregado*),
+So that I stay informed with direct carrier tracking links (Servientrega, Coordinadora, Interrapidísimo).
+
+**Acceptance Criteria:**
+
+**Given** an order changes status (`paid` -> `processing` -> `shipped` -> `delivered`)
+**When** the notification worker processes the status transition
+**Then** an automated transactional email and WhatsApp message are sent with Order ID (`#PM-XXXX`), assigned courier name, tracking guide number, and clickable tracking link (`/rastreo`).
+
+
 ## Epic 5: Order Tracking, Customer Engagement & Operational Management
 
 Permite a los compradores realizar seguimiento en tiempo real de sus pedidos multiguía e interactuar mediante WhatsApp, mientras dota a los administradores de Prana Market con un panel centralizado de gestión de pedidos y monitoreo de la sincronización de dropshipping en Strapi.
@@ -418,6 +474,31 @@ So that I can get quick assistance with shade advice or order queries.
 **When** clicking the WhatsApp support button
 **Then** it opens WhatsApp with a pre-filled message including context (e.g. `"Hola Prana Market, tengo una consulta sobre mi pedido #PM-8921"`)
 
+### Story 5.5: Mastershop Dropship Exception Control Center & Automated Retry Queue
+
+As an operations manager,
+I want a central admin view in Strapi displaying failed order dispatches with manual retry and address edit actions,
+So that any failed supplier dispatches can be remediated without database intervention.
+
+**Acceptance Criteria:**
+
+**Given** an order flagged with `sync_mastershop == true` or containing an error in `mastershop_data.error`
+**When** the admin accesses `/admin/dropship-monitor`
+**Then** the failure cause is highlighted and actions `"Reintentar Despacho"`, `"Editar Dirección"`, and `"Marcar Manual"` are available.
+
+### Story 5.6: Operational Alert System for Failed Dispatches & Delivery Exceptions
+
+As an operations team member,
+I want immediate internal notifications (Email/WhatsApp) when an order dispatch fails after max retries or encounters a carrier delivery exception,
+So that our team can address logistics issues proactively.
+
+**Acceptance Criteria:**
+
+**Given** an order dispatch fails after max retries or receives a carrier exception ("Devuelto a remitente" / "Novedad en entrega")
+**When** the exception threshold is triggered
+**Then** an operational alert is sent to the internal ops channel with order details and issue summary.
+
+
 ## Epic 6: High-Legibility UI & Dark Mode Contrast Standardization
 
 Permite garantizar una experiencia visual accesible y legible (cumpliendo con estándares WCAG AA $\ge 4.5:1$ de contraste) tanto en el carrito de compras como en los páneles administrativos y vistas públicas, eliminando fondos oscuros/negros no deseados o textos blancos ilegibles causados por la cascada de modo oscuro.
@@ -460,6 +541,75 @@ So that visual hierarchy is maintained across all screen sizes and device theme 
 **When** audited for visual legibility and color contrast
 **Then** zero elements fail WCAG AA contrast standards ($\ge 4.5:1$ for body text, $\ge 3:1$ for large text/icons)
 **And** dynamic dark mode utility classes (`dark:*`) are systematically sanitized or aligned with the official *Rose & Champagne Luxury* design system.
+
+## Epic 7: Instagram Social Commerce & Lead Acquisition Engine
+
+Permite enlazar el catálogo de productos de Prana Market con Instagram Shopping, automatizar la captación de usuarios desde comentarios y mensajes directos (DMs) de Instagram, otorgar incentivos de primer registro y llevar un registro/log centralizado de leads de redes sociales en Strapi CMS.
+
+### Story 7.1: Instagram Catalog Sync & Meta Product Feed Generation
+
+As a marketing manager,
+I want an automated Product Feed (XML/JSON) generated in Strapi compatible with Meta Commerce Manager / Instagram Shopping,
+So that products and prices are automatically synced and taggable in Instagram posts, reels, and stories.
+
+**Acceptance Criteria:**
+
+**Given** active products in Strapi CMS
+**When** Meta Commerce Manager fetches `/api/catalog/instagram-feed.xml`
+**Then** the feed outputs updated product details (name, COP price, images, availability, PDP link with UTM parameters `utm_source=instagram`) complying with Meta Product Catalog specs.
+
+### Story 7.2: Instagram DM & Comment Automated Lead Capture (Meta Graph API)
+
+As a social media manager,
+I want an automated integration with Instagram Messenger (Meta Graph API / Webhooks) that responds to product inquiries and DMs with product links and welcome discounts,
+So that potential buyers from Instagram are guided directly into the checkout funnel.
+
+**Acceptance Criteria:**
+
+**Given** a user sends a DM or leaves a comment with buying intent on an Instagram post
+**When** the Instagram webhook listener receives the message
+**Then** an automated reply is sent with the product PDP link, a 10% first-purchase coupon code, and a tracking referral ID.
+
+### Story 7.3: Social Lead Logging & Acquisition Analytics in Strapi (`api::social-lead`)
+
+As a marketing director,
+I want a dedicated Strapi collection and admin dashboard (`api::social-lead`) logging all leads captured from Instagram and social channels,
+So that we can track user acquisition source, assigned coupons, and conversion rate.
+
+**Acceptance Criteria:**
+
+**Given** a lead captured via Instagram DM, comment, or social landing page
+**When** the user interacts or registers
+**Then** a new record is created in `api::social-lead` with fields `instagram_username`, `email_or_phone`, `source_channel`, `discount_code_issued`, and `converted_to_customer` status.
+
+### Story 7.4: Social Landing & First-Purchase Incentive Auto-Apply
+
+As a beauty shopper coming from Instagram,
+I want to land on a tailored welcome banner or PDP with my 10% welcome discount pre-applied in the cart drawer,
+So that I experience a seamless transition from Instagram to completed purchase.
+
+**Acceptance Criteria:**
+
+**Given** a shopper arrives from Instagram link (`?utm_source=instagram&promo=BIENVENIDA10`)
+**When** browsing products or adding items to the cart
+**Then** the top banner highlights the Instagram welcome offer, and the slide-over cart automatically pre-applies the `BIENVENIDA10` promotional coupon code.
+
+### Story 7.5: Interactive Instagram Comments & Social Proof Component on Storefront
+
+As a mobile beauty shopper,
+I want to view real customer comments, ratings, and tagged Instagram posts directly on product detail pages (PDP) and social proof sections, with interactive links to open or reply on Instagram,
+So that I feel confident about product quality through authentic user-generated content (UGC) before making a purchase.
+
+**Acceptance Criteria:**
+
+**Given** a user is viewing a product page (PDP) on Prana Market
+**When** scrolling to the Social Proof / Instagram Reviews section
+**Then** the component displays embedded/synced Instagram post cards with real comments, author handles, timestamps, and media thumbnails
+**And** clicking on a comment or "Ver en Instagram" CTA deep-links directly to the Instagram app on mobile or opens the thread on Instagram in a new browser tab
+**And** administrators can filter or moderate comment visibility from Strapi CMS before rendering on the storefront
+**And** loading states render skeleton screens smoothly with zero layout shift ($\text{CLS} < 0.05$) and WCAG AA contrast compliance.
+
+
 
 
 

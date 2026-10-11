@@ -1,5 +1,5 @@
 import { factories } from '@strapi/strapi';
-import { sendOrderEmail } from '../services/order';
+import { sendOrderEmail, sendOperationalAlert } from '../services/order';
 
 export default factories.createCoreController('api::order.order', ({ strapi }) => ({
   /**
@@ -305,6 +305,152 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
     } catch (error: any) {
       strapi.log.error('Error in manual MasterShop sync:', error);
       return ctx.internalServerError('Internal server error during sync');
+    }
+  },
+
+  /**
+   * Update shipping address on a failed or processing order (Story 5.5)
+   */
+  async updateShippingAddress(ctx) {
+    const { id } = ctx.params;
+    const { shippingAddress } = ctx.request.body || {};
+
+    if (!shippingAddress) {
+      return ctx.badRequest('Se requiere objeto shippingAddress con la dirección actualizada.');
+    }
+
+    try {
+      let order = await strapi.documents('api::order.order').findOne({
+        documentId: id,
+      });
+
+      if (!order) {
+        const list = await strapi.documents('api::order.order').findMany({
+          filters: { id: id },
+          limit: 1,
+        });
+        if (list.length > 0) order = list[0];
+      }
+
+      if (!order) {
+        return ctx.notFound('Pedido no encontrado.');
+      }
+
+      const updatedAddress = {
+        ...(order.shippingAddress || {}),
+        ...shippingAddress,
+      };
+
+      const updated = await strapi.documents('api::order.order').update({
+        documentId: order.documentId,
+        data: {
+          shippingAddress: updatedAddress,
+        },
+      });
+
+      return ctx.send({
+        success: true,
+        message: 'Dirección de envío actualizada correctamente',
+        data: updated,
+      });
+    } catch (error: any) {
+      strapi.log.error('Error updating order shipping address:', error);
+      return ctx.internalServerError('Error al actualizar la dirección del pedido.');
+    }
+  },
+
+  /**
+   * Mark dropship order as manually dispatched/resolved (Story 5.5)
+   */
+  async markManualDispatch(ctx) {
+    const { id } = ctx.params;
+    const { tracking_number, notes } = ctx.request.body || {};
+
+    try {
+      let order = await strapi.documents('api::order.order').findOne({
+        documentId: id,
+      });
+
+      if (!order) {
+        const list = await strapi.documents('api::order.order').findMany({
+          filters: { id: id },
+          limit: 1,
+        });
+        if (list.length > 0) order = list[0];
+      }
+
+      if (!order) {
+        return ctx.notFound('Pedido no encontrado.');
+      }
+
+      const updated = await strapi.documents('api::order.order').update({
+        documentId: order.documentId,
+        data: {
+          sync_mastershop: false,
+          mastershop_id: order.mastershop_id || 'MANUAL-DESPACHO',
+          tracking_number: tracking_number || order.tracking_number,
+          mastershop_data: {
+            ...(order.mastershop_data || {}),
+            error: null,
+            manualResolution: true,
+            resolvedAt: new Date().toISOString(),
+            notes: notes || 'Despachado o resuelto manualmente por administrador',
+          },
+        },
+      });
+
+      return ctx.send({
+        success: true,
+        message: 'Pedido marcado como despachado manualmente',
+        data: updated,
+      });
+    } catch (error: any) {
+      strapi.log.error('Error marking manual dispatch:', error);
+      return ctx.internalServerError('Error al marcar despacho manual.');
+    }
+  },
+
+  /**
+   * Operational Alert Trigger Endpoint (Story 5.6)
+   * Dispatches internal Email/WhatsApp alert for dispatch failures or carrier exceptions
+   */
+  async triggerOperationalAlert(ctx) {
+    const { id } = ctx.params;
+    const { alertType, issueSummary, details } = ctx.request.body || {};
+
+    if (!issueSummary) {
+      return ctx.badRequest('Se requiere resumen de la novedad (issueSummary).');
+    }
+
+    try {
+      let order = await strapi.documents('api::order.order').findOne({
+        documentId: id,
+      });
+
+      if (!order) {
+        const list = await strapi.documents('api::order.order').findMany({
+          filters: { id: id },
+          limit: 1,
+        });
+        if (list.length > 0) order = list[0];
+      }
+
+      const orderId = order ? order.id : id;
+
+      await sendOperationalAlert(strapi, {
+        orderId,
+        alertType: alertType || 'DELIVERY_EXCEPTION',
+        issueSummary,
+        details,
+      });
+
+      return ctx.send({
+        success: true,
+        message: `Alerta operativa enviada para Pedido #${orderId}`,
+      });
+    } catch (error: any) {
+      strapi.log.error('Error triggering operational alert:', error);
+      return ctx.internalServerError('Error al despachar alerta operativa.');
     }
   },
 }));

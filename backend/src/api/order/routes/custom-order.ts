@@ -40,5 +40,35 @@ export default {
         middlewares: [],
       },
     },
+    {
+      method: 'POST',
+      path: '/orders/:id/update-address',
+      handler: 'custom-order.updateShippingAddress',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/orders/:id/mark-manual',
+      handler: 'custom-order.markManualDispatch',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/orders/:id/trigger-alert',
+      handler: 'custom-order.triggerOperationalAlert',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
   ],
 };

@@ -29,9 +29,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 09-24-2026 21:20
-last_updated: 09-29-2026
+last_updated: 10-10-2026
 project: prana-market
-project_key: NOKEY
 tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts
 development_status:
@@ -52,16 +51,20 @@ development_status:
   epic-3: in-progress
   3-1-dane-colombian-address-hierarchy-tiered-shipping-selection: review
   3-2-native-nequi-direct-push-dynamic-qr-checkout: done
-  3-3-comprehensive-wompi-gateway-pse-cards-bancolombia-cash-netwo: backlog
+  3-3-comprehensive-wompi-gateway-pse-cards-bancolombia-cash-netwo: review
   3-4-international-card-checkout-via-stripe-backup-gateway: backlog
   3-5-cryptographic-webhook-reconciliation-idempotent-payment-sett: backlog
   epic-3-retrospective: optional
 
-  epic-4: done
+  epic-4: in-progress
   4-1-mastershop-catalog-ingestion-schema-mapping-client: done
   4-2-automated-background-stock-dynamic-price-synchronization: done
   4-3-automated-post-payment-dropship-order-forwarding-fault-isola: done
   4-4-carrier-guide-ingestion-automated-customer-shipment-notifica: done
+  4-5-mastershop-robust-api-client-authentication-healthcheck-monitor: backlog
+  4-6-bidirectional-webhook-listener-delta-inventory-sync-engine: backlog
+  4-7-automated-post-payment-order-forwarding-engine-split-fulfillment: backlog
+  4-8-automated-real-time-buyer-notifications-email-whatsapp-order-milestones: backlog
   epic-4-retrospective: optional
 
   epic-5: done
@@ -69,6 +72,8 @@ development_status:
   5-2-centralized-strapi-order-lifecycle-dashboard: done
   5-3-mastershop-dropshipping-sync-monitor-manual-override: done
   5-4-whatsapp-customer-service-integration-support-shortcuts: done
+  5-5-mastershop-dropship-exception-control-center-manual-retry: done
+  5-6-operational-alert-system-failed-dispatches-delivery-exceptions: done
   epic-5-retrospective: optional
 
   epic-6: done
@@ -76,3 +81,13 @@ development_status:
   6-2-admin-dropship-monitoring-dashboard-legibility-cleanup: done
   6-3-global-theme-token-alignment-wcag-aa-accessibility-floor: done
   epic-6-retrospective: optional
+
+  epic-7: done
+  7-1-instagram-catalog-sync-meta-product-feed-generation: done
+  7-2-instagram-dm-comment-automated-lead-capture-meta-graph-api: done
+  7-3-social-lead-logging-acquisition-analytics-strapi: done
+  7-4-social-landing-first-purchase-incentive-auto-apply: done
+  7-5-interactive-instagram-comments-social-proof-component-on-storefront: done
+  epic-7-retrospective: optional
+
+

@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "social_leads",
+  "info": {
+    "singularName": "social-lead",
+    "pluralName": "social-leads",
+    "displayName": "Social Lead",
+    "description": "Instagram DM and social commerce lead acquisition records"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "instagram_username": {
+      "type": "string",
+      "required": false
+    },
+    "email_or_phone": {
+      "type": "string",
+      "required": false
+    },
+    "source_channel": {
+      "type": "enumeration",
+      "default": "instagram_dm",
+      "enum": [
+        "instagram_dm",
+        "instagram_comment",
+        "social_landing",
+        "other"
+      ]
+    },
+    "discount_code_issued": {
+      "type": "string",
+      "default": "BIENVENIDA10"
+    },
+    "converted_to_customer": {
+      "type": "boolean",
+      "default": false
+    },
+    "message_content": {
+      "type": "text",
+      "required": false
+    },
+    "meta_sender_id": {
+      "type": "string",
+      "required": false
+    }
+  }
+}
