@@ -26,6 +26,8 @@ FR-CAT-01: Multi-Brand & Category Taxonomy (Hierarchical category tree: Rostro, 
 FR-CAT-02: Rich Product Detail Page (PDP) (High-resolution image galleries, shade/color variant swatches, ingredients list, usage guides, and customer reviews).
 FR-CAT-03: Inventory Origin Badge (Explicit indicator if product ships via Express Local Delivery or National Dropshipping).
 FR-CAT-04: Smart Search & Filters (Typeahead search, filters by brand, skin type, finish matte/glow, price range in COP, and in-stock availability).
+FR-CAT-05: Bulk CSV Catalog Upload & Physical Stock Management (Administrative upload, schema validation, SKU collision protection, and stock/price upsert for physical local warehouse products).
+FR-CAT-06: Instagram Post-to-Product AI Importer (Administrative extraction of Instagram post media, carousel images, and LLM-assisted caption parsing into structured local catalog products).
 FR-CART-01: Persistent Slide-Over Cart (High-speed drawer cart accessible across all pages with real-time state persistence in localStorage and React Context).
 FR-CART-02: Dynamic Shipping Progress Bar (Visual threshold indicator with animated gradient progress toward free shipping threshold).
 FR-CART-03: One-Click Quantity & Variant Adjustment (Instant quantity toggling, variant switching, and removal without page reload).
@@ -44,6 +46,7 @@ FR-LOG-03: Order Tracking Portal (Public tracking page allowing customers to tra
 FR-ADM-01: Unified Order Management Dashboard (Centralized Strapi admin dashboard displaying order lifecycle status: pending, paid, processing, shipped, delivered, cancelled).
 FR-ADM-02: Dropshipping Status Monitor (Dedicated view for monitoring Mastershop fulfillment sync status, API error logs, and manual override/retry options).
 FR-ADM-03: Customer Service & WhatsApp Integration (Floating WhatsApp chat widget and direct order issue resolution shortcuts).
+FR-ADM-04: Hybrid Fulfillment Routing & Local Warehouse Dispatch (Isolation of physical order lifecycles from dropship synchronization, order origin filtering, and manual carrier tracking guide entry for local fulfillment).
 
 ### NonFunctional Requirements
 
@@ -103,6 +106,8 @@ UX-DR8: Micro-animations & Accessibility Floor (Framer Motion drawer springs, sk
 - FR-ADM-01: Epic 5 - Panel administrativo unificado de gestión de órdenes en Strapi
 - FR-ADM-02: Epic 5 - Monitor de sincronización de dropshipping, errores y reintentos
 - FR-ADM-03: Epic 5 - Integración de atención al cliente y soporte vía WhatsApp
+- FR-CAT-05: Epic 8 - Carga masiva de catálogo físico mediante CSV y gestión de stock
+- FR-ADM-04: Epic 8 - Enrutamiento híbrido de pedidos y despacho local en bodega
 
 ## Epic List
 
@@ -132,6 +137,10 @@ Garantiza la máxima legibilidad y cumplimiento de contraste WCAG AA (≥ 4.5:1)
 
 ### Epic 7: Instagram Social Commerce & Lead Acquisition Engine
 Permite enlazar el catálogo de productos de Prana Market con Instagram Shopping, automatizar la captación de usuarios desde comentarios y mensajes directos (DMs) de Instagram, otorgar incentivos de primer registro y llevar un registro/log centralizado de leads de redes sociales en Strapi CMS.
+
+### Epic 8: Physical Inventory Management & Hybrid Fulfillment Orchestration
+Permite al administrador cargar y actualizar masivamente productos físicos mediante archivos CSV con validación de esquema y protección de SKU, aísla el ciclo de vida de pedidos locales de las llamadas a MasterShop para prevenir errores espurios en el monitor de dropshipping, y dota al panel de pedidos con filtros por tipo de origen y registro manual de guías locales.
+**FRs covered:** FR-CAT-05, FR-ADM-04
 
 
 
@@ -608,6 +617,87 @@ So that I feel confident about product quality through authentic user-generated 
 **And** clicking on a comment or "Ver en Instagram" CTA deep-links directly to the Instagram app on mobile or opens the thread on Instagram in a new browser tab
 **And** administrators can filter or moderate comment visibility from Strapi CMS before rendering on the storefront
 **And** loading states render skeleton screens smoothly with zero layout shift ($\text{CLS} < 0.05$) and WCAG AA contrast compliance.
+
+---
+
+## Epic 8: Physical Inventory Management & Hybrid Fulfillment Orchestration
+
+Permite al administrador gestionar el catálogo de inventario propio mediante carga masiva por CSV, asegurando la consistencia de datos y stock en bodega local; aísla el ciclo de vida de pedidos físicos y dropshipping para evitar falsos errores en MasterShop; y proporciona visibilidad segmentada por origen y despacho manual de guías en el panel de pedidos.
+
+### Story 8.1: Physical Catalog Bulk CSV Upload & Stock Management
+
+As a store operator / admin,
+I want to upload a CSV file with physical inventory products in `/admin/catalog` or via a dedicated API endpoint,
+So that I can create and update products, prices, and warehouse stock in bulk without manual item-by-item entry or risking dropship catalog corruption.
+
+**Acceptance Criteria:**
+
+**Given** an administrator visits the catalog administration portal (`/admin/catalog`)
+**When** downloading the CSV template or uploading a completed `.csv` file with columns (`sku`, `name`, `category_slug`, `price`, `cost_price`, `stock`, `description`, `images`, `is_active`)
+**Then** the client performs initial structural validation and displays a row preview with validation badges (valid, error, warning)
+**And** submitting the file calls `POST /api/products/import-csv` in Strapi CMS
+**And** the backend parses each row in a transaction:
+  - If `sku` exists and `sourcing_type` is `'local'`, it updates price, stock, description, and fields (*Upsert*).
+  - If `sku` is new, it creates a published product with `sourcing_type: 'local'`.
+  - If `sku` matches an existing `mastershop_dropship` product, it rejects that row and records an error to protect dropship catalog integrity.
+**And** the endpoint returns a clear execution summary: `{ total, created, updated, skipped, errors: [...] }`.
+
+### Story 8.2: Hybrid Order Routing & Dropship Lifecycle Isolation
+
+As a store operator,
+I want order lifecycle triggers to inspect item sourcing types before attempting any MasterShop dispatch,
+So that orders containing only physical/local products are never sent to MasterShop and do not trigger false failure alerts.
+
+**Acceptance Criteria:**
+
+**Given** a new order is paid or confirmed in Strapi
+**When** the `order` lifecycles hook (`afterCreate` / `afterUpdate`) runs
+**Then** the system inspects `order.items`:
+  - If all items have `sourcing_type: 'local'`, the order status is set to `'paid'` / `'processing'`, `sync_mastershop` remains `false`, and `sendOrderToMasterShop` is **not** called.
+  - If the order contains only `mastershop_dropship` items, `sendOrderToMasterShop` executes as normal.
+  - If the order is hybrid (mixed), only the dropshipped items are forwarded to MasterShop, and the order is flagged as hybrid fulfillment.
+**And** `GET /api/orders/dropship-sync-status` completely ignores orders that do not contain any dropship items, preventing 100% local orders from showing up in the `/admin/dropship-monitor` failure queue.
+
+### Story 8.3: Admin Orders Origin Segmentation & Local Warehouse Fulfillment
+
+As a store operator,
+I want to filter orders in `/admin/orders` by fulfillment type (Local, Dropshipping, Híbrido) and manually record courier tracking numbers for local shipments,
+So that I can manage warehouse dispatch directly and keep buyers informed via the tracking portal and notifications.
+
+**Acceptance Criteria:**
+
+**Given** an administrator opens the centralized orders dashboard (`/admin/orders`)
+**When** viewing the orders list
+**Then** each order card/row displays a visual tag indicating its origin: `Local / Bodega`, `Dropshipping MasterShop`, or `Híbrido (Mixto)`
+**And** a filter dropdown allows filtering orders by origin type (`all`, `local`, `dropship`, `hybrid`)
+**And** for orders with local items, the details modal allows entering courier name (`Servientrega`, `Coordinadora`, `Interrapidísimo`, `Envia`, `Mensajería Local`) and tracking guide number, which updates `shipping_status` to `'shipped'` and sets `tracking_number` and `tracking_url`
+**And** updating tracking triggers standard order milestone notifications without requiring MasterShop API involvement.
+
+### Story 8.4: Instagram Post-to-Product AI Importer
+
+As a store operator / admin,
+I want to paste an Instagram post URL into the catalog portal (`/admin/catalog`) so that images and product details (title, price in COP, description, variants) are extracted and structured via AI for 1-click publishing,
+So that I can digitize our Instagram feed catalog into Prana Market in seconds without manual downloading and repetitive data entry.
+
+**Acceptance Criteria:**
+
+**Given** an administrator opens the catalog administration portal (`/admin/catalog`)
+**When** pasting a valid public Instagram post URL into the "Importar desde Instagram" input and clicking "Extraer Producto"
+**Then** the system calls the backend extractor service (`POST /api/products/extract-instagram`)
+**And** the service downloads the high-resolution media (single image or full carousel) and retrieves the raw caption
+**And** an LLM parser structures the data into an e-commerce draft payload:
+  - `name`: Cleaned product name without promotional spam/emojis
+  - `price`: Integer COP price parsed from Colombian formats (e.g., "$85.000", "85k" -> `85000`)
+  - `description`: Commercial description formatted for store with removed DM/WhatsApp CTAs
+  - `variants`: Extracted size/color attributes if mentioned in caption
+  - `suggested_category_slug`: Mapped to available Prana Market category taxonomy
+**And** the UI displays an interactive preview modal showing:
+  - Image gallery selector (set thumbnail cover and additional gallery photos)
+  - Editable form pre-filled with parsed values and initial stock count input
+**And** clicking "Aprobar y Publicar" calls `POST /api/products` (or `POST /api/products/import-single`) creating the product with `sourcing_type: 'local'`, status `'published'`, and media uploaded to Strapi Media Library
+**And** if the post URL is private or cannot be accessed, the UI shows a graceful error alert allowing manual image drop or URL correction without crashing.
+
+
 
 
 

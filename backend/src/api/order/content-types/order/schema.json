@@ -99,6 +99,15 @@
     "sync_mastershop": {
       "type": "boolean",
       "default": false
+    },
+    "fulfillment_type": {
+      "type": "enumeration",
+      "enum": [
+        "local",
+        "dropship",
+        "hybrid"
+      ],
+      "default": "dropship"
     }
   }
 }

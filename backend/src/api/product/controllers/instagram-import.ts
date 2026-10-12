@@ -1,0 +1,170 @@
+import { parseInstagramUrl, sanitizeCaption, extractPriceCop, detectCategory } from '../services/instagram-extractor';
+
+export default {
+  /**
+   * Story 8.4: Extract product draft from Instagram post URL
+   * POST /api/products/extract-instagram
+   */
+  async extractPost(ctx) {
+    try {
+      const { postUrl } = ctx.request.body || {};
+
+      if (!postUrl || typeof postUrl !== 'string') {
+        return ctx.badRequest('Se requiere el campo postUrl con una URL válida de Instagram.');
+      }
+
+      const { isValid, shortcode } = parseInstagramUrl(postUrl);
+      if (!isValid || !shortcode) {
+        return ctx.badRequest('URL de Instagram inválida. Formato esperado: https://www.instagram.com/p/...');
+      }
+
+      let caption = '';
+      let images: string[] = [];
+
+      try {
+        const oembedUrl = `https://api.instagram.com/oembed?url=https://www.instagram.com/p/${shortcode}/&omitscript=true`;
+        const res = await fetch(oembedUrl);
+        if (res.ok) {
+          const data: any = await res.json();
+          caption = data.title || '';
+          if (data.thumbnail_url) {
+            images.push(data.thumbnail_url);
+          }
+        }
+      } catch (err: any) {
+        strapi.log.warn(`oEmbed fetch failed for ${shortcode}: ${err.message}`);
+      }
+
+      if (images.length === 0) {
+        images.push(`https://instagram.com/p/${shortcode}/media/?size=l`);
+      }
+
+      const { name, description, variants } = sanitizeCaption(caption);
+      const price = extractPriceCop(caption);
+      const suggestedCategory = detectCategory(caption);
+      const sku = `PRANA-IG-${shortcode.toUpperCase()}`;
+
+      return ctx.send({
+        success: true,
+        draft: {
+          shortcode,
+          original_url: `https://www.instagram.com/p/${shortcode}/`,
+          name,
+          price,
+          description,
+          images,
+          variants,
+          suggested_category_slug: suggestedCategory,
+          sku,
+          sourcing_type: 'local',
+        },
+      });
+    } catch (error: any) {
+      strapi.log.error('Error extracting Instagram post:', error);
+      return ctx.badRequest('Error al extraer la publicación de Instagram: ' + error.message);
+    }
+  },
+
+  /**
+   * Story 8.4: Publish approved Instagram product to Strapi
+   * POST /api/products/publish-instagram
+   */
+  async publishProduct(ctx) {
+    try {
+      const body = ctx.request.body || {};
+      const {
+        name,
+        price,
+        description,
+        images = [],
+        stock = 1,
+        sku,
+        category_slug,
+      } = body;
+
+      if (!name || typeof name !== 'string' || name.trim().length === 0) {
+        return ctx.badRequest('El nombre del producto es obligatorio.');
+      }
+
+      const numPrice = Number(price);
+      if (isNaN(numPrice) || numPrice < 0) {
+        return ctx.badRequest('El precio en COP debe ser un número mayor o igual a 0.');
+      }
+
+      const numStock = Number(stock);
+      if (isNaN(numStock) || numStock < 0) {
+        return ctx.badRequest('El stock debe ser un número entero mayor o igual a 0.');
+      }
+
+      const productSku = (sku || `PRANA-IG-${Date.now()}`).trim();
+
+      // Enforce dropship catalog protection: Check if SKU exists in mastershop_dropship
+      const existingProduct = await strapi.documents('api::product.product').findFirst({
+        filters: {
+          $or: [
+            { supplier_sku: productSku },
+            { mastershop_id: productSku },
+          ],
+        },
+      });
+
+      if (existingProduct && existingProduct.sourcing_type === 'mastershop_dropship') {
+        return ctx.badRequest(
+          `El SKU '${productSku}' pertenece al catálogo de dropshipping de MasterShop y no puede ser modificado desde el importador local.`
+        );
+      }
+
+      // Resolve category relation if provided
+      let categoryRelation = null;
+      if (category_slug) {
+        const cat = await strapi.documents('api::product-category.product-category').findFirst({
+          filters: { slug: category_slug },
+        });
+        if (cat) {
+          categoryRelation = cat.documentId || cat.id;
+        }
+      }
+
+      const slugBase = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      const uniqueSlug = `${slugBase}-${Date.now().toString().slice(-6)}`;
+
+      const newProductData: any = {
+        name: name.trim(),
+        description: description || name.trim(),
+        price: Math.round(numPrice),
+        cost_price: Math.round(numPrice * 0.6), // default estimated cost
+        stock: Math.round(numStock),
+        dropship_stock: 0,
+        sourcing_type: 'local', // ALWAYS local
+        isActive: numStock > 0,
+        supplier_sku: productSku,
+        supplier_name: 'Bodega Local / Instagram',
+        slug: uniqueSlug,
+        last_sync_date: new Date(),
+      };
+
+      if (categoryRelation) {
+        newProductData.product_category = categoryRelation;
+      }
+
+      const created = await strapi.documents('api::product.product').create({
+        data: newProductData,
+        status: 'published',
+      });
+
+      strapi.log.info(`✅ Successfully published Instagram product: ${created.name} (SKU: ${productSku})`);
+
+      return ctx.send({
+        success: true,
+        message: 'Producto de Instagram publicado exitosamente en catálogo local.',
+        product: created,
+      });
+    } catch (error: any) {
+      strapi.log.error('Error publishing Instagram product:', error);
+      return ctx.badRequest('Error al guardar el producto en Strapi: ' + error.message);
+    }
+  },
+};

@@ -20,5 +20,25 @@ export default {
         middlewares: [],
       },
     },
+    {
+      method: 'POST',
+      path: '/products/import-csv',
+      handler: 'custom-catalog.importCsv',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
+      method: 'GET',
+      path: '/products/csv-template',
+      handler: 'custom-catalog.getCsvTemplate',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
   ],
 };

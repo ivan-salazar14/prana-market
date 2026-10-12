@@ -89,6 +89,7 @@ Prana Market operates a **hybrid inventory model**:
 - **[FR-CAT-02] Rich Product Detail Page (PDP)**: High-resolution image galleries, shade/color variant swatches, ingredients list, usage guides, and customer reviews.
 - **[FR-CAT-03] Inventory Origin Badge**: Explicit indicator if product ships via Express Local Delivery or National Dropshipping.
 - **[FR-CAT-04] Smart Search & Filters**: Typeahead search, filters by brand, skin type, finish (matte/glow), price range (COP), and in-stock availability.
+- **[FR-CAT-05] Bulk CSV Catalog Upload & Physical Stock Management**: Administrative interface and backend endpoint for batch CSV file upload, schema validation, SKU collision protection, and stock/price upsert for physical local warehouse products.
 
 ### 4.2 Shopping Cart & Conversion Optimization (FR-CART)
 - **[FR-CART-01] Persistent Slide-Over Cart**: High-speed drawer cart accessible across all pages with real-time state persistence (`localStorage` + Context API).
@@ -124,6 +125,7 @@ Prana Market operates a **hybrid inventory model**:
 - **[FR-ADM-01] Unified Order Management Dashboard**: Centralized Strapi admin dashboard displaying order status (Pendiente, Pagado, En Preparación, Despachado, Entregado, Cancelado).
 - **[FR-ADM-02] Dropshipping Status Monitor**: Dedicated view for monitoring Mastershop fulfillment sync status, API error logs, and manual override options.
 - **[FR-ADM-03] Customer Service & WhatsApp Integration**: Floating WhatsApp chat widget and direct order issue resolution shortcuts.
+- **[FR-ADM-04] Hybrid Fulfillment Routing & Local Warehouse Dispatch**: Isolation of physical order lifecycles from dropship synchronization, order origin filtering (Local vs Dropship vs Hybrid), and manual carrier tracking guide entry for local fulfillment.
 
 ---
 

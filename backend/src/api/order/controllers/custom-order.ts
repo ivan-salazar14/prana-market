@@ -139,9 +139,15 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
         limit: 100,
       });
 
+      // Story 8.2: Isolate dropship orders and exclude 100% local physical orders
       const dropshipOrders = orders.filter((ord: any) => {
-        const hasDropshipItems = Array.isArray(ord.items) && ord.items.some((i: any) => i.sourcing_type === 'mastershop_dropship');
-        return hasDropshipItems || ord.mastershop_id || ord.sync_mastershop || ord.mastershop_data;
+        if (ord.fulfillment_type === 'local') return false;
+        const items = Array.isArray(ord.items) ? ord.items : [];
+        const hasDropshipItems = items.some((i: any) => i.sourcing_type === 'mastershop_dropship' || i.mastershop_id || i.isDropship === true);
+        const isAllLocal = items.length > 0 && items.every((i: any) => i.sourcing_type === 'local');
+        if (isAllLocal) return false;
+
+        return hasDropshipItems || ord.mastershop_id || (ord.sync_mastershop && !isAllLocal);
       });
 
       const totalDropshipOrders = dropshipOrders.length;

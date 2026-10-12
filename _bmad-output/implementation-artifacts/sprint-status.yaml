@@ -90,4 +90,12 @@ development_status:
   7-5-interactive-instagram-comments-social-proof-component-on-storefront: done
   epic-7-retrospective: optional
 
+  epic-8: in-progress
+  8-1-physical-catalog-bulk-csv-upload-and-stock-management: review
+  8-2-hybrid-order-routing-and-dropship-isolation: review
+  8-3-admin-orders-origin-segmentation-and-local-fulfillment: ready-for-dev
+  8-4-instagram-post-to-product-ai-importer: review
+  epic-8-retrospective: optional
+
+
 
