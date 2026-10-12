@@ -216,7 +216,11 @@ export async function sendOrderEmail(strapi: any, order: any) {
     } else {
       console.warn('No se pudo determinar el email del cliente, no se enviará email de confirmación');
     }
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Error enviando emails de confirmación:', error);
+  }
+}
+
 export async function sendOperationalAlert(
   strapi: any,
   alertData: {
