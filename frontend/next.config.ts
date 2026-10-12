@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
     // Cache images for better performance
     minimumCacheTTL: 60,
 
+    // Allow local development Strapi server images (localhost / 127.0.0.1)
+    dangerouslyAllowLocalIP: true,
+
     remotePatterns: [
       {
         protocol: 'https',
@@ -31,6 +34,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
+        port: '1337',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
         port: '1337',
         pathname: '/**',
       },

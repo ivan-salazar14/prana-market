@@ -47,10 +47,32 @@ flowchart TD
 * **Clasificación Automática de Categoría:**
   * Mapea inteligentemente según palabras clave:
     * `accesorios`: brochas, esponjas, cosmetiqueras, rizadores.
-    * `skincare`: serums, cremas, tónicos, limpiadores, bloqueadores.
+    * `skincare`: serums, cremas, tónicos, limpiadores, bloqueadores, mantequillas corporales, splash corporal.
     * `labios`: labiales, gloss, tintas.
     * `ojos`: pestañinas, sombras, delineadores.
     * `rostro`: bases, correctores, polvos, rubores, iluminadores.
+    * `sets`: kits, combos, dúos, packs.
+
+### 2.2 Estructura de Publicaciones Multi-Producto y Desglose de Precios (Formato Purpure / Cosméticos)
+
+Muchos catálogos de marcas de belleza colombianas (como Purpure, Trendy, etc.) publican copies con múltiples productos y precios individuales en líneas separadas:
+
+```text
+Splash piña colada y mini mantequilla corporal de Purpure.
+Huelen delicioso, tienen una duración increíble y la mantequilla tiene unos destellos hermosos.
+
+Splash: 26.000
+Mini mantequilla: 13.000
+```
+
+#### Capacidades Automáticas de Procesamiento:
+1. **Detección de Marca:** Reconoce patrones como `"de Purpure"` o `"marca: Purpure"` y la asocia al SKU y nombre comercial.
+2. **Desglose de Ítems Individuales:** Detecta líneas estructuradas `[Ítem]: [Precio en COP]` (ej. `Splash: 26.000`, `Mini mantequilla: 13.000`) sin requerir símbolos de moneda `$` o `COP`.
+3. **Correlación de Nombres:** Correlaciona los ítems abreviados (`Splash`, `Mini mantequilla`) con el titular de la publicación para generar nombres completos listos para catálogo:
+   * `Splash Piña Colada - Purpure` ($26.000 COP)
+   * `Mini Mantequilla Corporal - Purpure` ($13.000 COP)
+4. **Selector Interactivo en UI:** Presenta botones dinámicos para inspeccionar y publicar cada producto por separado, o un botón de un clic: **"Publicar Todos (2) en 1 Clic"**, además de la opción de crear el **Combo / Pack Completo**.
+5. **Entrada Dual (URL o Texto Libre):** Permite ingresar la URL de Instagram o alternar a la pestaña **"Texto / Desglose Copy"** para pegar directamente el texto copiado de Instagram, WhatsApp o notas.
 
 ---
 
@@ -211,12 +233,16 @@ Para validar que todos los parsers, rutas y controles de aislamiento funcionan a
 
 ```bash
 node backend/scripts/verify-epic8-story4.js
+node backend/scripts/verify-publication-structure.js
 ```
 
 ### Cobertura de Pruebas:
 * [x] Validación de estructura de archivos y rutas.
-* [x] Normalización de expresiones de precios colombianos (`COP`, `$`, `k`, `mil`).
+* [x] Normalización de expresiones de precios colombianos (`COP`, `$`, `k`, `mil`, `:` con separadores de miles).
+* [x] Desglose de publicaciones multi-producto con precios individuales (`Splash: 26.000`, `Mini mantequilla: 13.000`).
+* [x] Correlación inteligente de títulos, marcas (`Purpure`) y asignación de SKUs locales.
 * [x] Limpieza de CTAs de WhatsApp, DMs y hashtags.
-* [x] Detección de taxonomía y orden de precedencia de categorías.
+* [x] Detección de taxonomía y orden de precedencia de categorías (incluyendo corporal / skincare).
 * [x] Validación de no-sobreescritura sobre productos MasterShop.
 * [x] Verificación de componentes de interfaz y enlaces de navegación del panel.
+

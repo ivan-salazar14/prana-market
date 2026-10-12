@@ -1,19 +1,38 @@
-import { parseInstagramUrl, sanitizeCaption, extractPriceCop, detectCategory } from '../services/instagram-extractor';
+import {
+  parseInstagramUrl,
+  sanitizeCaption,
+  extractPriceCop,
+  detectCategory,
+  extractPublicationStructure,
+  extractProductFromRawText,
+} from '../services/instagram-extractor';
 
 export default {
   /**
-   * Story 8.4: Extract product draft from Instagram post URL
+   * Story 8.4: Extract product draft from Instagram post URL or raw publication text
    * POST /api/products/extract-instagram
    */
   async extractPost(ctx) {
     try {
-      const { postUrl } = ctx.request.body || {};
+      const { postUrl, rawText } = ctx.request.body || {};
+      const rawInput = (rawText || postUrl || '').trim();
 
-      if (!postUrl || typeof postUrl !== 'string') {
-        return ctx.badRequest('Se requiere el campo postUrl con una URL válida de Instagram.');
+      if (!rawInput) {
+        return ctx.badRequest('Se requiere una URL de Instagram o el texto de la publicación.');
       }
 
-      const { isValid, shortcode } = parseInstagramUrl(postUrl);
+      const isInstagramUrl = /instagram\.com\/(?:p|reel|tv)\/[A-Za-z0-9_-]+/i.test(rawInput);
+
+      if (!isInstagramUrl) {
+        // Process directly as text publication (e.g. Purpure format or social copy)
+        const draft = extractProductFromRawText(rawInput);
+        return ctx.send({
+          success: true,
+          draft,
+        });
+      }
+
+      const { isValid, shortcode } = parseInstagramUrl(rawInput);
       if (!isValid || !shortcode) {
         return ctx.badRequest('URL de Instagram inválida. Formato esperado: https://www.instagram.com/p/...');
       }
@@ -39,9 +58,10 @@ export default {
         images.push(`https://instagram.com/p/${shortcode}/media/?size=l`);
       }
 
+      const structure = extractPublicationStructure(caption);
       const { name, description, variants } = sanitizeCaption(caption);
-      const price = extractPriceCop(caption);
-      const suggestedCategory = detectCategory(caption);
+      const price = structure.items.length > 0 ? structure.items[0].price : extractPriceCop(caption);
+      const suggestedCategory = structure.items.length > 0 ? structure.items[0].suggested_category_slug : detectCategory(caption);
       const sku = `PRANA-IG-${shortcode.toUpperCase()}`;
 
       return ctx.send({
@@ -57,6 +77,8 @@ export default {
           suggested_category_slug: suggestedCategory,
           sku,
           sourcing_type: 'local',
+          brand: structure.brand,
+          items: structure.items.length > 0 ? structure.items : undefined,
         },
       });
     } catch (error: any) {
