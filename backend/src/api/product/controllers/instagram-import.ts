@@ -5,6 +5,8 @@ import {
   detectCategory,
   extractPublicationStructure,
   extractProductFromRawText,
+  fetchInstagramPostMetadata,
+  capitalizeWords,
 } from '../services/instagram-extractor';
 
 export default {
@@ -14,7 +16,7 @@ export default {
    */
   async extractPost(ctx) {
     try {
-      const { postUrl, rawText } = ctx.request.body || {};
+      const { postUrl, rawText } = ctx.request.body || ctx.request.query || {};
       const rawInput = (rawText || postUrl || '').trim();
 
       if (!rawInput) {
@@ -37,26 +39,7 @@ export default {
         return ctx.badRequest('URL de Instagram inválida. Formato esperado: https://www.instagram.com/p/...');
       }
 
-      let caption = '';
-      let images: string[] = [];
-
-      try {
-        const oembedUrl = `https://api.instagram.com/oembed?url=https://www.instagram.com/p/${shortcode}/&omitscript=true`;
-        const res = await fetch(oembedUrl);
-        if (res.ok) {
-          const data: any = await res.json();
-          caption = data.title || '';
-          if (data.thumbnail_url) {
-            images.push(data.thumbnail_url);
-          }
-        }
-      } catch (err: any) {
-        strapi.log.warn(`oEmbed fetch failed for ${shortcode}: ${err.message}`);
-      }
-
-      if (images.length === 0) {
-        images.push(`https://instagram.com/p/${shortcode}/media/?size=l`);
-      }
+      const { caption, images } = await fetchInstagramPostMetadata(shortcode);
 
       const structure = extractPublicationStructure(caption);
       const { name, description, variants } = sanitizeCaption(caption);
@@ -64,14 +47,24 @@ export default {
       const suggestedCategory = structure.items.length > 0 ? structure.items[0].suggested_category_slug : detectCategory(caption);
       const sku = `PRANA-IG-${shortcode.toUpperCase()}`;
 
+      const cleanHeadline = structure.headline
+        .replace(/[✨👗💄🛍️🔥❤️👉👇📍💵💰🎉]/g, '')
+        .replace(/^[–\-—•\s]+|[–\-—•\s]+$/g, '')
+        .replace(/[.]?$/, '')
+        .trim();
+
+      const title = structure.brand && !cleanHeadline.toLowerCase().includes(structure.brand.toLowerCase())
+        ? `${capitalizeWords(cleanHeadline)} - ${structure.brand}`
+        : (cleanHeadline || name);
+
       return ctx.send({
         success: true,
         draft: {
           shortcode,
           original_url: `https://www.instagram.com/p/${shortcode}/`,
-          name,
+          name: title,
           price,
-          description,
+          description: structure.generalDescription || description,
           images,
           variants,
           suggested_category_slug: suggestedCategory,

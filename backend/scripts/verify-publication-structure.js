@@ -86,6 +86,18 @@ Mini mantequilla: 13.000`;
   assertCheck(draft.items && draft.items.length === 2, 'Draft includes 2 structured items for interactive UI selector');
   assertCheck(draft.brand === 'Purpure', 'Draft stores brand attribute');
 
+  console.log('\n5. Testing Live / Real Post Metadata Extractor (Shortcode DaO8ZrQMLUm)...');
+  const { decodeHtmlEntities, fetchInstagramPostMetadata } = moduleExports;
+  assertCheck(decodeHtmlEntities('&quot;pi&#xf1;a&quot;') === '"piña"', 'Decodes HTML entities: &quot;pi&#xf1;a&quot; -> "piña"');
+
+  try {
+    const meta = await fetchInstagramPostMetadata('DaO8ZrQMLUm');
+    assertCheck(meta.caption.includes('Splash') && meta.caption.includes('Purpure'), 'Extracts real caption from DaO8ZrQMLUm via bot User-Agent');
+    assertCheck(meta.images.length > 0 && meta.images[0].startsWith('http'), 'Extracts real image URL from DaO8ZrQMLUm');
+  } catch (err) {
+    console.warn('Network notice: live fetch skipped if offline', err.message);
+  }
+
   console.log('\n-------------------------------------------------------------------');
   console.log(`🎯 RESULT: ${passed}/${total} checks passed (${Math.round((passed / total) * 100)}%)`);
   console.log('-------------------------------------------------------------------');

@@ -40,3 +40,46 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const postUrl = searchParams.get('postUrl');
+    const rawText = searchParams.get('rawText');
+
+    if (!postUrl && !rawText) {
+      return NextResponse.json({
+        message: 'Extractor API activa. Envía POST con { postUrl } o { rawText }, o GET con ?postUrl=...',
+      });
+    }
+
+    const strapiUrl = (
+      process.env.NEXT_PUBLIC_STRAPI_URL ||
+      process.env.NEXT_PUBLIC_STRAPI_API_URL ||
+      'http://localhost:1337'
+    ).replace(/\/$/, '');
+
+    const strapiRes = await fetch(`${strapiUrl}/api/products/extract-instagram`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ postUrl, rawText }),
+    });
+
+    const rawTextResp = await strapiRes.text();
+    let data: any = {};
+    try {
+      data = JSON.parse(rawTextResp);
+    } catch {
+      data = { message: rawTextResp || strapiRes.statusText };
+    }
+
+    return NextResponse.json(data, { status: strapiRes.status });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: 'Error al conectar con el servidor de catálogo: ' + error.message },
+      { status: 500 }
+    );
+  }
+}

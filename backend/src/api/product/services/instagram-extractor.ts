@@ -356,6 +356,92 @@ export function extractProductFromRawText(rawText: string, defaultImage?: string
   };
 }
 
+/**
+ * Decode HTML entities in Instagram meta content
+ */
+export function decodeHtmlEntities(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#([0-9]+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)));
+}
+
+/**
+ * Fetch Instagram post metadata (caption, high-res images) using crawler bot User-Agents
+ */
+export async function fetchInstagramPostMetadata(shortcode: string): Promise<{ caption: string; images: string[] }> {
+  let caption = '';
+  const images: string[] = [];
+
+  const userAgents = [
+    'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+    'Twitterbot/1.0',
+    'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+  ];
+
+  for (const ua of userAgents) {
+    try {
+      const res = await fetch(`https://www.instagram.com/p/${shortcode}/`, {
+        headers: {
+          'User-Agent': ua,
+          'Accept-Language': 'es-CO,es;q=0.9,en;q=0.8',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+      });
+
+      if (!res.ok) continue;
+
+      const html = await res.text();
+
+      // Extract og:description
+      const descMatch =
+        html.match(/<meta[^>]+(?:property|name)="og:description"[^>]+content="([^"]*)"/i) ||
+        html.match(/<meta[^>]+content="([^"]*)"[^>]+(?:property|name)="og:description"/i) ||
+        html.match(/<meta[^>]+name="description"[^>]+content="([^"]*)"/i);
+
+      if (descMatch && descMatch[1]) {
+        const rawDesc = decodeHtmlEntities(descMatch[1]);
+        const quoteMatch = rawDesc.match(/:\s*["“]([\s\S]+?)["”][.]?\s*$/);
+        if (quoteMatch && quoteMatch[1]) {
+          caption = quoteMatch[1].trim();
+        } else {
+          caption = rawDesc.replace(/^[\d\s,.]+(?:likes|me gusta|comments|comentarios)[^:]*:\s*/i, '').trim();
+        }
+      }
+
+      // Extract og:image
+      const imgMatch =
+        html.match(/<meta[^>]+(?:property|name)="og:image"[^>]+content="([^"]*)"/i) ||
+        html.match(/<meta[^>]+content="([^"]*)"[^>]+(?:property|name)="og:image"/i);
+
+      if (imgMatch && imgMatch[1]) {
+        const cleanImg = decodeHtmlEntities(imgMatch[1]);
+        if (!images.includes(cleanImg)) {
+          images.push(cleanImg);
+        }
+      }
+
+      if (caption && images.length > 0) {
+        break;
+      }
+    } catch {
+      // try next User-Agent
+    }
+  }
+
+  // Fallback image if none was found
+  if (images.length === 0) {
+    images.push(`https://instagram.com/p/${shortcode}/media/?size=l`);
+  }
+
+  return { caption, images };
+}
+
 export default factories.createCoreService('api::product.product', ({ strapi }) => ({
   /**
    * Story 8.4: Extract product data from an Instagram post URL
@@ -367,28 +453,7 @@ export default factories.createCoreService('api::product.product', ({ strapi }) 
       throw new Error('URL de Instagram no válida. Debe ser de tipo https://instagram.com/p/...');
     }
 
-    let caption = '';
-    let images: string[] = [];
-
-    // Attempt oEmbed or public metadata fetch
-    try {
-      const oembedUrl = `https://api.instagram.com/oembed?url=https://www.instagram.com/p/${shortcode}/&omitscript=true`;
-      const res = await fetch(oembedUrl);
-      if (res.ok) {
-        const data: any = await res.json();
-        caption = data.title || '';
-        if (data.thumbnail_url) {
-          images.push(data.thumbnail_url);
-        }
-      }
-    } catch (err) {
-      strapi.log.warn(`Instagram oEmbed fetch warning for ${shortcode}:`, err);
-    }
-
-    // Default fallback image if oEmbed did not provide one or was rate limited
-    if (images.length === 0) {
-      images.push(`https://instagram.com/p/${shortcode}/media/?size=l`);
-    }
+    const { caption, images } = await fetchInstagramPostMetadata(shortcode);
 
     // Clean caption and parse entities
     const structure = extractPublicationStructure(caption);
@@ -397,12 +462,22 @@ export default factories.createCoreService('api::product.product', ({ strapi }) 
     const suggestedCategory = structure.items.length > 0 ? structure.items[0].suggested_category_slug : detectCategory(caption);
     const sku = `PRANA-IG-${shortcode.toUpperCase()}`;
 
+    const cleanHeadline = structure.headline
+      .replace(/[✨👗💄🛍️🔥❤️👉👇📍💵💰🎉]/g, '')
+      .replace(/^[–\-—•\s]+|[–\-—•\s]+$/g, '')
+      .replace(/[.]?$/, '')
+      .trim();
+
+    const title = structure.brand && !cleanHeadline.toLowerCase().includes(structure.brand.toLowerCase())
+      ? `${capitalizeWords(cleanHeadline)} - ${structure.brand}`
+      : (cleanHeadline || name);
+
     return {
       shortcode,
       original_url: `https://www.instagram.com/p/${shortcode}/`,
-      name,
+      name: title,
       price,
-      description,
+      description: structure.generalDescription || description,
       images,
       variants,
       suggested_category_slug: suggestedCategory,
