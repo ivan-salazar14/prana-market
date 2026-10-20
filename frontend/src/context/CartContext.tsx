@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { SourcingType } from '@/types/product';
+import { CartReconciliation, reconcileCartItems } from '@/utils/order';
 
 interface Product {
   id: number;
@@ -62,6 +63,7 @@ type CartAction =
   | { type: 'APPLY_COUPON'; payload: AppliedCoupon }
   | { type: 'REMOVE_COUPON' }
   | { type: 'CLEAR_CART' }
+  | { type: 'RECONCILE_ITEMS'; payload: CartItem[] }
   | { type: 'RESTORE_CART'; payload: CartState };
 
 const FREE_SHIPPING_THRESHOLD = Number(process.env.NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD) || 50000;
@@ -233,6 +235,22 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         total: 0,
         shippingAddress: null,
       };
+    case 'RECONCILE_ITEMS': {
+      const items = action.payload;
+      const { subtotal, deliveryCost, discountAmount, total } = calculateTotals(
+        items,
+        state.deliveryMethod,
+        state.coupon
+      );
+      return {
+        ...state,
+        items,
+        subtotal,
+        deliveryCost,
+        discountAmount,
+        total,
+      };
+    }
     case 'RESTORE_CART':
       return action.payload;
     default:
@@ -240,10 +258,18 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
   }
 };
 
-const CartContext = createContext<{
+interface CartContextValue {
   state: CartState;
   dispatch: React.Dispatch<CartAction>;
-} | null>(null);
+  /**
+   * Re-checks the persisted cart against the live catalogue and prunes lines
+   * whose product no longer exists or is sold out. Returns what changed so the
+   * UI can explain it, or null when the catalogue could not be read.
+   */
+  revalidate: () => Promise<CartReconciliation<CartItem> | null>;
+}
+
+const CartContext = createContext<CartContextValue | null>(null);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Initialize state from localStorage
@@ -295,8 +321,49 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('prana-cart', JSON.stringify(state));
   }, [state]);
 
+  // Keep a ref so revalidate() reads the latest cart without being re-created
+  // on every state change (checkout components call it from callbacks).
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  const revalidate = useCallback(async (): Promise<CartReconciliation<CartItem> | null> => {
+    if (stateRef.current.items.length === 0) return null;
+
+    try {
+      const response = await fetch('/api/products', { cache: 'no-store' });
+      if (!response.ok) return null;
+
+      const payload = await response.json();
+      const catalogue = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+          ? payload
+          : [];
+
+      // An unreadable or empty catalogue must never wipe a valid cart.
+      if (catalogue.length === 0) return null;
+
+      const reconciliation = reconcileCartItems(stateRef.current.items, catalogue);
+
+      if (reconciliation.changed) {
+        console.info(
+          `[Cart] Reconciled against catalogue: ${reconciliation.removed.length} removed, ` +
+            `${reconciliation.adjusted.length} adjusted, ${reconciliation.repriced.length} repriced`
+        );
+        dispatch({ type: 'RECONCILE_ITEMS', payload: reconciliation.items });
+      }
+
+      return reconciliation;
+    } catch (error) {
+      console.warn('[Cart] Could not reconcile the cart with the catalogue:', error);
+      return null;
+    }
+  }, []);
+
   return (
-    <CartContext.Provider value={{ state, dispatch }}>
+    <CartContext.Provider value={{ state, dispatch, revalidate }}>
       {children}
     </CartContext.Provider>
   );

@@ -2,7 +2,7 @@
 title: 'Epic 10: End-to-End Completed Order Correctness & Verification'
 type: 'feature'
 created: '2026-10-19'
-status: 'review'
+status: 'done'
 route: 'dispatch'
 baseline_commit: 'HEAD'
 review_loop_iteration: 0
@@ -67,6 +67,17 @@ context: []
 - [x] `frontend/src/components/Cart.tsx` -- Allow guest checkout for cash on delivery and send a stable `transactionId` -- Guest orders were still blocked with `"Debes iniciar sesión"`.
 - [x] `frontend/src/components/ManualNequiCheckout.tsx` -- Allow guest checkout for manual Nequi transfers and send a stable `transactionId` -- Same session-only guard removed.
 - [x] `frontend/src/components/NequiCheckout.tsx` -- Persist `transactionId`/`orderId` on `lastOrder` and send `transactionId` to `/api/orders` -- Nequi orders never fired `Purchase` and were not idempotent.
+
+### Review Findings
+
+- [x] [Review][Patch] Homogeneizar estructura de respuesta de POST /api/orders y lectura defensiva de orderId [frontend/src/app/api/orders/route.ts:919, frontend/src/app/payment/success/page.tsx:1081, frontend/src/components/NequiCheckout.tsx:1508, frontend/src/components/Cart.tsx:1235, frontend/src/components/ManualNequiCheckout.tsx:1386]
+- [x] [Review][Patch] Preservar resumen de compra en sessionStorage para sobrevivir recargas F5 [frontend/src/app/payment/success/page.tsx:1099]
+- [x] [Review][Patch] Acceso seguro con encadenamiento opcional a orderDetails.deliveryMethod?.name [frontend/src/app/payment/success/page.tsx:193]
+- [x] [Review][Patch] Permitir pedidos con total 0 (descuento 100% cupón) en validateOrderPayload [frontend/src/utils/order.ts:1746]
+- [x] [Review][Patch] Exigir deliveryMethod obligatorio para validar shippingAddress en despachos [frontend/src/utils/order.ts:1750]
+- [x] [Review][Patch] Prevenir dispatch de Purchase con items vacíos [frontend/src/utils/analytics.ts:1680]
+- [x] [Review][Patch] Descartar transacción undefined/vacía en claimPurchaseEvent [frontend/src/utils/analytics.ts:1660]
+- [x] [Review][Defer] Retrocompatibilidad de flag experimental-strip-types en Node < 22 [frontend/package.json:414] — deferred: el entorno local ejecuta Node 22+ exitosamente; se anota como mejora técnica futura
 
 **Acceptance Criteria:**
 - Given a guest customer without an account, when completing payment and landing on `/payment/success`, then the order is created in Strapi and confirmation details render.

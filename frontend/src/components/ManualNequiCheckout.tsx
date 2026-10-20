@@ -11,8 +11,8 @@ import {
     QrCode,
     Info
 } from 'lucide-react';
-import { DeliveryMethod, ShippingAddress } from '@/context/CartContext';
-import { buildTransactionId, readStoredUserId } from '@/utils/order';
+import { useCart, DeliveryMethod, ShippingAddress } from '@/context/CartContext';
+import { buildTransactionId, isCartErrorCode, parseOrderError, readStoredUserId } from '@/utils/order';
 
 interface ManualNequiCheckoutProps {
     items: any[];
@@ -39,7 +39,9 @@ export default function ManualNequiCheckout({
     const [copied, setCopied] = useState(false);
     const [orderCreated, setOrderCreated] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [cartRefreshed, setCartRefreshed] = useState(false);
     const [transactionId] = useState(() => buildTransactionId('NEQUI-MANUAL'));
+    const { revalidate } = useCart();
 
     // CONFIGURACIÓN DE NEQUI - El usuario puede cambiar esto fácilmente
     const NEQUI_NUMBER = "318 202 6212"; // Cambiar por el número real
@@ -59,6 +61,7 @@ export default function ManualNequiCheckout({
 
         setLoading(true);
         setError(null);
+        setCartRefreshed(false);
 
         try {
             const orderResponse = await fetch('/api/orders', {
@@ -78,8 +81,17 @@ export default function ManualNequiCheckout({
             });
 
             if (!orderResponse.ok) {
-                const errorData = await orderResponse.json();
-                throw new Error(errorData.error || 'No se pudo crear el pedido');
+                const errorData = await orderResponse.json().catch(() => ({}));
+                const parsed = parseOrderError(errorData, 'No se pudo crear el pedido');
+
+                // Stale cart lines (deleted product, sold out, bad reference) are
+                // repaired here so the retry is not stuck on the same payload.
+                if (isCartErrorCode(parsed.code)) {
+                    const reconciliation = await revalidate();
+                    if (reconciliation?.changed) setCartRefreshed(true);
+                }
+
+                throw new Error(parsed.message);
             }
 
             const orderData = await orderResponse.json();
@@ -88,12 +100,13 @@ export default function ManualNequiCheckout({
             const orderDetails = {
                 items,
                 deliveryMethod,
+                shippingAddress,
                 subtotal,
                 deliveryCost,
                 total,
                 paymentMethod: 'nequi_manual',
                 transactionId,
-                orderId: orderData.data?.id,
+                orderId: orderData.data?.id || orderData.id,
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
@@ -130,6 +143,11 @@ export default function ManualNequiCheckout({
                         <div className="flex-1">
                             <p className="text-xs font-bold text-red-900 uppercase tracking-tight mb-0.5">Atención</p>
                             <p className="text-xs text-red-700 leading-relaxed font-medium">{error}</p>
+                            {cartRefreshed && (
+                                <p className="text-[10px] text-red-600 leading-relaxed font-bold mt-1 uppercase tracking-widest">
+                                    Actualizamos tu carrito con la información más reciente. Revísalo y vuelve a confirmar.
+                                </p>
+                            )}
                         </div>
                     </motion.div>
                 )}

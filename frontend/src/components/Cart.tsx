@@ -1,7 +1,7 @@
 'use client';
 
 import { useCart, DeliveryMethod, ShippingAddress } from '@/context/CartContext';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -27,7 +27,7 @@ import { cn } from '@/utils/cn';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { trackAddToCart, trackInitiateCheckout } from '@/utils/analytics';
-import { buildTransactionId, readStoredUserId } from '@/utils/order';
+import { buildTransactionId, isCartErrorCode, parseOrderError, readStoredUserId } from '@/utils/order';
 
 const FREE_SHIPPING_THRESHOLD = Number(process.env.NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD) || 50000;
 
@@ -57,7 +57,9 @@ function EfectivoCheckout({
   const [loading, setLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cartRefreshed, setCartRefreshed] = useState(false);
   const [transactionId] = useState(() => buildTransactionId('EFECTIVO'));
+  const { revalidate } = useCart();
 
   const handleConfirmOrder = async () => {
     if (!deliveryMethod) {
@@ -67,6 +69,7 @@ function EfectivoCheckout({
 
     setLoading(true);
     setError(null);
+    setCartRefreshed(false);
 
     try {
       const orderResponse = await fetch('/api/orders', {
@@ -86,8 +89,17 @@ function EfectivoCheckout({
       });
 
       if (!orderResponse.ok) {
-        const errorData = await orderResponse.json();
-        throw new Error(errorData.error || 'No se pudo crear el pedido');
+        const errorData = await orderResponse.json().catch(() => ({}));
+        const parsed = parseOrderError(errorData, 'No se pudo crear el pedido');
+
+        // The cart is stale (deleted product, sold out, bad reference): repair it
+        // so the customer can retry instead of being stuck on the same payload.
+        if (isCartErrorCode(parsed.code)) {
+          const reconciliation = await revalidate();
+          if (reconciliation?.changed) setCartRefreshed(true);
+        }
+
+        throw new Error(parsed.message);
       }
 
       const orderData = await orderResponse.json();
@@ -96,12 +108,13 @@ function EfectivoCheckout({
       const orderDetails = {
         items,
         deliveryMethod,
+        shippingAddress,
         subtotal,
         deliveryCost,
         total,
         paymentMethod: 'efectivo',
         transactionId,
-        orderId: orderData.data?.id,
+        orderId: orderData.data?.id || orderData.id,
         timestamp: new Date().toISOString()
       };
       localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
@@ -132,6 +145,11 @@ function EfectivoCheckout({
               <div className="flex-1">
                 <p className="text-[10px] font-black text-red-900 uppercase tracking-widest mb-0.5">Atención</p>
                 <p className="text-xs text-red-700 leading-relaxed font-bold">{error}</p>
+                {cartRefreshed && (
+                  <p className="text-[10px] text-red-600 leading-relaxed font-bold mt-1 uppercase tracking-widest">
+                    Actualizamos tu carrito con la información más reciente. Revísalo y vuelve a confirmar.
+                  </p>
+                )}
               </div>
             </motion.div>
           )}
@@ -264,10 +282,40 @@ const DELIVERY_METHODS: DeliveryMethod[] = [
 ];
 
 export default function Cart({ isOpen, onClose }: CartProps) {
-  const { state, dispatch } = useCart();
+  const { state, dispatch, revalidate } = useCart();
   const [paymentMethod, setPaymentMethod] = useState<'nequi' | 'efectivo' | 'wompi'>('efectivo');
   const [removedItem, setRemovedItem] = useState<any | null>(null);
   const [showUndoToast, setShowUndoToast] = useState(false);
+  const [cartNotice, setCartNotice] = useState<{
+    removed: string[];
+    adjusted: number;
+    repriced: number;
+  } | null>(null);
+
+  // A cart persisted in localStorage can point at products that were deleted,
+  // re-seeded or sold out since it was saved. Checking when the drawer opens
+  // avoids sending a payload the API has to reject.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+
+    revalidate().then(reconciliation => {
+      if (cancelled || !reconciliation?.changed) return;
+
+      setCartNotice({
+        removed: reconciliation.removed.map(item => item.name).filter((name): name is string => Boolean(name)),
+        adjusted: reconciliation.adjusted.length,
+        repriced: reconciliation.repriced.length,
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, revalidate]);
+
+  const dismissCartNotice = useCallback(() => setCartNotice(null), []);
 
   const handleRemoveItem = (item: any) => {
     setRemovedItem(item);
@@ -356,6 +404,42 @@ export default function Cart({ isOpen, onClose }: CartProps) {
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
+              {cartNotice && (
+                <div
+                  role="status"
+                  className="bg-amber-50 border-2 border-amber-100 rounded-[1.5rem] p-5 flex items-start gap-3"
+                >
+                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest mb-1">
+                      Actualizamos tu carrito
+                    </p>
+                    {cartNotice.removed.length > 0 && (
+                      <p className="text-[11px] text-amber-800 font-bold leading-relaxed">
+                        Ya no están disponibles: {cartNotice.removed.join(', ')}.
+                      </p>
+                    )}
+                    {cartNotice.adjusted > 0 && (
+                      <p className="text-[11px] text-amber-800 font-bold leading-relaxed">
+                        Ajustamos {cartNotice.adjusted === 1 ? 'la cantidad de 1 producto' : `las cantidades de ${cartNotice.adjusted} productos`} a las unidades disponibles.
+                      </p>
+                    )}
+                    {cartNotice.repriced > 0 && (
+                      <p className="text-[11px] text-amber-800 font-bold leading-relaxed">
+                        Actualizamos los precios a los vigentes.
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={dismissCartNotice}
+                    aria-label="Cerrar aviso del carrito"
+                    className="text-amber-600 hover:text-amber-800 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
               {state.items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-8 py-20">
                   <div className="relative">

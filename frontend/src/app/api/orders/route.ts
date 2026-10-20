@@ -50,9 +50,11 @@ export async function POST(request: NextRequest) {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          const message = errorData.error?.message || response.statusText;
+          const rawError = errorData.error;
+          const message = (typeof rawError === 'string' ? rawError : rawError?.message) || response.statusText;
+          const details = (rawError && typeof rawError === 'object' ? rawError.details : undefined) ?? {};
           console.error('Strapi API error:', response.status, message);
-          throw new OrderCreationError(message, response.status);
+          throw new OrderCreationError(message, response.status, details);
         }
 
         return response.json();
@@ -65,16 +67,28 @@ export async function POST(request: NextRequest) {
 
     if (result.idempotent) {
       console.log('[Orders:Idempotency] Returning existing order for an already processed transaction');
+      const orderData = (result.order as any)?.data ?? result.order;
       return NextResponse.json(
-        { data: result.order, idempotent: true, message: 'Order already processed' },
+        { data: orderData, idempotent: true, message: 'Order already processed' },
         { status: result.status }
       );
     }
 
-    return NextResponse.json(result.order, { status: result.status });
+    const orderData = (result.order as any)?.data ?? result.order;
+    return NextResponse.json(
+      { data: orderData, ...(typeof result.order === 'object' && result.order !== null ? result.order : {}) },
+      { status: result.status }
+    );
   } catch (error) {
     if (error instanceof OrderCreationError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+      return NextResponse.json(
+        {
+          error: error.message,
+          ...(error.code ? { code: error.code } : {}),
+          ...(error.details ? { details: error.details } : {}),
+        },
+        { status: error.status }
+      );
     }
 
     console.error('Error creating order:', error);

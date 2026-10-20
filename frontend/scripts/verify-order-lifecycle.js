@@ -19,6 +19,9 @@ const {
   normalizeTransactionId,
   parseStoredUser,
   processOrderRequest,
+  reconcileCartItems,
+  parseOrderError,
+  isCartErrorCode,
   resolvePaymentStatus,
   resolveUserId,
   validateOrderPayload,
@@ -147,7 +150,16 @@ const main = async () => {
   );
   assert.equal(pickup.ok, true, 'Pickup orders must not require a shipping address');
   assert.equal(pickup.order.shippingAddress, undefined);
-  console.log('✅ Delivery/pickup address validation matches the API contract.');
+
+  // Zero-total orders (100% coupon) must be valid
+  const zeroTotalValid = validateOrderPayload({ ...baseOrder, subtotal: 0, total: 0 });
+  assert.equal(zeroTotalValid.valid, true, 'Zero-total orders from 100% coupons must be valid');
+
+  // Missing deliveryMethod must be invalid
+  const missingDelivery = validateOrderPayload({ ...baseOrder, deliveryMethod: undefined });
+  assert.equal(missingDelivery.valid, false);
+  assert.equal(missingDelivery.error, 'Delivery method is required');
+  console.log('✅ Delivery/pickup address validation and zero-total orders match the API contract.');
 
   // --- 7. Normalisation helpers ---------------------------------------------
   assert.equal(normalizeTransactionId('  TX-1  '), 'TX-1');
@@ -220,8 +232,12 @@ const main = async () => {
   events.length = 0;
   trackPurchase({ ...purchase, total: Number.NaN });
   trackPurchase({ ...purchase, transactionId: '' });
+  trackPurchase({ ...purchase, items: [] });
   assert.equal(events.length, 0, 'Invalid conversions must never be dispatched');
-  console.log('✅ Invalid Purchase payloads are rejected.');
+  assert.equal(claimPurchaseEvent('', store), false, 'Empty transactionId must never claim purchase');
+  assert.equal(claimPurchaseEvent(null, store), false, 'Null transactionId must never claim purchase');
+  assert.equal(claimPurchaseEvent('undefined', store), false, 'Undefined string transactionId must never claim purchase');
+  console.log('✅ Invalid Purchase payloads and empty transaction IDs are rejected.');
 
   // --- 9. Persistence failures surface as API errors ------------------------
   const failingResult = await processOrderRequest(baseOrder, {
@@ -234,6 +250,78 @@ const main = async () => {
   assert.ok(failingResult instanceof OrderCreationError, 'Persistence failures must be typed');
   assert.equal(failingResult.status, 400);
   console.log('✅ Persistence failures propagate as typed API errors.');
+
+  // --- 10. Stale cart reconciliation ----------------------------------------
+  const cart = [
+    { id: 1, name: 'Tono Labial Rose', price: 35000, stock: 5, quantity: 2 },
+    { id: 7, name: 'Sérum Vitamina C', price: 89000, stock: 1, quantity: 4 },
+    { id: 3967, name: 'Producto eliminado', price: 20000, stock: 3, quantity: 1 },
+    { id: 9, name: 'Producto agotado', price: 10000, stock: 0, quantity: 2 },
+  ];
+
+  const catalogue = [
+    { id: '1', name: 'Tono Labial Rose', price: 38000, stock: 5 },
+    { id: '7', name: 'Sérum Vitamina C', price: 89000, stock: 1 },
+    { id: '9', name: 'Producto agotado', price: 10000, stock: 0 },
+  ];
+
+  const reconciliation = reconcileCartItems(cart, catalogue);
+
+  assert.equal(reconciliation.changed, true, 'A stale cart must be reported as changed');
+  assert.equal(reconciliation.items.length, 2, 'Only sellable lines survive');
+  assert.deepEqual(
+    reconciliation.removed.map(item => item.name),
+    ['Producto eliminado', 'Producto agotado'],
+    'Deleted and sold-out products leave the cart'
+  );
+  assert.equal(reconciliation.adjusted.length, 1, 'Oversized quantity is clamped');
+  assert.equal(reconciliation.items[1].quantity, 1, 'Quantity never exceeds available stock');
+  assert.equal(reconciliation.repriced.length, 1, 'Price drift is reported');
+  assert.equal(reconciliation.items[0].price, 38000, 'Cart price follows the catalogue');
+  assert.equal(reconciliation.items[0].stock, 5, 'Cart stock follows the catalogue');
+
+  const untouched = reconcileCartItems(
+    [{ id: 1, price: 35000, stock: 5, quantity: 1 }],
+    [{ id: 1, price: 35000, stock: 5 }]
+  );
+  assert.equal(untouched.changed, false, 'A healthy cart must not be rewritten');
+  assert.equal(untouched.items[0].quantity, 1);
+
+  const missingIds = reconcileCartItems([{ name: 'Sin referencia', price: 1, quantity: 1 }], catalogue);
+  assert.equal(missingIds.removed.length, 1, 'Lines without a product reference are pruned');
+
+  assert.equal(
+    reconcileCartItems([{ id: 1, quantity: 1 }], []).removed.length,
+    0,
+    'An empty catalogue must never prune the cart'
+  );
+  console.log('✅ Stale cart lines are pruned, clamped and repriced against the catalogue.');
+
+  // --- 11. Order error envelopes --------------------------------------------
+  const routeError = parseOrderError({
+    error: 'Estos productos ya no están disponibles: "X" (ref. 3967).',
+    code: 'PRODUCT_UNAVAILABLE',
+    details: { unavailableProducts: [{ id: 3967, name: 'X' }] },
+  });
+  assert.equal(routeError.code, 'PRODUCT_UNAVAILABLE');
+  assert.match(routeError.message, /no están disponibles/);
+  assert.equal(routeError.unavailableProducts.length, 1);
+  assert.equal(isCartErrorCode(routeError.code), true);
+
+  const strapiError = parseOrderError({
+    data: null,
+    error: { message: 'Stock insuficiente', details: { code: 'INSUFFICIENT_STOCK' } },
+  });
+  assert.equal(strapiError.message, 'Stock insuficiente');
+  assert.equal(strapiError.code, 'INSUFFICIENT_STOCK');
+  assert.equal(isCartErrorCode(strapiError.code), true);
+
+  const unknownError = parseOrderError({}, 'Fallback');
+  assert.equal(unknownError.message, 'Fallback');
+  assert.equal(unknownError.code, undefined);
+  assert.equal(isCartErrorCode(unknownError.code), false);
+  assert.equal(isCartErrorCode(undefined), false);
+  console.log('✅ Order error envelopes expose a readable message and a cart-repair code.');
 
   console.log('\n🎉 ALL EPIC 10 ORDER CORRECTNESS & VERIFICATION TESTS PASSED\n');
 };

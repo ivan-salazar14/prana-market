@@ -97,10 +97,16 @@ development_status:
   8-4-instagram-post-to-product-ai-importer: review
   epic-8-retrospective: optional
 
-  epic-10: in-progress
-  10-1-guest-checkout-resilience-decoupled-backend-order-creation: review
-  10-2-order-creation-idempotency-purchase-conversion-tracking: review
-  10-3-automated-end-to-end-order-verification-integration-test-suite: review
+  epic-9: done
+  9-1-safe-meta-pixel-client-infrastructure-pageview-tracking: done
+  9-2-product-catalog-pdp-funnel-events-viewcontent-category: done
+  9-3-micro-interactions-conversion-intent-tracking-addtocart: done
+  epic-9-retrospective: optional
+
+  epic-10: done
+  10-1-guest-checkout-resilience-decoupled-backend-order-creation: done
+  10-2-order-creation-idempotency-purchase-conversion-tracking: done
+  10-3-automated-end-to-end-order-verification-integration-test-suite: done
   epic-10-retrospective: optional
 
 

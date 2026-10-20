@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
 import { trackPurchase, claimPurchaseEvent } from '@/utils/analytics';
-import { readStoredUserId } from '@/utils/order';
+import { parseOrderError, readStoredUserId } from '@/utils/order';
 
 interface OrderItem {
   id?: number | string;
@@ -41,6 +41,7 @@ function PaymentSuccessContent() {
   const transactionId = searchParams.get('transaction_id');
   const isMock = searchParams.get('mock') === 'true';
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [orderCreationError, setOrderCreationError] = useState<string | null>(null);
 
   const createOrder = useCallback(async (orderData: OrderDetails, txId: string) => {
     try {
@@ -68,28 +69,39 @@ function PaymentSuccessContent() {
 
       if (response.ok) {
         const result = await response.json().catch(() => ({}));
-        const createdOrderId = result.data?.id || orderData.orderId;
+        const createdOrderId = result.data?.id || result.id || orderData.orderId;
         console.log('Order processed successfully:', createdOrderId);
         if (createdOrderId) {
           setOrderDetails(prev => prev ? { ...prev, orderId: createdOrderId } : prev);
         }
+        setOrderCreationError(null);
       } else {
-        console.error('Failed to create order');
+        // The money already left the customer: never fail silently here.
+        const errorData = await response.json().catch(() => ({}));
+        const parsed = parseOrderError(errorData, 'No pudimos registrar el pedido automáticamente.');
+        console.error('Failed to create order:', parsed.message, errorData);
+        setOrderCreationError(parsed.message);
       }
     } catch (error) {
       console.error('Error creating order:', error);
+      setOrderCreationError('No pudimos registrar el pedido automáticamente.');
     }
   }, []);
 
   useEffect(() => {
-    // Load order details from localStorage (set before payment)
-    const savedOrder = typeof window !== 'undefined' ? localStorage.getItem('lastOrder') : null;
+    // Load order details from localStorage or current session (retained across F5 reloads)
+    const savedOrder = typeof window !== 'undefined'
+      ? (localStorage.getItem('lastOrder') || sessionStorage.getItem('lastOrderSession'))
+      : null;
     let activeOrder: OrderDetails | null = null;
 
     if (savedOrder) {
       try {
         activeOrder = JSON.parse(savedOrder);
-        localStorage.removeItem('lastOrder'); // Clean up
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('lastOrderSession', JSON.stringify(activeOrder));
+          localStorage.removeItem('lastOrder'); // Clean up persistent localStorage
+        }
 
         const orderToSet = activeOrder;
         queueMicrotask(() => {
@@ -106,13 +118,13 @@ function PaymentSuccessContent() {
     }
 
     // Trigger Meta Pixel Purchase event once per transaction
-    const txToTrack = transactionId || activeOrder?.transactionId || activeOrder?.orderId?.toString();
-    if (activeOrder && txToTrack && claimPurchaseEvent(String(txToTrack))) {
+    const txToTrack = transactionId || activeOrder?.transactionId || (activeOrder?.orderId ? String(activeOrder.orderId) : undefined);
+    if (activeOrder && txToTrack && txToTrack.trim() !== '' && txToTrack !== 'undefined' && claimPurchaseEvent(String(txToTrack))) {
       trackPurchase({
         transactionId: String(txToTrack),
         orderId: activeOrder.orderId || txToTrack,
         total: activeOrder.total,
-        items: activeOrder.items.map(item => ({
+        items: (activeOrder.items || []).map(item => ({
           id: item.id || item.name,
           name: item.name,
           price: item.price,
@@ -170,6 +182,39 @@ function PaymentSuccessContent() {
             }
           </p>
 
+          {orderCreationError && (
+            <div className="bg-red-50 border-2 border-red-100 rounded-[1.5rem] p-6 mb-12 text-left">
+              <p className="text-[10px] font-black text-red-900 uppercase tracking-widest mb-2">
+                No pudimos registrar el pedido automáticamente
+              </p>
+              <p className="text-xs text-red-700 font-bold leading-relaxed mb-4">
+                {orderCreationError}
+              </p>
+              <p className="text-xs text-red-700 leading-relaxed font-medium mb-4">
+                Tu pago no se perdió. Envíanos el comprobante por WhatsApp
+                {transactionId || orderDetails?.transactionId
+                  ? ` junto con tu referencia ${transactionId || orderDetails?.transactionId}`
+                  : ''}{' '}
+                y confirmamos el pedido manualmente.
+              </p>
+              <a
+                href={`https://wa.me/573182026212?text=${encodeURIComponent(
+                  `¡Hola Prana Make up! Mi pago se procesó pero el pedido no quedó registrado.${
+                    transactionId || orderDetails?.transactionId
+                      ? ` Referencia: ${transactionId || orderDetails?.transactionId}.`
+                      : ''
+                  } Adjunto el comprobante.`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white text-[10px] font-black uppercase tracking-widest px-5 py-3 rounded-xl transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Enviar comprobante
+              </a>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             <div className="bg-stone-50 dark:bg-[#3D242D]/60 p-6 rounded-[2rem] border border-stone-100 dark:border-[#FCE7ED]/10 flex flex-col items-center text-center">
               <div className="w-10 h-10 bg-white dark:bg-[#4D2E38] rounded-xl flex items-center justify-center shadow-sm mb-4 border border-stone-100 dark:border-[#FCE7ED]/15">
@@ -190,7 +235,7 @@ function PaymentSuccessContent() {
               </div>
               <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Tipo de Entrega</span>
               <span className="text-sm font-black text-stone-900 dark:text-[#FDF9F7] uppercase tracking-tight">
-                {orderDetails?.deliveryMethod.name || 'Envío estándar'}
+                {orderDetails?.deliveryMethod?.name || 'Envío estándar'}
               </span>
             </div>
           </div>

@@ -14,10 +14,11 @@ import {
   Loader2,
   ArrowRight,
   ShieldCheck,
+  MessageCircle,
 } from 'lucide-react';
 
 import { DeliveryMethod, ShippingAddress } from '@/context/CartContext';
-import { parseStoredUser } from '@/utils/order';
+import { parseOrderError, parseStoredUser } from '@/utils/order';
 
 interface NequiCheckoutProps {
   amount: number;
@@ -53,6 +54,8 @@ export default function NequiCheckout({
   const [timeRemaining, setTimeRemaining] = useState<number>(60);
   const [error, setError] = useState<string | null>(null);
   const [isSandbox, setIsSandbox] = useState(false);
+  // Set when Nequi approved the payment but the order could not be recorded.
+  const [orderRegistrationError, setOrderRegistrationError] = useState<string | null>(null);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
@@ -65,7 +68,7 @@ export default function NequiCheckout({
     };
   }, []);
 
-  const handleOrderCreation = useCallback(async (paymentRef: string) => {
+  const handleOrderCreation = useCallback(async (paymentRef: string): Promise<boolean> => {
     try {
       const user = parseStoredUser(
         typeof window !== 'undefined' ? window.localStorage.getItem('user') : null
@@ -89,7 +92,16 @@ export default function NequiCheckout({
           }),
         });
 
-        const result = response.ok ? await response.json().catch(() => ({})) : {};
+        if (!response.ok) {
+          // Nequi already took the money: a silent failure would lose the order.
+          const errorData = await response.json().catch(() => ({}));
+          const parsed = parseOrderError(errorData, 'No pudimos registrar tu pedido.');
+          console.error('Failed to record the paid Nequi order:', parsed.message, errorData);
+          setOrderRegistrationError(parsed.message);
+          return false;
+        }
+
+        const result = await response.json().catch(() => ({}));
 
         const orderDetails = {
           items,
@@ -100,13 +112,18 @@ export default function NequiCheckout({
           total: amount,
           paymentMethod: 'nequi',
           transactionId: paymentRef,
-          orderId: result?.data?.id,
+          orderId: result?.data?.id || result?.id,
           timestamp: new Date().toISOString(),
         };
         localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
+        setOrderRegistrationError(null);
       }
+
+      return true;
     } catch (err) {
       console.error('Error recording order after Nequi approval:', err);
+      setOrderRegistrationError('No pudimos registrar tu pedido.');
+      return false;
     }
   }, [items, deliveryMethod, shippingAddress, subtotal, deliveryCost, amount]);
 
@@ -192,7 +209,8 @@ export default function NequiCheckout({
           setStatus('completed');
           if (intervalRef.current) clearInterval(intervalRef.current);
           if (countdownRef.current) clearInterval(countdownRef.current);
-          await handleOrderCreation(paymentId);
+          const orderRegistered = await handleOrderCreation(paymentId);
+          if (!orderRegistered) return; // stay put so the customer can send the receipt
           setTimeout(() => {
             if (isMountedRef.current) {
               onSuccess();
@@ -238,8 +256,9 @@ export default function NequiCheckout({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'completed' }),
       });
-      await handleOrderCreation(paymentId);
+      const orderRegistered = await handleOrderCreation(paymentId);
       setStatus('completed');
+      if (!orderRegistered) return;
       setTimeout(() => {
         if (isMountedRef.current) {
           onSuccess();
@@ -541,6 +560,30 @@ export default function NequiCheckout({
                 <span className="font-bold text-stone-500 text-[10px]">{paymentId}</span>
               </div>
             </div>
+
+            {orderRegistrationError && (
+              <div className="bg-red-50 border-2 border-red-100 rounded-2xl p-4 text-left space-y-3">
+                <p className="text-[10px] font-black text-red-900 uppercase tracking-widest">
+                  No pudimos registrar el pedido automáticamente
+                </p>
+                <p className="text-xs text-red-700 font-bold leading-relaxed">{orderRegistrationError}</p>
+                <p className="text-[11px] text-red-700 leading-relaxed">
+                  Tu pago no se perdió. Envíanos el comprobante con la referencia{' '}
+                  <span className="font-black">{paymentId}</span> y confirmamos el pedido manualmente.
+                </p>
+                <a
+                  href={`https://wa.me/573182026212?text=${encodeURIComponent(
+                    `¡Hola Prana Make up! Mi pago con Nequi fue aprobado pero el pedido no quedó registrado. Referencia: ${paymentId}.`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white text-[10px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Enviar comprobante
+                </a>
+              </div>
+            )}
           </div>
         </motion.div>
       )}

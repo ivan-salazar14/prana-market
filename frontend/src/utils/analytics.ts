@@ -140,15 +140,19 @@ export interface KeyValueStore {
  * Returns true only for the first caller.
  */
 export const claimPurchaseEvent = (
-  transactionId: string,
+  transactionId: string | null | undefined,
   storage?: KeyValueStore | null
 ): boolean => {
+  if (!transactionId || typeof transactionId !== 'string' || transactionId.trim() === '' || transactionId === 'undefined') {
+    return false;
+  }
+
   const resolvedStorage = storage ?? (
     typeof window !== 'undefined' ? window.sessionStorage : null
   );
   if (!resolvedStorage) return true;
 
-  const key = `${PURCHASE_DEDUPE_PREFIX}${transactionId}`;
+  const key = `${PURCHASE_DEDUPE_PREFIX}${transactionId.trim()}`;
   try {
     if (resolvedStorage.getItem(key)) return false;
     resolvedStorage.setItem(key, 'true');
@@ -160,13 +164,21 @@ export const claimPurchaseEvent = (
 
 export const trackPurchase = (params: PurchaseParams): void => {
   const total = Number(params.total);
-  if (!params.transactionId || !Number.isFinite(total)) return;
+  if (
+    !params.transactionId ||
+    params.transactionId.trim() === '' ||
+    !Number.isFinite(total) ||
+    !params.items ||
+    params.items.length === 0
+  ) {
+    return;
+  }
 
   safeFbq('track', 'Purchase', {
     value: total,
     currency: params.currency || 'COP',
     content_type: 'product',
-    contents: (params.items || []).map(item => ({
+    contents: params.items.map(item => ({
       id: String(item.id || item.name || 'item'),
       quantity: Number(item.quantity) || 1,
       item_price: Number(item.price) || 0,
