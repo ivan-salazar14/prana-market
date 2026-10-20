@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:analytics": "node scripts/verify-analytics.js",
+    "test:order": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/verify-order-lifecycle.js"
   },
   "dependencies": {
     "@strapi/blocks-react-renderer": "^1.0.2",

@@ -12,6 +12,7 @@ import {
     Info
 } from 'lucide-react';
 import { DeliveryMethod, ShippingAddress } from '@/context/CartContext';
+import { buildTransactionId, readStoredUserId } from '@/utils/order';
 
 interface ManualNequiCheckoutProps {
     items: any[];
@@ -38,6 +39,7 @@ export default function ManualNequiCheckout({
     const [copied, setCopied] = useState(false);
     const [orderCreated, setOrderCreated] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [transactionId] = useState(() => buildTransactionId('NEQUI-MANUAL'));
 
     // CONFIGURACIÓN DE NEQUI - El usuario puede cambiar esto fácilmente
     const NEQUI_NUMBER = "318 202 6212"; // Cambiar por el número real
@@ -59,16 +61,6 @@ export default function ManualNequiCheckout({
         setError(null);
 
         try {
-            const userString = localStorage.getItem('user');
-            if (!userString) {
-                throw new Error('Debes iniciar sesión para realizar un pedido');
-            }
-
-            const user = JSON.parse(userString);
-            if (!user || !user.id) {
-                throw new Error('Información de usuario no encontrada. Por favor inicia sesión nuevamente.');
-            }
-
             const orderResponse = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -80,7 +72,8 @@ export default function ManualNequiCheckout({
                     deliveryCost,
                     total,
                     paymentMethod: 'nequi_manual',
-                    userId: user.id
+                    transactionId,
+                    userId: readStoredUserId()
                 }),
             });
 
@@ -99,6 +92,7 @@ export default function ManualNequiCheckout({
                 deliveryCost,
                 total,
                 paymentMethod: 'nequi_manual',
+                transactionId,
                 orderId: orderData.data?.id,
                 timestamp: new Date().toISOString()
             };

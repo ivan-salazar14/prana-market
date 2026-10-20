@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
+import { trackWhatsAppClick } from "@/utils/analytics";
 
 interface FloatingWhatsAppProps {
   phoneNumber?: string;
@@ -15,6 +16,10 @@ export default function FloatingWhatsApp({
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpenWhatsApp = (msg?: string) => {
+    trackWhatsAppClick({
+      origin: "floating_whatsapp_widget",
+      url: typeof window !== "undefined" ? window.location.href : "",
+    });
     const textToUse = msg || defaultMessage;
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(textToUse)}`;
     window.open(url, "_blank", "noopener,noreferrer");

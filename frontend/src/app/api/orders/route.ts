@@ -1,104 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { OrderCreationError, processOrderRequest } from '../../../utils/order';
 
 const BASE_STRAPI_URL = (process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337').replace(/\/$/, '');
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
-interface OrderData {
-  items: unknown[];
-  status: string;
-  total: number;
-  subtotal: number;
-  deliveryCost: number;
-  deliveryMethod: string;
-  shippingAddress?: unknown;
-  transactionId?: string;
-  paymentMethod: string;
-  user?: string | number;
-}
-
 // Create a new order
 export async function POST(request: NextRequest) {
   try {
-    const { items, deliveryMethod, shippingAddress, subtotal, deliveryCost, total, transactionId, paymentMethod, userId } = await request.json();
+    const payload = await request.json();
 
-    // Validate required fields
-    if (!items || !subtotal || !total || !paymentMethod) {
-      return NextResponse.json(
-        { error: 'Missing required fields: items, subtotal, total, paymentMethod' },
-        { status: 400 }
-      );
-    }
+    const result = await processOrderRequest(payload, {
+      findByTransactionId: async (transactionId) => {
+        const checkUrl = `${BASE_STRAPI_URL}/api/orders?filters[transactionId][$eq]=${encodeURIComponent(transactionId)}`;
 
-    // Validate shippingAddress if delivery method is not pickup
-    const parsedDeliveryMethod = typeof deliveryMethod === 'string' ? JSON.parse(deliveryMethod) : deliveryMethod;
-    if (parsedDeliveryMethod && parsedDeliveryMethod.id !== 'pickup' && !shippingAddress) {
-      return NextResponse.json(
-        { error: 'Shipping address is required for delivery methods' },
-        { status: 400 }
-      );
-    }
+        try {
+          const existingRes = await fetch(checkUrl, {
+            headers: {
+              'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
+            },
+          });
 
-    const orderData: OrderData = {
-      items,
-      status: (paymentMethod === 'efectivo' || paymentMethod === 'nequi_manual') ? 'pending' : 'paid',
-      total,
-      subtotal,
-      deliveryCost,
-      deliveryMethod,
-      paymentMethod
-    };
+          if (!existingRes.ok) return null;
 
-    // Include transactionId if it's a valid, non-empty string
-    if (transactionId && typeof transactionId === 'string' && transactionId.trim() !== '') {
-      orderData.transactionId = transactionId;
-    }
-
-    // Include shippingAddress if provided
-    if (shippingAddress) {
-      orderData.shippingAddress = shippingAddress;
-    }
-
-    // Only include user if userId is provided and valid
-    const parsedUserId = parseInt(userId, 10);
-    if (!isNaN(parsedUserId)) {
-      orderData.user = parsedUserId;
-    }
-
-    // Convert orderData to FormData for better compatibility
-    const formData = new FormData();
-    Object.entries(orderData).forEach(([key, value]) => {
-      if (key === 'user' && typeof value === 'number') {
-        formData.append(key, String(value));
-      } else if (typeof value === 'object') {
-        formData.append(key, JSON.stringify(value));
-      } else {
-        formData.append(key, String(value));
-      }
-    });
-    console.log('formData:', formData);
-
-    const response = await fetch(`${BASE_STRAPI_URL}/api/orders`, {
-      method: 'POST',
-      // No Content-Type header for FormData
-      headers: {
-        'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
+          const existingJson = await existingRes.json().catch(() => null);
+          return existingJson?.data?.[0] ?? null;
+        } catch (err) {
+          // A failed reconciliation lookup must never block a legitimate order.
+          console.warn('[Orders:Idempotency] Could not verify existing order by transactionId:', err);
+          return null;
+        }
       },
-      body: formData,
+      create: async (order) => {
+        const formData = new FormData();
+        Object.entries(order).forEach(([key, value]) => {
+          formData.append(
+            key,
+            value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value)
+          );
+        });
+
+        const response = await fetch(`${BASE_STRAPI_URL}/api/orders`, {
+          method: 'POST',
+          // No Content-Type header for FormData
+          headers: {
+            'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const message = errorData.error?.message || response.statusText;
+          console.error('Strapi API error:', response.status, message);
+          throw new OrderCreationError(message, response.status);
+        }
+
+        return response.json();
+      },
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const message = errorData.error?.message || response.statusText;
-      console.error('Strapi API error:', response.status, message);
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error }, { status: result.status });
+    }
+
+    if (result.idempotent) {
+      console.log('[Orders:Idempotency] Returning existing order for an already processed transaction');
       return NextResponse.json(
-        { error: message },
-        { status: response.status }
+        { data: result.order, idempotent: true, message: 'Order already processed' },
+        { status: result.status }
       );
     }
 
-    const result = await response.json();
-    return NextResponse.json(result);
+    return NextResponse.json(result.order, { status: result.status });
   } catch (error) {
+    if (error instanceof OrderCreationError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
     console.error('Error creating order:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to create order' },

@@ -7,14 +7,18 @@ import { MessageCircle, CheckCircle2, ShoppingBag, ArrowRight, Package, Clock, T
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
+import { trackPurchase, claimPurchaseEvent } from '@/utils/analytics';
+import { readStoredUserId } from '@/utils/order';
 
 interface OrderItem {
+  id?: number | string;
   name: string;
   quantity: number;
   price: number;
 }
 
 interface DeliveryMethod {
+  id?: string;
   name: string;
   description: string;
 }
@@ -22,6 +26,7 @@ interface DeliveryMethod {
 interface OrderDetails {
   items: OrderItem[];
   deliveryMethod: DeliveryMethod;
+  shippingAddress?: unknown;
   subtotal: number;
   deliveryCost: number;
   total: number;
@@ -36,24 +41,21 @@ function PaymentSuccessContent() {
   const transactionId = searchParams.get('transaction_id');
   const isMock = searchParams.get('mock') === 'true';
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+
   const createOrder = useCallback(async (orderData: OrderDetails, txId: string) => {
     try {
-      const userString = localStorage.getItem('user');
-      if (!userString) {
-        console.error('User not found in localStorage, cannot create order.');
-        return;
-      }
-      const user = JSON.parse(userString);
+      const userId = readStoredUserId();
 
       const orderPayload = {
         items: orderData.items,
         deliveryMethod: orderData.deliveryMethod,
+        shippingAddress: orderData.shippingAddress || null,
         subtotal: orderData.subtotal,
         deliveryCost: orderData.deliveryCost,
         total: orderData.total,
         transactionId: txId,
         paymentMethod: orderData.paymentMethod || 'nequi',
-        userId: user.id
+        userId: userId
       };
 
       const response = await fetch('/api/orders', {
@@ -65,7 +67,12 @@ function PaymentSuccessContent() {
       });
 
       if (response.ok) {
-        console.log('Order created successfully');
+        const result = await response.json().catch(() => ({}));
+        const createdOrderId = result.data?.id || orderData.orderId;
+        console.log('Order processed successfully:', createdOrderId);
+        if (createdOrderId) {
+          setOrderDetails(prev => prev ? { ...prev, orderId: createdOrderId } : prev);
+        }
       } else {
         console.error('Failed to create order');
       }
@@ -77,22 +84,43 @@ function PaymentSuccessContent() {
   useEffect(() => {
     // Load order details from localStorage (set before payment)
     const savedOrder = typeof window !== 'undefined' ? localStorage.getItem('lastOrder') : null;
+    let activeOrder: OrderDetails | null = null;
+
     if (savedOrder) {
       try {
-        const parsed = JSON.parse(savedOrder);
+        activeOrder = JSON.parse(savedOrder);
         localStorage.removeItem('lastOrder'); // Clean up
 
+        const orderToSet = activeOrder;
         queueMicrotask(() => {
-          setOrderDetails(parsed);
+          setOrderDetails(orderToSet);
         });
 
         // Create order in backend after successful payment
-        if (transactionId) {
-          createOrder(parsed, transactionId);
+        if (transactionId && activeOrder) {
+          createOrder(activeOrder, transactionId);
         }
       } catch (err) {
         console.error('Failed to parse saved order:', err);
       }
+    }
+
+    // Trigger Meta Pixel Purchase event once per transaction
+    const txToTrack = transactionId || activeOrder?.transactionId || activeOrder?.orderId?.toString();
+    if (activeOrder && txToTrack && claimPurchaseEvent(String(txToTrack))) {
+      trackPurchase({
+        transactionId: String(txToTrack),
+        orderId: activeOrder.orderId || txToTrack,
+        total: activeOrder.total,
+        items: activeOrder.items.map(item => ({
+          id: item.id || item.name,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        currency: 'COP',
+        paymentMethod: activeOrder.paymentMethod || 'nequi',
+      });
     }
 
     if (isMock) {

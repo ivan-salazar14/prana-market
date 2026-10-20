@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import MetaPixel from "@/components/MetaPixel";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -92,6 +93,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${playfair.variable} ${jakarta.variable}`}>
       <body className="min-h-screen bg-[var(--surface-base)] text-[var(--text-main)] dark:bg-[#1A0F14] dark:text-[#FDF9F7] font-sans antialiased selection:bg-[var(--accent-tint)] selection:text-[var(--primary)]">
+        <MetaPixel />
         <AuthProvider>
           <CartProvider>
             <div className="flex flex-col min-h-screen">

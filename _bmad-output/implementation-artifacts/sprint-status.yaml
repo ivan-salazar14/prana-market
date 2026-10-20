@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 09-24-2026 21:20
-last_updated: 10-10-2026
+last_updated: 10-19-2026
 project: prana-market
 tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts
@@ -96,6 +96,12 @@ development_status:
   8-3-admin-orders-origin-segmentation-and-local-fulfillment: ready-for-dev
   8-4-instagram-post-to-product-ai-importer: review
   epic-8-retrospective: optional
+
+  epic-10: in-progress
+  10-1-guest-checkout-resilience-decoupled-backend-order-creation: review
+  10-2-order-creation-idempotency-purchase-conversion-tracking: review
+  10-3-automated-end-to-end-order-verification-integration-test-suite: review
+  epic-10-retrospective: optional
 
 
 

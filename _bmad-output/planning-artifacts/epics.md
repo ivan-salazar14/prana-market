@@ -47,6 +47,9 @@ FR-ADM-01: Unified Order Management Dashboard (Centralized Strapi admin dashboar
 FR-ADM-02: Dropshipping Status Monitor (Dedicated view for monitoring Mastershop fulfillment sync status, API error logs, and manual override/retry options).
 FR-ADM-03: Customer Service & WhatsApp Integration (Floating WhatsApp chat widget and direct order issue resolution shortcuts).
 FR-ADM-04: Hybrid Fulfillment Routing & Local Warehouse Dispatch (Isolation of physical order lifecycles from dropship synchronization, order origin filtering, and manual carrier tracking guide entry for local fulfillment).
+FR-TRK-01: Meta Pixel & E-commerce Funnel Tracking (Decoupled Next.js client analytics architecture supporting PageView, PDP ViewContent, AddToCart, InitiateCheckout, and WhatsApp click tracking with safe fallback when NEXT_PUBLIC_FACEBOOK_PIXEL_ID is not configured).
+FR-TRK-02: Purchase & Finish Order Event Tracking (Reliable, idempotent firing of the Purchase conversion event upon order completion with COP order value, transaction ID, line items, and payment method).
+FR-ORD-05: Guest Checkout Resilience & Idempotent Order Creation (Seamless order placement for guest users without requiring existing localStorage user profiles, with duplicate order prevention across payment methods).
 
 ### NonFunctional Requirements
 
@@ -59,6 +62,7 @@ NFR-UX-03: Feedback & Micro-animations with instant optimistic UI updates for ca
 NFR-SEC-01: PCI-DSS Compliance with zero raw cardholder data stored on Prana Market servers; tokenization handled directly via Wompi / Stripe client SDKs.
 NFR-SEC-02: Colombian Habeas Data Compliance (Ley 1581 de 2012) with explicit consent checkboxes for privacy policy, terms of service, and commercial communication.
 NFR-SEC-03: Webhook Security with cryptographic HMAC SHA-256 signature verification on all incoming Wompi, Stripe, and Mastershop webhooks.
+NFR-TEST-01: End-to-End Order Correctness & Verification Test Suite (Automated integration/E2E test suite asserting complete order lifecycle from cart addition, DANE address validation, payment simulation, Strapi database persistence, cart clearance, to success screen rendering).
 
 ### Additional Requirements
 
@@ -108,6 +112,10 @@ UX-DR8: Micro-animations & Accessibility Floor (Framer Motion drawer springs, sk
 - FR-ADM-03: Epic 5 - Integración de atención al cliente y soporte vía WhatsApp
 - FR-CAT-05: Epic 8 - Carga masiva de catálogo físico mediante CSV y gestión de stock
 - FR-ADM-04: Epic 8 - Enrutamiento híbrido de pedidos y despacho local en bodega
+- FR-TRK-01: Epic 9 - Meta Pixel & E-commerce Funnel Tracking (Visitas y Clics)
+- FR-TRK-02: Epic 10 - Purchase & Finish Order Event Tracking
+- FR-ORD-05: Epic 10 - Guest Checkout Resilience & Idempotent Order Creation
+- NFR-TEST-01: Epic 10 - Suite de Pruebas Automatizadas E2E de Pedidos Completados
 
 ## Epic List
 
@@ -141,6 +149,15 @@ Permite enlazar el catálogo de productos de Prana Market con Instagram Shopping
 ### Epic 8: Physical Inventory Management & Hybrid Fulfillment Orchestration
 Permite al administrador cargar y actualizar masivamente productos físicos mediante archivos CSV con validación de esquema y protección de SKU, aísla el ciclo de vida de pedidos locales de las llamadas a MasterShop para prevenir errores espurios en el monitor de dropshipping, y dota al panel de pedidos con filtros por tipo de origen y registro manual de guías locales.
 **FRs covered:** FR-CAT-05, FR-ADM-04
+
+### Epic 9: E-commerce Funnel Tracking & Meta Pixel Integration
+Permite al equipo de Prana Market medir con precisión el comportamiento y embudo de compra de los usuarios en la tienda (visitas a páginas, visualización de productos en el catálogo, adición al carrito, clic en WhatsApp e inicio de checkout) mediante Meta Pixel desacoplado en Next.js, con soporte de ejecución condicional segura (graceful mock/fallback) cuando no se disponga de `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` o la cuenta esté en configuración.
+**FRs covered:** FR-TRK-01
+
+### Epic 10: End-to-End Completed Order Correctness & Verification
+Garantiza que cualquier pedido (incluyendo compras sin registro / guest checkout) se complete, persista y procese con absoluta fidelidad e idempotencia en Strapi CMS sin depender de perfiles locales previos, disparando de forma certera el evento de conversión `Purchase`, y dota a la plataforma de una suite de pruebas automatizadas (E2E & API) para verificar el ciclo de vida de la orden de punta a punta.
+**FRs covered:** FR-TRK-02, FR-ORD-05
+**NFRs covered:** NFR-TEST-01
 
 
 
@@ -696,6 +713,120 @@ So that I can digitize our Instagram feed catalog into Prana Market in seconds w
   - Editable form pre-filled with parsed values and initial stock count input
 **And** clicking "Aprobar y Publicar" calls `POST /api/products` (or `POST /api/products/import-single`) creating the product with `sourcing_type: 'local'`, status `'published'`, and media uploaded to Strapi Media Library
 **And** if the post URL is private or cannot be accessed, the UI shows a graceful error alert allowing manual image drop or URL correction without crashing.
+
+## Epic 9: E-commerce Funnel Tracking & Meta Pixel Integration
+
+Permite al equipo de Prana Market medir con precisión el comportamiento y embudo de compra de los usuarios en la tienda (visitas a páginas, visualización de productos en el catálogo, adición al carrito, clic en WhatsApp e inicio de checkout) mediante Meta Pixel desacoplado en Next.js, con soporte de ejecución condicional segura (graceful mock/fallback) cuando no se disponga de `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` o la cuenta esté en configuración.
+
+### Story 9.1: Safe Meta Pixel Client Infrastructure & PageView Tracking
+
+As a marketing analyst and developer,
+I want a typed, decoupled Meta Pixel client utility and React provider in Next.js App Router that reads `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` and degrades silently when missing,
+So that pageviews are tracked without runtime errors or blocking rendering even if the Meta Pixel ID is unconfigured.
+
+**Acceptance Criteria:**
+
+**Given** `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` is defined in `.env` / `.env.local`
+**When** the Next.js application boots on the client
+**Then** the Meta Pixel base script (`fbevents.js`) is injected using Next.js `Script` strategy `afterInteractive`
+**And** a standard `fbq('track', 'PageView')` is dispatched automatically on initial load and route changes via Next.js navigation hooks (`usePathname`, `useSearchParams`)
+**Given** `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` is missing, blank, or placeholder
+**When** the application renders or page navigation occurs
+**Then** no external script requests to Facebook are initiated, no runtime exceptions or unhandled errors occur, and tracking helper calls log in development mode (`[Analytics:Mock] PageView`) while remaining completely silent in production.
+
+### Story 9.2: Product Catalog & PDP Funnel Events (ViewContent & Category Views)
+
+As a growth marketer,
+I want standard Meta Pixel `ViewContent` events dispatched when shoppers view product detail pages and browse catalog categories,
+So that we can measure product interest and build dynamic retargeting audiences for cosmetics in Colombia.
+
+**Acceptance Criteria:**
+
+**Given** a shopper navigates to a product detail page (`/product/[slug]`)
+**When** the PDP finishes rendering product data
+**Then** a typed `fbq('track', 'ViewContent')` event is fired with:
+  - `content_name`: Product name
+  - `content_category`: Category name / slug
+  - `content_ids`: Array of product ID or SKU
+  - `value`: Price formatted as a number in COP
+  - `currency`: `'COP'`
+**And** selecting shade or variant swatches updates the tracked payload without firing duplicate pageviews.
+
+### Story 9.3: Micro-Interactions & Conversion Intent Tracking (AddToCart, InitiateCheckout & WhatsApp CTA)
+
+As an e-commerce operator,
+I want user clicks on high-intent actions—such as "Añadir al Carrito", opening the cart drawer, clicking "Iniciar Pago" / "Pagar con Nequi", and clicking the floating WhatsApp support button—tracked as standard or custom Pixel events,
+So that we can identify conversion friction and drop-offs along the Colombian beauty buying journey.
+
+**Acceptance Criteria:**
+
+**Given** a customer clicks "Añadir al Carrito" on a PDP or quick-add on the catalog grid
+**When** the cart state is updated
+**Then** `fbq('track', 'AddToCart')` is dispatched with product ID, title, item price in COP, and currency `'COP'`
+**Given** a customer clicks the checkout button in the slide-over cart drawer (either "Iniciar Pago" or "Pagar con Nequi")
+**When** the checkout process is initiated
+**Then** `fbq('track', 'InitiateCheckout')` is dispatched with cart subtotal, item count, and currency `'COP'`
+**Given** a customer clicks the floating WhatsApp support button
+**When** the WhatsApp URL is triggered
+**Then** a custom event `fbq('trackCustom', 'WhatsAppContactClick')` is dispatched containing the current page URL and origin context.
+
+---
+
+## Epic 10: End-to-End Completed Order Correctness & Verification
+
+Garantiza que cualquier pedido (incluyendo compras sin registro / guest checkout) se complete, persista y procese con absoluta fidelidad e idempotencia en Strapi CMS sin depender de perfiles locales previos, disparando de forma certera el evento de conversión `Purchase`, y dota a la plataforma de una suite de pruebas automatizadas (E2E & API) para verificar el ciclo de vida de la orden de punta a punta.
+
+### Story 10.1: Guest Checkout Resilience & Decoupled Backend Order Creation
+
+As a mobile beauty shopper purchasing without an account (guest checkout),
+I want my completed order to be reliably saved in Strapi and shown on the success screen without requiring an existing user profile in localStorage,
+So that I never experience order creation failures or loss of purchase confirmation due to authentication state.
+
+**Acceptance Criteria:**
+
+**Given** a customer checks out as a guest (`localStorage.getItem('user')` is null)
+**When** payment succeeds and the user arrives at `/payment/success`
+**Then** the order creation routine does NOT exit early with `"User not found in localStorage"`
+**And** `POST /api/orders` accepts `userId: null`, linking order details directly to the customer's provided delivery name, phone, email, and Colombian shipping address
+**And** the order is saved in Strapi with status `'paid'` (or `'pending'` for cash/contraentrega) and returns a valid order ID
+**And** the `/payment/success` screen displays the order confirmation card with items summary, delivery method, and total paid in COP.
+
+### Story 10.2: Order Creation Idempotency & Purchase Conversion Tracking
+
+As an e-commerce operator,
+I want order creation to be strictly idempotent across transaction references and fire the Meta Pixel `Purchase` event exactly once per completed order,
+So that we eliminate duplicate database orders upon page reloads and track accurate conversion revenue in Meta Ads Manager.
+
+**Acceptance Criteria:**
+
+**Given** a customer arrives at `/payment/success` with a `transaction_id` or payment reference
+**When** order reconciliation runs
+**Then** `POST /api/orders` checks if an order with that `transactionId` already exists:
+  - If already created, returns the existing record without inserting a duplicate
+  - If new, creates the order record and returns the new order
+**And** a standard Meta Pixel `Purchase` event is dispatched:
+  `fbq('track', 'Purchase', { value: order.total, currency: 'COP', content_type: 'product', contents: order.items, order_id: order.id, transaction_id: order.transactionId })`
+**And** refreshing `/payment/success` or re-visiting the URL does not fire duplicate `Purchase` events or create duplicate orders in Strapi.
+
+### Story 10.3: Automated End-to-End Order Verification & Integration Test Suite
+
+As a lead engineer and QA tester,
+I want an automated test suite verifying the end-to-end order lifecycle (item selection -> DANE address input -> payment simulation -> order persistence in Strapi -> cart clearance -> success page render),
+So that regressions in checkout and order completion are caught automatically prior to production deployment.
+
+**Acceptance Criteria:**
+
+**Given** the test environment is running with Next.js frontend and Strapi backend
+**When** running the automated verification script (`npm run test:e2e:order` or integration runner)
+**Then** the test executes an automated checkout flow:
+  1. Adds a product to the cart and validates the subtotal calculation
+  2. Submits Colombian DANE address details (Department and Municipality)
+  3. Simulates payment confirmation (Nequi / Efectivo sandbox)
+  4. Asserts `POST /api/orders` returns HTTP 200/201 and valid order payload
+  5. Verifies the order record in Strapi has the expected status (`paid` or `pending`), line items, and COP total
+  6. Asserts the client-side cart is cleared upon order confirmation
+  7. Asserts the `/payment/success` UI displays order confirmation details
+**And** the test runner exits with code 0 on success and provides clear failure logs if any step diverges from expected behavior.
 
 
 

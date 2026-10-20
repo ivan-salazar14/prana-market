@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 import { DeliveryMethod, ShippingAddress } from '@/context/CartContext';
+import { parseStoredUser } from '@/utils/order';
 
 interface NequiCheckoutProps {
   amount: number;
@@ -66,11 +67,12 @@ export default function NequiCheckout({
 
   const handleOrderCreation = useCallback(async (paymentRef: string) => {
     try {
-      const userString = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-      const user = userString ? JSON.parse(userString) : null;
+      const user = parseStoredUser(
+        typeof window !== 'undefined' ? window.localStorage.getItem('user') : null
+      );
 
       if (items && items.length > 0) {
-        await fetch('/api/orders', {
+        const response = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -81,19 +83,24 @@ export default function NequiCheckout({
             deliveryCost,
             total: amount,
             paymentMethod: 'nequi',
+            transactionId: paymentRef,
             paymentReference: paymentRef,
-            userId: user?.id || null,
+            userId: user,
           }),
         });
+
+        const result = response.ok ? await response.json().catch(() => ({})) : {};
 
         const orderDetails = {
           items,
           deliveryMethod,
+          shippingAddress,
           subtotal,
           deliveryCost,
           total: amount,
           paymentMethod: 'nequi',
-          paymentReference: paymentRef,
+          transactionId: paymentRef,
+          orderId: result?.data?.id,
           timestamp: new Date().toISOString(),
         };
         localStorage.setItem('lastOrder', JSON.stringify(orderDetails));

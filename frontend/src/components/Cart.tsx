@@ -26,6 +26,8 @@ import CouponInput from './CouponInput';
 import { cn } from '@/utils/cn';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+import { trackAddToCart, trackInitiateCheckout } from '@/utils/analytics';
+import { buildTransactionId, readStoredUserId } from '@/utils/order';
 
 const FREE_SHIPPING_THRESHOLD = Number(process.env.NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD) || 50000;
 
@@ -55,6 +57,7 @@ function EfectivoCheckout({
   const [loading, setLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [transactionId] = useState(() => buildTransactionId('EFECTIVO'));
 
   const handleConfirmOrder = async () => {
     if (!deliveryMethod) {
@@ -66,16 +69,6 @@ function EfectivoCheckout({
     setError(null);
 
     try {
-      const userString = localStorage.getItem('user');
-      if (!userString) {
-        throw new Error('Debes iniciar sesión para realizar un pedido');
-      }
-
-      const user = JSON.parse(userString);
-      if (!user || !user.id) {
-        throw new Error('Información de usuario no encontrada. Por favor inicia sesión nuevamente.');
-      }
-
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,7 +80,8 @@ function EfectivoCheckout({
           deliveryCost,
           total,
           paymentMethod: 'efectivo',
-          userId: user.id
+          transactionId,
+          userId: readStoredUserId()
         }),
       });
 
@@ -106,6 +100,7 @@ function EfectivoCheckout({
         deliveryCost,
         total,
         paymentMethod: 'efectivo',
+        transactionId,
         orderId: orderData.data?.id,
         timestamp: new Date().toISOString()
       };
@@ -294,6 +289,26 @@ export default function Cart({ isOpen, onClose }: CartProps) {
     }
   };
 
+  const handleSelectPaymentMethod = (method: 'nequi' | 'efectivo' | 'wompi') => {
+    setPaymentMethod(method);
+    trackInitiateCheckout({
+      subtotal: state.subtotal,
+      itemCount: state.items.reduce((acc, item) => acc + item.quantity, 0),
+      currency: 'COP',
+    });
+  };
+
+  const handleIncreaseQuantity = (item: any) => {
+    dispatch({ type: 'ADD_ITEM', payload: item });
+    trackAddToCart({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      currency: 'COP',
+    });
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -421,7 +436,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
+                                      onClick={() => handleIncreaseQuantity(item)}
                                       className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 dark:!hover:text-[#2D1B22] hover:bg-white dark:!hover:bg-white"
                                       aria-label={`Aumentar cantidad de ${item.name}`}
                                     >
@@ -498,7 +513,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
+                                      onClick={() => handleIncreaseQuantity(item)}
                                       className="w-7 h-7 rounded-lg text-stone-400 hover:text-stone-900 dark:!hover:text-[#2D1B22] hover:bg-white dark:!hover:bg-white"
                                       aria-label={`Aumentar cantidad de ${item.name}`}
                                     >
@@ -702,7 +717,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                         <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] px-1">Escoge tu Forma de Pago</h4>
                         <div className="grid grid-cols-1 gap-4">
                           <button
-                            onClick={() => setPaymentMethod('efectivo')}
+                            onClick={() => handleSelectPaymentMethod('efectivo')}
                             className={cn(
                               "flex items-center p-5 rounded-[2rem] border-2 transition-all group relative overflow-hidden",
                               paymentMethod === 'efectivo'
@@ -728,7 +743,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                           </button>
 
                           <button
-                            onClick={() => setPaymentMethod('nequi')}
+                            onClick={() => handleSelectPaymentMethod('nequi')}
                             className={cn(
                               "flex items-center p-5 rounded-[2rem] border-2 transition-all group relative overflow-hidden",
                               paymentMethod === 'nequi'
@@ -754,7 +769,7 @@ export default function Cart({ isOpen, onClose }: CartProps) {
                           </button>
 
                           <button
-                            onClick={() => setPaymentMethod('wompi')}
+                            onClick={() => handleSelectPaymentMethod('wompi')}
                             className={cn(
                               "flex items-center p-5 rounded-[2rem] border-2 transition-all group relative overflow-hidden",
                               paymentMethod === 'wompi'

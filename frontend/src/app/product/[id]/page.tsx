@@ -26,6 +26,7 @@ import ShadeSelector from '@/components/ShadeSelector';
 import PdpStickyBar from '@/components/PdpStickyBar';
 import InstagramSocialProof from '@/components/InstagramSocialProof';
 import { Shade, Product as ProductType } from '@/types/product';
+import { trackViewContent, trackAddToCart } from '@/utils/analytics';
 
 interface ProductCategory {
   id: number;
@@ -80,6 +81,15 @@ export default function ProductPage() {
       .then(data => {
         const productData = data.data;
         setProduct(productData);
+        if (productData) {
+          trackViewContent({
+            id: productData.id,
+            name: productData.name,
+            category: productData.product_category?.Name || productData.product_category?.slug,
+            price: productData.price,
+            currency: 'COP',
+          });
+        }
         // Initial quantity should be 1 if stock exists, else 0
         if (productData && productData.stock <= 0) {
           setQuantity(0);
@@ -134,6 +144,14 @@ export default function ProductPage() {
         stock: product.stock,
         quantity
       }
+    });
+
+    trackAddToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity,
+      currency: 'COP',
     });
 
     setAddedToCart(true);
